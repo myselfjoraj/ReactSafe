@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "52232417672",
+    "firebase_url": "https://reactsafe-32357-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "reactsafe-32357",
+    "storage_bucket": "reactsafe-32357.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:52232417672:android:06dfb109bf3c97e2880a3d",
+        "android_client_info": {
+          "package_name": "jr.project.reactsafe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArSqiPc23HC-i_wpiuYOh4rQfQACXZ_0E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
