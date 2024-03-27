@@ -198,7 +198,6 @@ public class RegisterEntityActivity extends AppCompatActivity implements OnMapRe
                 .addOnCompleteListener(this, task -> {
                     dismissPleaseWaitDialog();
                     if (task.isSuccessful()) {
-
                         model.setUid(task.getResult().getUser().getUid());
                         Log.d("ReactSafeFirebaseAuth", "createUserWithEmail:success and uid -- "+ model.getUid());
                         FirebaseHelper.InsertUser(model);
@@ -215,6 +214,11 @@ public class RegisterEntityActivity extends AppCompatActivity implements OnMapRe
                         startActivity(new Intent(RegisterEntityActivity.this, SplashScreenActivity.class));
                     } else {
                         Log.w("ReactSafeFirebaseAuth","createUserWithEmail:failure", task.getException());
+                        if(task.getException().getLocalizedMessage().contains("The email address is already in use by another account.")){
+                            Toast.makeText(this, "User already exists! Please try login", Toast.LENGTH_SHORT).show();
+                        }else {
+                            Toast.makeText(this, "error occured - "+task.getException().getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
     }

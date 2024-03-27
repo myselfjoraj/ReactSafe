@@ -43,11 +43,11 @@ public class SplashScreenActivity extends AppCompatActivity {
 //        FirebaseDatabase.getInstance().getReference().child("police").removeValue();
 //        FirebaseDatabase.getInstance().getReference().child("users").removeValue();
 
-        try {
-            mAuth.signOut();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+//        try {
+//            mAuth.signOut();
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
 
         Thread thread = new Thread(() -> {
             try {
