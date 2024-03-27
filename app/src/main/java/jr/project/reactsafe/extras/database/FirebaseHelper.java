@@ -80,17 +80,17 @@ public class FirebaseHelper {
 
     public static void InsertAlertOnPoliceId(String police, LocationModel model){
         DatabaseReference ref =  dbRef.child("police").child(police);
-        ref.child("alert").child(Extras.getTimestamp()+"").setValue(model);
+        ref.child("alert").child(model.getTimestamp()+"").setValue(model);
     }
 
     public static void InsertAlertOnAmbulanceId(String ambulance,LocationModel model){
         DatabaseReference ref =  dbRef.child("ambulance").child(ambulance);
-        ref.child("alert").child(Extras.getTimestamp()+"").setValue(model);
+        ref.child("alert").child(model.getTimestamp()+"").setValue(model);
     }
 
     public static void InsertAlertOnHospitalId(String hospital,LocationModel model){
         DatabaseReference ref =  dbRef.child("hospital").child(hospital);
-        ref.child("alert").child(Extras.getTimestamp()+"").setValue(model);
+        ref.child("alert").child(model.getTimestamp()+"").setValue(model);
     }
 
     public static void RemoveAlert(String uid){
@@ -98,7 +98,7 @@ public class FirebaseHelper {
     }
 
     public static void InsertUser(UserModel model){
-        dbRef.child("users").child(mUid).setValue(model);
+        dbRef.child("users").child(model.getUid()).setValue(model);
     }
 
     public static void InsertPresence(String presence){
@@ -106,15 +106,15 @@ public class FirebaseHelper {
     }
 
     public static void InsertPolice(UserModel model){
-        dbRef.child("police").child(mUid).setValue(model);
+        dbRef.child("police").child(model.getUid()).setValue(model);
     }
 
     public static void InsertAmbulance(UserModel model){
-        dbRef.child("ambulance").child(mUid).setValue(model);
+        dbRef.child("ambulance").child(model.getUid()).setValue(model);
     }
 
     public static void InsertHospital(UserModel model){
-        dbRef.child("hospital").child(mUid).setValue(model);
+        dbRef.child("hospital").child(model.getUid()).setValue(model);
     }
 
 

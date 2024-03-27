@@ -198,8 +198,9 @@ public class RegisterEntityActivity extends AppCompatActivity implements OnMapRe
                 .addOnCompleteListener(this, task -> {
                     dismissPleaseWaitDialog();
                     if (task.isSuccessful()) {
-                        Log.d("ReactSafeFirebaseAuth", "createUserWithEmail:success");
-                        model.setUid(FirebaseAuth.getInstance().getUid());
+
+                        model.setUid(task.getResult().getUser().getUid());
+                        Log.d("ReactSafeFirebaseAuth", "createUserWithEmail:success and uid -- "+ model.getUid());
                         FirebaseHelper.InsertUser(model);
                         if (title == 1){
                             FirebaseHelper.InsertAmbulance(model);

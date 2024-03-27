@@ -15,6 +15,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 
 import jr.project.reactsafe.ambulance.AmbulanceMainActivity;
 import jr.project.reactsafe.extras.auth.LoginActivity;
@@ -35,6 +36,18 @@ public class SplashScreenActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash_screen);
 
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
+//        FirebaseDatabase.getInstance().getReference().child("alert").removeValue();
+//        FirebaseDatabase.getInstance().getReference().child("ambulance").removeValue();
+//        FirebaseDatabase.getInstance().getReference().child("hospital").removeValue();
+//        FirebaseDatabase.getInstance().getReference().child("police").removeValue();
+//        FirebaseDatabase.getInstance().getReference().child("users").removeValue();
+
+        try {
+            mAuth.signOut();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         Thread thread = new Thread(() -> {
             try {
