@@ -1,8 +1,10 @@
 package jr.project.reactsafe.parent;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -79,7 +81,7 @@ public class ParentAccidentProceedings extends AppCompatActivity implements OnMa
             finish();
         }
 
-        setUi();
+        setUi(null,null);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapView);
         if (mapFragment != null)
@@ -101,9 +103,7 @@ public class ParentAccidentProceedings extends AppCompatActivity implements OnMa
                                 mPref.setIsOnAccident(null);
                                 finish();
                             }
-                            setUi();
-                            setPolyLineInMap(lat,lng,hospital);
-
+                            setUi(lat,lng);
                         }else {
                             mPref.setIsOnAccident(null);
                             finish();
@@ -140,11 +140,15 @@ public class ParentAccidentProceedings extends AppCompatActivity implements OnMa
                 @Override
                 public void getReceiver(UserModel model) {
                     binding.hospitalName.setText(model.getName()+"");
-                    binding.hospitalAddress.setText(getLocationString(lat, lng));
+                    binding.hospitalAddress2.setText(getLocationString(model.getLat(),model.getLng()));
+                    binding.hospitalAddress.setText(getLocationString(model.getLat(),model.getLng()));
+                    setPolyLineInMap(lat,lng,model.getLat(),model.getLng());
                     binding.hospitalCall.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-
+                            Intent phone_intent = new Intent(Intent.ACTION_CALL);
+                            phone_intent.setData(Uri.parse("tel:" + model.getPhone()));
+                            startActivity(phone_intent);
                         }
                     });
                     if (model.getProfileImage()!=null)
@@ -162,6 +166,26 @@ public class ParentAccidentProceedings extends AppCompatActivity implements OnMa
         if (ambulance!=null){
             binding.ambulanceLay.setVisibility(View.VISIBLE);
             binding.noTv2.setVisibility(View.GONE);
+            FirebaseHelper.getEntity("ambulance", ambulance, new FirebaseHelper.OnReceivedUser() {
+                @Override
+                public void getReceiver(UserModel model) {
+                    binding.ambulanceName.setText(model.getName()+"");
+                    binding.ambulanceAddress.setText(getLocationString(model.getLat(),model.getLng()));
+                    binding.ambulanceCall.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent phone_intent = new Intent(Intent.ACTION_CALL);
+                            phone_intent.setData(Uri.parse("tel:" + model.getPhone()));
+                            startActivity(phone_intent);
+                        }
+                    });
+                    if (model.getProfileImage()!=null)
+                        Glide.with(ParentAccidentProceedings.this)
+                                .load(model.getProfileImage())
+                                .placeholder(R.drawable.avatar)
+                                .into(binding.ambulanceIv);
+                }
+            });
         }else {
             binding.noTv2.setVisibility(View.VISIBLE);
             binding.ambulanceLay.setVisibility(View.GONE);
@@ -170,6 +194,26 @@ public class ParentAccidentProceedings extends AppCompatActivity implements OnMa
         if (police!=null){
             binding.policeLay.setVisibility(View.VISIBLE);
             binding.noTv3.setVisibility(View.GONE);
+            FirebaseHelper.getEntity("police", police, new FirebaseHelper.OnReceivedUser() {
+                @Override
+                public void getReceiver(UserModel model) {
+                    binding.policeName.setText(model.getName()+"");
+                    binding.policeAddress.setText(getLocationString(model.getLat(),model.getLng()));
+                    binding.policeCall.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent phone_intent = new Intent(Intent.ACTION_CALL);
+                            phone_intent.setData(Uri.parse("tel:" + model.getPhone()));
+                            startActivity(phone_intent);
+                        }
+                    });
+                    if (model.getProfileImage()!=null)
+                        Glide.with(ParentAccidentProceedings.this)
+                                .load(model.getProfileImage())
+                                .placeholder(R.drawable.avatar)
+                                .into(binding.policeIv);
+                }
+            });
         }else {
             binding.noTv3.setVisibility(View.VISIBLE);
             binding.policeLay.setVisibility(View.GONE);
@@ -177,25 +221,25 @@ public class ParentAccidentProceedings extends AppCompatActivity implements OnMa
 
     }
 
-    private void setPolyLineInMap(String lat, String lng, String hospital) {
+    private void setPolyLineInMap(String lat, String lng, String hLat, String hLng) {
         if (lat == null || lng == null)
             return;
         mMap.clear();
         LatLng myLoc = new LatLng(Double.parseDouble(lat),Double.parseDouble(lng));
-        LatLng i = new LatLng(8.66527416371779, 76.85590495394386);
+        LatLng toLoc = new LatLng(Double.parseDouble(hLat),Double.parseDouble(hLng));
         mMap.addMarker(new MarkerOptions()
                 .position(myLoc)
                 .title("Child")
                 .icon(Extras.bitmapFromVector(getApplicationContext(),R.drawable.marker_map_icon)));
         mMap.addMarker(new MarkerOptions()
-                .position(i)
+                .position(toLoc)
                 .title("Hospital")
                 .icon(Extras.bitmapFromVector(getApplicationContext(),R.drawable.marker_map_icon)));
         mMap.moveCamera(
                 CameraUpdateFactory.newLatLngZoom(myLoc,11));
 
 
-        String url = getDirectionsUrl(i, myLoc);
+        String url = getDirectionsUrl(toLoc, myLoc);
 
         DownloadTask downloadTask = new DownloadTask();
 
