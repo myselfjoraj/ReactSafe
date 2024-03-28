@@ -1,6 +1,8 @@
 package jr.project.reactsafe.parent;
 
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,6 +16,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -37,12 +40,14 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 import jr.project.reactsafe.R;
 import jr.project.reactsafe.databinding.ActivityParentAccidentProceedingsBinding;
 import jr.project.reactsafe.extras.database.FirebaseHelper;
 import jr.project.reactsafe.extras.misc.DirectionsJSONParser;
+import jr.project.reactsafe.extras.model.UserModel;
 import jr.project.reactsafe.extras.util.Extras;
 
 public class ParentAccidentProceedings extends AppCompatActivity implements OnMapReadyCallback {
@@ -121,13 +126,34 @@ public class ParentAccidentProceedings extends AppCompatActivity implements OnMa
         });
     }
 
-    void setUi(){
+    void setUi(String lat,String lng){
 
-        binding.time
+        binding.time.setText("Accident Detected On "+Extras.getTimeFromTimeStamp(id));
+        if (lat!=null && lng!=null){
+            binding.childAddress.setText(lat+" Lat, "+lng+" Lng");
+        }
 
         if (hospital!=null){
             binding.hospitalLay.setVisibility(View.VISIBLE);
             binding.noTv.setVisibility(View.GONE);
+            FirebaseHelper.getEntity("hospital", hospital, new FirebaseHelper.OnReceivedUser() {
+                @Override
+                public void getReceiver(UserModel model) {
+                    binding.hospitalName.setText(model.getName()+"");
+                    binding.hospitalAddress.setText(getLocationString(lat, lng));
+                    binding.hospitalCall.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                        }
+                    });
+                    if (model.getProfileImage()!=null)
+                        Glide.with(ParentAccidentProceedings.this)
+                                .load(model.getProfileImage())
+                                .placeholder(R.drawable.avatar)
+                                .into(binding.hospitalIv);
+                }
+            });
         }else {
             binding.noTv.setVisibility(View.VISIBLE);
             binding.hospitalLay.setVisibility(View.GONE);
@@ -187,6 +213,34 @@ public class ParentAccidentProceedings extends AppCompatActivity implements OnMa
                 .icon(Extras.bitmapFromVector(getApplicationContext(),R.drawable.marker_map_icon)));
         googleMap.moveCamera(
                 CameraUpdateFactory.newLatLngZoom(cLoc,15));
+    }
+
+    String getLocationString(String lat,String lng){
+        String loc = " ";
+        try {
+
+            double lati = Double.parseDouble(lat);
+            double longi = Double.parseDouble(lng);
+
+            Geocoder geocoder;
+            List<Address> addresses;
+            geocoder = new Geocoder(this, Locale.getDefault());
+
+            addresses = geocoder.getFromLocation(lati, longi, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+
+            String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+            String city = addresses.get(0).getLocality();
+            String state = addresses.get(0).getAdminArea();
+            String country = addresses.get(0).getCountryName();
+            String postalCode = addresses.get(0).getPostalCode();
+            String knownName = addresses.get(0).getFeatureName();
+            loc = city+", "+state;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return loc;
+
     }
 
 

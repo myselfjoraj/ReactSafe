@@ -145,7 +145,7 @@
                                 android:textSize="14sp" />
 
                             <TextView
-                                android:id="@+id/hospitalAddrress"
+                                android:id="@+id/hospitalAddress"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="GMX 13, Trivandrum, Kerala"
@@ -365,7 +365,6 @@
                             android:layout_marginStart="10dp"
                             android:layout_weight="1"
                             android:gravity="center_vertical"
-                            android:text="26.00 Lat, 30.765 Lng"
                             android:textColor="@color/black"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -383,14 +382,13 @@
                             app:srcCompat="@drawable/marker_map_icon" />
 
                         <TextView
-                            android:id="@+id/hospitalAddress"
+                            android:id="@+id/hospitalAddress2"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
                             android:layout_marginStart="10dp"
                             android:layout_weight="1"
                             android:gravity="center_vertical"
-                            android:text="GMX 13, Trivandrum, Kerala"
                             android:textColor="@color/black"
                             android:textSize="12sp" />
                     </LinearLayout>
