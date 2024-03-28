@@ -41,6 +41,7 @@ import java.util.Objects;
 
 import jr.project.reactsafe.R;
 import jr.project.reactsafe.databinding.ActivityParentAccidentProceedingsBinding;
+import jr.project.reactsafe.extras.database.FirebaseHelper;
 import jr.project.reactsafe.extras.misc.DirectionsJSONParser;
 import jr.project.reactsafe.extras.util.Extras;
 
@@ -56,6 +57,7 @@ public class ParentAccidentProceedings extends AppCompatActivity implements OnMa
     String ambulance;
     String hospital;
     String police;
+    String id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +66,9 @@ public class ParentAccidentProceedings extends AppCompatActivity implements OnMa
         setContentView(binding.getRoot());
 
         mPref = new ParentPreferenceHelper(this);
-        String id = mPref.getIsOnAccident();
+        id = mPref.getIsOnAccident();
+
+        binding.hospitalName.setText(id+"");
 
         if (id == null){
             finish();
@@ -118,6 +122,8 @@ public class ParentAccidentProceedings extends AppCompatActivity implements OnMa
     }
 
     void setUi(){
+
+        binding.time
 
         if (hospital!=null){
             binding.hospitalLay.setVisibility(View.VISIBLE);

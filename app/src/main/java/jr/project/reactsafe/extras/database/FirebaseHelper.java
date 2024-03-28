@@ -225,6 +225,26 @@ public class FirebaseHelper {
         });
     }
 
+    public static void getEntity(String type,String uid,OnReceivedUser listener){
+        FirebaseDatabase.getInstance().getReference().child(type).child(uid)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            UserModel model = snapshot.getValue(UserModel.class);
+                            listener.getReceiver(model);
+                        }else {
+                            listener.getReceiver(null);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        listener.getReceiver(null);
+                    }
+                });
+    }
+
     public interface OnValueReceived{
         void value(String value);
     }

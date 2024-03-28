@@ -16,6 +16,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,9 +57,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import jr.project.reactsafe.ApplicationController;
 import jr.project.reactsafe.R;
@@ -373,6 +377,9 @@ public class UserMainActivity extends AppCompatActivity implements OnMapReadyCal
                     }
             );
 
+    Runnable timerRunnable;
+    Handler timerHandler = new Handler();
+    private long lastUpdateTime = 0;
     @SuppressLint("MissingPermission")
     protected void getMyCurrentLoc(){
         //showPleaseWaitDialog("Fetching your location...");
@@ -394,26 +401,29 @@ public class UserMainActivity extends AppCompatActivity implements OnMapReadyCal
                     mPref.putString("lastLatitude",location.getLatitude()+"");
                     mPref.putString("lastLongitude",location.getLongitude()+"");
                     mPref.putLong("lastLocationUpdate",Extras.getTimestamp());
-                    mMap.clear();
-                    Handler timerHandler = new Handler();
-                    Runnable timerRunnable = new Runnable() {
-                        @Override
-                        public void run() {
-                            runOnUiThread(() -> {
-                                FirebaseHelper.InsertLocation(location.getLatitude()+"",location.getLongitude()+"");
-                                mMap.addMarker(new MarkerOptions()
-                                        .position(myLoc)
-                                        .title("You")
-                                        .icon(Extras.bitmapFromVector(getApplicationContext(),R.drawable.marker_map_icon)));
-                                mMap.moveCamera(
-                                        CameraUpdateFactory.newLatLngZoom(myLoc,15));
-                            });
 
-                            timerHandler.postDelayed(this, 20000);
-                        }
-                    };
+                    updateLocation(location);
 
-                    timerRunnable.run();
+//                    timerRunnable = new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            runOnUiThread(() -> {
+//                                mMap.clear();
+//                                mMap.addMarker(new MarkerOptions()
+//                                        .position(myLoc)
+//                                        .title("You")
+//                                        .icon(Extras.bitmapFromVector(getApplicationContext(),R.drawable.marker_map_icon)));
+//                                mMap.moveCamera(
+//                                        CameraUpdateFactory.newLatLngZoom(myLoc,15));
+//                            });
+//                            Log.e("MainLocationLooper", new Gson().toJson(myLoc));
+//                            FirebaseHelper.InsertLocation(location.getLatitude()+"",location.getLongitude()+"");
+//                            timerHandler.postDelayed(timerRunnable, 60000);
+//                        }
+//                    };
+//
+//
+//                    timerHandler.post(timerRunnable);
 
                 }else {
                     Toast.makeText(UserMainActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
@@ -421,6 +431,50 @@ public class UserMainActivity extends AppCompatActivity implements OnMapReadyCal
             }
         }, Looper.getMainLooper());
     }
+
+
+    public void startUpdatingLocation(Location location) {
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                updateLocation(location);
+            }
+        }, 0, 60000);
+    }
+
+    private void updateLocation(Location location) {
+        long currentTime = System.currentTimeMillis();
+        long elapsedTime = currentTime - lastUpdateTime;
+        if (lastUpdateTime == 0 || elapsedTime >= 60000) { // 60 seconds
+            sendLocationUpdates(location);
+            lastUpdateTime = currentTime;
+        }
+    }
+
+    private void sendLocationUpdates(Location location) {
+        runOnUiThread(() -> {
+            mMap.clear();
+            mMap.addMarker(new MarkerOptions()
+                    .position(myLoc)
+                    .title("You")
+                    .icon(Extras.bitmapFromVector(getApplicationContext(),R.drawable.marker_map_icon)));
+            mMap.moveCamera(
+                    CameraUpdateFactory.newLatLngZoom(myLoc,15));
+
+            long mapLastUpdatedTs = Extras.getTimestamp();
+            String mapLastUpdatedString = "updated as on "+
+                    Extras.getStandardFormDateFromTimeStamp(mapLastUpdatedTs+"")+" "+
+                    Extras.getTimeFromTimeStamp(mapLastUpdatedTs+"");
+
+            binding.mapUpdatedOnTxt.setText(mapLastUpdatedString);
+
+        });
+        Log.e("MainLocationLooper", new Gson().toJson(myLoc));
+        FirebaseHelper.InsertLocation(location.getLatitude()+"",location.getLongitude()+"");
+    }
+
+
 
     @SuppressLint("MissingPermission")
     protected void enableLocationSettings() {

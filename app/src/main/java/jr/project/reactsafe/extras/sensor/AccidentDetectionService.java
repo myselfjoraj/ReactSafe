@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -19,6 +20,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -85,6 +87,16 @@ public class AccidentDetectionService extends Service implements SensorEventList
     @Override
     public void onCreate() {
         super.onCreate();
+        if (Build.VERSION.SDK_INT >= 34) {
+            startForeground(
+                    NOTIFICATION_ID,
+                    createNotification(),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+        }else {
+            startForeground(
+                    NOTIFICATION_ID,
+                    createNotification());
+        }
         startForeground(NOTIFICATION_ID, createNotification());
         new SharedPreference(this).putBoolean("startedReactLooks", true);
         Log.e("ReactSafeSensors", "started react looks set to true");
@@ -122,8 +134,15 @@ public class AccidentDetectionService extends Service implements SensorEventList
         }
 
         Intent notificationIntent = new Intent(this, UserMainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
-
+        PendingIntent pendingIntent = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            pendingIntent = PendingIntent.getActivity
+                    (this, 0, notificationIntent, PendingIntent.FLAG_MUTABLE);
+        }
+        else {
+            pendingIntent = PendingIntent.getActivity
+                    (this, 0, notificationIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
+        }
         return new NotificationCompat.Builder(this, "accident_channel")
                 .setContentTitle("React Safe")
                 .setContentText("Running for your safety")
@@ -298,7 +317,7 @@ public class AccidentDetectionService extends Service implements SensorEventList
                 timerHandler2.postDelayed(this, 1000);
             }
         };
-        timerRunnable2.run();
+        timerHandler2.post(timerRunnable2);
 
     }
 
@@ -348,7 +367,7 @@ public class AccidentDetectionService extends Service implements SensorEventList
             @Override
             public void run() {
                 loopLocationRequest();
-                locationHandler.postDelayed(this, 60000);
+                locationHandler.postDelayed(locationRunner, 60000);
             }
         };
         locationRunner.run();

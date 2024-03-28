@@ -121,7 +121,7 @@
                         android:orientation="horizontal">
 
                         <jr.project.reactsafe.extras.util.CircleImageView
-                            android:id="@+id/conIv"
+                            android:id="@+id/hospitalIv"
                             android:layout_width="50dp"
                             android:layout_height="50dp"
                             android:layout_marginTop="5dp"
@@ -136,6 +136,7 @@
                             android:orientation="vertical">
 
                             <TextView
+                                android:id="@+id/hospitalName"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/poppins_medium"
@@ -144,7 +145,7 @@
                                 android:textSize="14sp" />
 
                             <TextView
-                                android:id="@+id/conDate"
+                                android:id="@+id/hospitalAddrress"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="GMX 13, Trivandrum, Kerala"
@@ -153,7 +154,7 @@
                         </LinearLayout>
 
                         <ImageView
-                            android:id="@+id/delete"
+                            android:id="@+id/hospitalCall"
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:layout_gravity="center"
@@ -189,6 +190,7 @@
                         android:orientation="horizontal">
 
                         <jr.project.reactsafe.extras.util.CircleImageView
+                            android:id="@+id/ambulanceIv"
                             android:layout_width="50dp"
                             android:layout_height="50dp"
                             android:layout_marginTop="5dp"
@@ -203,6 +205,7 @@
                             android:orientation="vertical">
 
                             <TextView
+                                android:id="@+id/ambulanceName"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/poppins_medium"
@@ -211,14 +214,15 @@
                                 android:textSize="14sp" />
 
                             <TextView
+                                android:id="@+id/ambulanceAddress"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textSize="12sp"
-                                android:visibility="gone" />
+                                android:textSize="12sp" />
 
                         </LinearLayout>
 
                         <ImageView
+                            android:id="@+id/ambulanceCall"
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:layout_gravity="center"
@@ -255,6 +259,7 @@
                         android:orientation="horizontal">
 
                         <jr.project.reactsafe.extras.util.CircleImageView
+                            android:id="@+id/policeIv"
                             android:layout_width="50dp"
                             android:layout_height="50dp"
                             android:layout_marginTop="5dp"
@@ -269,6 +274,7 @@
                             android:orientation="vertical">
 
                             <TextView
+                                android:id="@+id/policeName"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/poppins_medium"
@@ -285,6 +291,7 @@
                         </LinearLayout>
 
                         <ImageView
+                            android:id="@+id/policeCall"
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:layout_gravity="center"
@@ -323,9 +330,35 @@
                             android:layout_height="30dp"
                             android:layout_weight="1"
                             android:tint="@color/black"
+                            app:srcCompat="@drawable/clock_time" />
+
+                        <TextView
+                            android:id="@+id/time"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginStart="10dp"
+                            android:layout_weight="1"
+                            android:gravity="center_vertical"
+                            android:textColor="@color/black"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="10dp"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_weight="1"
+                            android:tint="@color/black"
                             app:srcCompat="@drawable/marker_map_icon" />
 
                         <TextView
+                            android:id="@+id/childAddress"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
@@ -350,6 +383,7 @@
                             app:srcCompat="@drawable/marker_map_icon" />
 
                         <TextView
+                            android:id="@+id/hospitalAddress"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
