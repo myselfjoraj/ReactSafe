@@ -51,7 +51,7 @@
             android:layout_marginEnd="10dp"
             android:layout_weight="1"
             android:fontFamily="@font/poppins_medium"
-            android:text="React Safe"
+            android:text="React Safe - Ambulance"
             android:textAlignment="center"
             android:textColor="@color/black"
             android:textSize="16sp"

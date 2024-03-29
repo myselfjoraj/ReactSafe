@@ -13,9 +13,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import jr.project.reactsafe.R;
+import jr.project.reactsafe.SplashScreenActivity;
 import jr.project.reactsafe.databinding.ActivityPairedDevicesBinding;
+import jr.project.reactsafe.extras.misc.SharedPreference;
 import jr.project.reactsafe.extras.model.UserModel;
 import jr.project.reactsafe.extras.util.Extras;
 
@@ -54,8 +57,14 @@ public class PairedDevicesActivity extends AppCompatActivity {
         binding.pairBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(PairedDevicesActivity.this,PairParentActivity.class));
-                finish();
+                if (Objects.equals(new SharedPreference(PairedDevicesActivity.this).getUserTypeInPref(),"parent")){
+                    deletePair();
+                    startActivity(new Intent(PairedDevicesActivity.this, SplashScreenActivity.class));
+                    finishAffinity();
+                }else {
+                    startActivity(new Intent(PairedDevicesActivity.this, PairParentActivity.class));
+                    finish();
+                }
             }
         });
 
@@ -63,24 +72,28 @@ public class PairedDevicesActivity extends AppCompatActivity {
         binding.delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //
-                DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference().child("users")
-                        .child(FirebaseAuth.getInstance().getUid());
-                dbRef.child("pairedBy").removeValue();
-                dbRef.child("pairedOn").removeValue();
-                if (models!=null && !models.isEmpty()){
-                    DatabaseReference dbRef2 = FirebaseDatabase.getInstance().getReference().child("users")
-                            .child(models.get(0).getUid());
-                    dbRef2.child("pairedBy").removeValue();
-                    dbRef2.child("pairedOn").removeValue();
-                }
-                //
-                new UserPreferenceHelper(PairedDevicesActivity.this)
-                        .setPairedDeviceDetails(null);
+                deletePair();
             }
         });
 
 
 
+    }
+
+    void deletePair(){
+        //
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference().child("users")
+                .child(FirebaseAuth.getInstance().getUid());
+        dbRef.child("pairedBy").removeValue();
+        dbRef.child("pairedOn").removeValue();
+        if (models!=null && !models.isEmpty()){
+            DatabaseReference dbRef2 = FirebaseDatabase.getInstance().getReference().child("users")
+                    .child(models.get(0).getUid());
+            dbRef2.child("pairedBy").removeValue();
+            dbRef2.child("pairedOn").removeValue();
+        }
+        //
+        new UserPreferenceHelper(PairedDevicesActivity.this)
+                .setPairedDeviceDetails(null);
     }
 }
