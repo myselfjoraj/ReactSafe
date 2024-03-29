@@ -4,6 +4,7 @@ public class UserModel {
 
     String uid,name,email,title,phone,lng,lat,profileImage,pairedBy,pairedOn;
     boolean isParent;
+    boolean isActive;
 
     public UserModel(){/* empty */}
 
@@ -25,6 +26,18 @@ public class UserModel {
         this.lat = lat;
         this.lng = lng;
         this.title = title;
+    }
+
+    public UserModel(String uid,String name,String email,String phone,String profileImage,String lat,String lng,String title,boolean isActive){
+        this.uid = uid;
+        this.name = name;
+        this.email = email;
+        this.profileImage = profileImage;
+        this.phone = phone;
+        this.lat = lat;
+        this.lng = lng;
+        this.title = title;
+        this.isActive = isActive;
     }
 
     public String getUid() {
@@ -113,5 +126,13 @@ public class UserModel {
 
     public void setParent(boolean parent) {
         isParent = parent;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 }

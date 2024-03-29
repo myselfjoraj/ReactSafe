@@ -10,11 +10,6 @@ import android.view.ViewGroup;
 
 import jr.project.reactsafe.R;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link AmbulancePendingFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class AmbulancePendingFragment extends Fragment {
 
     public AmbulancePendingFragment() {
