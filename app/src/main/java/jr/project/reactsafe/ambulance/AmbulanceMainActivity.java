@@ -104,11 +104,10 @@ public class AmbulanceMainActivity extends AppCompatActivity {
                                 Log.e("AmbulanceReceived",""+new Gson().toJson(model));
                                 if (model.getUid()!=null){
                                     FirebaseHelper.getUser(model.getUid(), model1 -> {
-
                                         pending.remove(model);
-
                                         model.setName(model1.getName());
                                         model.setProfileImage(model1.getProfileImage());
+                                        model.setPhone(model1.getPhone());
                                         Log.e("AmbulanceReceived",""+new Gson().toJson(model1));
                                         if (isAccepted != null && isAccepted.equals("true")){
                                             accepted.add(model);
@@ -184,7 +183,10 @@ public class AmbulanceMainActivity extends AppCompatActivity {
             holder.btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    startActivity(new Intent(AmbulanceMainActivity.this,AmbulanceAcceptActivity.class));
+                    Intent intent = new Intent(AmbulanceMainActivity.this,AmbulanceAcceptActivity.class);
+                    intent.putExtra("id",model.getTimestamp());
+                    intent.putExtra("uid",model.getUid());
+                    startActivity(intent);
                 }
             });
 

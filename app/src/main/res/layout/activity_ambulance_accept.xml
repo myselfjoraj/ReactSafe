@@ -131,7 +131,6 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/poppins_medium"
-                                android:text="Sample Name"
                                 android:textColor="@color/black"
                                 android:textSize="14sp" />
 
@@ -191,7 +190,6 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/poppins_medium"
-                                android:text="Sample Name"
                                 android:textColor="@color/black"
                                 android:textSize="14sp" />
 
@@ -225,19 +223,6 @@
                         android:textColor="@color/black"
                         android:textStyle="bold" />
 
-                    <TextView
-                        android:id="@+id/noTv"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="20dp"
-                        android:layout_marginBottom="20dp"
-                        android:fontFamily="@font/poppins_medium"
-                        android:text="Not Alloted"
-                        android:textAlignment="center"
-                        android:textColor="@color/black"
-                        android:textSize="14sp"
-                        android:visibility="gone" />
-
                     <LinearLayout
                         android:id="@+id/ambLay"
                         android:layout_width="match_parent"
@@ -264,7 +249,6 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/poppins_medium"
-                                android:text="Sample Name"
                                 android:textColor="@color/black"
                                 android:textSize="14sp" />
 
@@ -272,7 +256,6 @@
                                 android:id="@+id/hospitalAddress"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="GMX 13, Trivandrum, Kerala"
                                 android:textSize="12sp" />
 
                         </LinearLayout>
@@ -289,6 +272,87 @@
                             app:srcCompat="@drawable/call" />
 
                     </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:text="Police Station"
+                        android:textColor="@color/black"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/noTv3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="10dp"
+                        android:text="Pending to assign"
+                        android:visibility="gone" />
+
+                    <LinearLayout
+                        android:id="@+id/policeLay"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <jr.project.reactsafe.extras.util.CircleImageView
+                            android:id="@+id/policeIv"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_marginTop="5dp"
+                            app:srcCompat="@drawable/avatar" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="10dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/policeName"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_medium"
+                                android:textColor="@color/black"
+                                android:textSize="14sp" />
+
+                            <TextView
+                                android:id="@+id/policeAddress"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="12sp" />
+
+                        </LinearLayout>
+
+                        <ImageView
+                            android:id="@+id/policeCall"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/shape_rounded"
+                            android:backgroundTint="@color/red_light"
+                            android:padding="12dp"
+                            android:tint="@color/white"
+                            app:srcCompat="@drawable/call" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/noTv"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="20dp"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="Not Alloted"
+                        android:textAlignment="center"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        android:visibility="gone" />
+
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -351,7 +415,6 @@
                             android:layout_marginStart="10dp"
                             android:layout_weight="1"
                             android:gravity="center_vertical"
-                            android:text="26.00 Lat, 30.765 Lng"
                             android:textColor="@color/black"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -376,7 +439,6 @@
                             android:layout_marginStart="10dp"
                             android:layout_weight="1"
                             android:gravity="center_vertical"
-                            android:text="GMX 13, Trivandrum, Kerala"
                             android:textColor="@color/black"
                             android:textSize="12sp" />
                     </LinearLayout>
