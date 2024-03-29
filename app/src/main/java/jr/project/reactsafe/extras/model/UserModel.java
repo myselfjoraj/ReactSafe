@@ -2,7 +2,7 @@ package jr.project.reactsafe.extras.model;
 
 public class UserModel {
 
-    String uid,name,email,title,phone,lng,lat,profileImage,pairedBy,pairedOn;
+    String uid,name,email,title,phone,lng,lat,profileImage,pairedBy,pairedOn,timestamp;
     boolean isParent;
     boolean isActive;
 
@@ -28,7 +28,7 @@ public class UserModel {
         this.title = title;
     }
 
-    public UserModel(String uid,String name,String email,String phone,String profileImage,String lat,String lng,String title,boolean isActive){
+    public UserModel(String uid,String name,String email,String phone,String profileImage,String lat,String lng,String title,boolean isActive,String timestamp){
         this.uid = uid;
         this.name = name;
         this.email = email;
@@ -38,6 +38,7 @@ public class UserModel {
         this.lng = lng;
         this.title = title;
         this.isActive = isActive;
+        this.timestamp = timestamp;
     }
 
     public String getUid() {
@@ -134,5 +135,13 @@ public class UserModel {
 
     public void setActive(boolean active) {
         isActive = active;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
     }
 }

@@ -469,8 +469,7 @@
                 android:text="Expires On 30 Sec"
                 android:textAlignment="center"
                 android:textColor="@color/red_light"
-                android:textSize="18sp"
-                android:visibility="gone" />
+                android:textSize="18sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"

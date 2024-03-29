@@ -30,6 +30,9 @@
         android:theme="@style/Theme.ReactSafe"
         tools:targetApi="31">
         <activity
+            android:name=".ambulance.AmbulanceAcceptActivity"
+            android:exported="false" />
+        <activity
             android:name=".parent.ParentSnoozeActivity"
             android:launchMode="singleTask"
             android:showOnLockScreen="true"
@@ -127,8 +130,8 @@
         <service
             android:name=".parent.ParentForegroundService"
             android:enabled="true"
-            android:foregroundServiceType="specialUse"
-            android:exported="false" />
+            android:exported="false"
+            android:foregroundServiceType="specialUse" />
 
         <meta-data
             android:name="preloaded_fonts"
