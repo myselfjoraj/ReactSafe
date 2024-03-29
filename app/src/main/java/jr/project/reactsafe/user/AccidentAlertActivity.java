@@ -203,7 +203,7 @@ public class AccidentAlertActivity extends AppCompatActivity {
         }
         FirebaseDatabase.getInstance().getReference().child("alert")
                 .child(uid)
-                .addValueEventListener(new ValueEventListener() {
+                .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (!snapshot.exists()){
@@ -211,8 +211,12 @@ public class AccidentAlertActivity extends AppCompatActivity {
                         }
                         long p = new SharedPreference(AccidentAlertActivity.this)
                                 .getLong("startedAlertOn", Extras.getTimestamp());
+                        String ts = snapshot.child("timestamp").getValue(String.class);
+                        if (ts == null){
+                            ts = p+"";
+                        }
                         LocationModel l = new LocationModel(loc().get(0)+"",loc().get(1)+"",
-                                FirebaseAuth.getInstance().getUid(),p+"");
+                                FirebaseAuth.getInstance().getUid(),ts);
 
 
                         String police    = snapshot.child("police").getValue(String.class);
