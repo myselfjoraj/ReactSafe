@@ -113,7 +113,7 @@
 
                         <jr.project.reactsafe.extras.util.CircleImageView
                             android:layout_width="50dp"
-                            android:id="@id/patientIv"
+                            android:id="@+id/patientIv"
                             android:layout_height="50dp"
                             android:layout_marginTop="5dp"
                             app:srcCompat="@drawable/avatar" />
@@ -316,6 +316,31 @@
                             android:layout_height="30dp"
                             android:layout_weight="1"
                             android:tint="@color/black"
+                            app:srcCompat="@drawable/clock_time" />
+
+                        <TextView
+                            android:id="@+id/time"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginStart="10dp"
+                            android:layout_weight="1"
+                            android:gravity="center_vertical"
+                            android:textColor="@color/black"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="10dp"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_weight="1"
+                            android:tint="@color/black"
                             app:srcCompat="@drawable/marker_map_icon" />
 
                         <TextView
@@ -372,6 +397,7 @@
                     android:layout_margin="15dp"
                     app:cardBackgroundColor="#99EFF2F3"
                     app:cardCornerRadius="20dp"
+                    android:visibility="gone"
                     app:cardElevation="0dp">
 
                     <LinearLayout
@@ -400,7 +426,6 @@
                                 android:textSize="14sp" />
 
                             <TextView
-                                android:id="@+id/time"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
@@ -414,14 +439,9 @@
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
-                <View
-                    android:id="@+id/view2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
-
                 <androidx.cardview.widget.CardView
                     android:layout_width="wrap_content"
+                    android:visibility="gone"
                     android:layout_height="wrap_content"
                     android:layout_margin="15dp"
                     app:cardBackgroundColor="#99EFF2F3"

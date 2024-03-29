@@ -1,6 +1,7 @@
 package jr.project.reactsafe.ambulance;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -179,6 +180,13 @@ public class AmbulanceMainActivity extends AppCompatActivity {
             String d = "Accident detected on "+Extras.getStandardFormDateFromTimeStamp(model.getTimestamp())
                     +" on "+Extras.getTimeFromTimeStamp(model.getTimestamp());
             holder.desc.setText(d);
+
+            holder.btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(AmbulanceMainActivity.this,AmbulanceAcceptActivity.class));
+                }
+            });
 
         }
 
