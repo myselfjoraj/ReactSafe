@@ -331,8 +331,12 @@ public class AccidentDetectionService extends Service implements SensorEventList
                     return;
                 }
                 long p = mPref.getLong("startedAlertOn", Extras.getTimestamp());
+                String ts = snapshot1.child("timestamp").getValue(String.class);
+                if (ts == null){
+                    ts = p+"";
+                }
                 LocationModel l = new LocationModel(loc().get(0)+"",loc().get(1)+"",
-                        FirebaseAuth.getInstance().getUid(),p+"");
+                        FirebaseAuth.getInstance().getUid(),ts);
                 String police    = snapshot1.child("police").getValue(String.class);
                 String ambulance = snapshot1.child("ambulance").getValue(String.class);
                 String hospital  = snapshot1.child("hospital").getValue(String.class);
