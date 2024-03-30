@@ -1,5 +1,6 @@
 package jr.project.reactsafe.ambulance;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -56,6 +57,8 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
     GoogleMap mMap;
     LatLng cLoc = new LatLng(37.0902, 95.7129);
     DatabaseReference dbRef;
+
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,7 +84,9 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
                     AlertModel model = snapshot.getValue(AlertModel.class);
                     getPolice(model.getPolice());
                     getHospital(model.getHospital(),model.getLat(),model.getLng());
-                    binding.patientAddress.setText(model.getLat()+" Lat, "+model.getLng()+" Lng");
+                    binding.patientAddress.setText((Extras.getLocationString(
+                            AmbulanceAcceptActivity.this,model.getLat(),model.getLng()+" ("+model.getLat()+" Lat, "+model.getLng()+" Lng)"
+                    )));
                 }
             }
 
