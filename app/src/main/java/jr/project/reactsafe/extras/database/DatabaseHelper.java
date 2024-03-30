@@ -16,6 +16,7 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
+import jr.project.reactsafe.extras.model.AcceptModel;
 import jr.project.reactsafe.extras.model.AlertModel;
 import jr.project.reactsafe.extras.model.RecentModel;
 import jr.project.reactsafe.extras.model.UserModel;
@@ -121,7 +122,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // AMBULANCE { AMBULANCE_ACCEPTS }
     public String insertAmbulanceAccepts(String TIMESTAMP, String LATITUDE , String LONGITUDE , String STATUS,
-                                         UserModel PATIENT,UserModel PARENT,UserModel HOSPITAL,UserModel POLICE ){
+                                         UserModel PATIENT,UserModel PARENT,UserModel HOSPITAL,UserModel POLICE){
         SQLiteDatabase database=this.getWritableDatabase();
         ContentValues cv=new ContentValues();
         cv.put("TIMESTAMP",TIMESTAMP);
@@ -142,9 +143,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     /**
      * status val
-     * 1 - detected fall
-     * 2 - cancelled by user
-     * 3 - cancelled by parent
+     * 1 - in progress
+     * 2 - cancelled
+     * 3 - completed
      * **/
     public String updateAlertOnAmbulance(String timestamp,String status){
         SQLiteDatabase database=this.getWritableDatabase();
@@ -158,19 +159,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public ArrayList<AlertModel> readAmbulanceAccepts(){
-        ArrayList<RecentModel> rec = new ArrayList<>();
+    public ArrayList<AcceptModel> readAmbulanceAccepts(){
+        ArrayList<AcceptModel> rec = new ArrayList<>();
         SQLiteDatabase database=this.getWritableDatabase();
-        String qry="SELECT * FROM FALL_DETECTS ORDER BY ID DESC";
+        String qry="SELECT * FROM AMBULANCE_ACCEPTS ORDER BY ID DESC";
         Cursor cursor=database.rawQuery(qry,null);
         while (cursor.moveToNext()){
-            RecentModel model = new RecentModel(
-                    cursor.getString(1),
-                    cursor.getString(2),
-                    cursor.getString(3),
-                    cursor.getString(4),
-                    cursor.getString(5)
-            );
+
+            AcceptModel model = new AcceptModel();
+            model.setTIMESTAMP(cursor.getString(1));
+            model.setLATITUDE(cursor.getString(2));
+            model.setLONGITUDE(cursor.getString(3));
+            model.setSTATUS(cursor.getString(4));
+            model.setPATIENT(cursor.getString(5));
+            model.setPARENT(cursor.getString(6));
+            model.setHOSPITAL(cursor.getString(7));
+            model.setPOLICE(cursor.getString(8));
+
             rec.add(model);
         }
         return rec;
