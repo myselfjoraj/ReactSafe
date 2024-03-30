@@ -565,7 +565,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_medium"
-                android:text="Expires On 30 Sec"
+                android:text="Expires On 60 Sec"
                 android:textAlignment="center"
                 android:textColor="@color/red_light"
                 android:textSize="18sp" />

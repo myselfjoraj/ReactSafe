@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -24,6 +26,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -39,6 +42,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -46,6 +50,8 @@ import jr.project.reactsafe.R;
 import jr.project.reactsafe.databinding.ActivityAmbulanceAcceptBinding;
 import jr.project.reactsafe.extras.database.FirebaseHelper;
 import jr.project.reactsafe.extras.misc.DirectionsJSONParser;
+import jr.project.reactsafe.extras.misc.NearestSafe;
+import jr.project.reactsafe.extras.misc.SharedPreference;
 import jr.project.reactsafe.extras.model.AlertModel;
 import jr.project.reactsafe.extras.model.UserModel;
 import jr.project.reactsafe.extras.util.Extras;
@@ -57,6 +63,9 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
     GoogleMap mMap;
     LatLng cLoc = new LatLng(37.0902, 95.7129);
     DatabaseReference dbRef;
+    boolean didAccept = false;
+    int sec = 60;
+    AlertModel alertModel;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -74,6 +83,28 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
 
         getPatient(uid);
 
+        //new SharedPreference(this).putLong("startedAlertOn", Calendar.getInstance().getTimeInMillis() + 60000);
+
+        long defaultSec = Extras.getTimestamp() + 60000;
+        sec = (int) ((new SharedPreference(this)
+                .getLong("startedAlertOn",defaultSec)/1000) - (Extras.getTimestamp()/1000));
+
+        CountDownTimer timer = new CountDownTimer(sec* 1000L, 1000){
+            public void onTick(long millisUntilFinished){
+                binding.expiry.setText("Expires on "+sec+" Sec");
+                sec--;
+            }
+            public  void onFinish(){
+                Toast.makeText(AmbulanceAcceptActivity.this, "timer finished", Toast.LENGTH_SHORT).show();
+                if (!didAccept){
+                    //changeAmbulance(alertModel.getLat(),alertModel.getLng(),alertModel.getTimestamp(),uid,alertModel)
+                }
+            }
+        };
+
+        timer.start();
+
+
         dbRef.child("users").child(uid).child("alerts").child(id)
                 .addValueEventListener(new ValueEventListener() {
             @Override
@@ -81,19 +112,25 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
                 if (!snapshot.exists()){
                     finish();
                 }else {
-                    AlertModel model = snapshot.getValue(AlertModel.class);
-                    getPolice(model.getPolice());
-                    getHospital(model.getHospital(),model.getLat(),model.getLng());
-                    binding.patientAddress.setText((Extras.getLocationString(
-                            AmbulanceAcceptActivity.this,model.getLat(),model.getLng()+" ("+model.getLat()+" Lat, "+model.getLng()+" Lng)"
-                    )));
+                    alertModel = snapshot.getValue(AlertModel.class);
+                    getPolice(alertModel.getPolice());
+                    getHospital(alertModel.getHospital(),alertModel.getLat(),alertModel.getLng());
+                    binding.patientAddress.setText(alertModel.getLat()+" Lat, "+alertModel.getLng()+" Lng");
+
+                    binding.reject.setOnClickListener(v -> {
+                        changeAmbulance(alertModel.getLat(), alertModel.getLng(), alertModel.getTimestamp(), uid, alertModel);
+                    });
                 }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onCancelled(@NonNull DatabaseError error) {}});
 
-            }
+        binding.accept.setOnClickListener(v -> {
+            didAccept = true;
+            timer.cancel();
+            dbRef.child("ambulance").child(uid).child("alert")
+                    .child(id).child("isAccepted").setValue("true");
         });
 
 
@@ -111,6 +148,22 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
                 .icon(Extras.bitmapFromVector(getApplicationContext(),R.drawable.marker_map_icon)));
         googleMap.moveCamera(
                 CameraUpdateFactory.newLatLngZoom(cLoc,15));
+    }
+
+    void changeAmbulance(String lat, String lng,String id,String hisUid,AlertModel alertModel){
+        NearestSafe.getNearestAmbulance(lat, lng, FirebaseAuth.getInstance().getUid(), model -> {
+            if(model!=null && model.getUid() != null && !model.getUid().isEmpty()) {
+                // remove from my node
+                dbRef.child("ambulance").child(FirebaseAuth.getInstance().getUid())
+                        .child("alert").child(id).removeValue();
+                // set in user
+                dbRef.child("users").child(hisUid).child("alerts")
+                        .child(id).child("ambulance").setValue(model.getUid());
+                //set in other ambulance
+                dbRef.child("ambulance").child(model.getUid()).child("alert")
+                        .child(id).setValue(alertModel);
+            }
+        });
     }
 
     void getPatient(String uid){

@@ -2,13 +2,13 @@ package jr.project.reactsafe.extras.model;
 
 public class AlertModel {
 
-    String ambulance,hospital,police,lat,lng,status,timestamp;
+    String ambulance,hospital,police,lat,lng,status,timestamp,uid;
 
     public AlertModel(){
 
     }
 
-    public AlertModel(String ambulance,String hospital,String police,String lat,String lng,String status,String timestamp){
+    public AlertModel(String ambulance,String hospital,String police,String lat,String lng,String status,String timestamp,String uid){
         this.ambulance = ambulance;
         this.hospital = hospital;
         this.police = police;
@@ -16,6 +16,7 @@ public class AlertModel {
         this.lng = lng;
         this.status = status;
         this.timestamp = timestamp;
+        this.uid = uid;
     }
 
     public String getAmbulance() {
@@ -72,5 +73,13 @@ public class AlertModel {
 
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 }

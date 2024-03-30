@@ -45,6 +45,30 @@ public class NearestSafe {
         });
     }
 
+    public static void getNearestAmbulance(String lati, String lngi, String excludeUid,OnFound listener){
+        double lat = Double.parseDouble(lati);
+        double lng = Double.parseDouble(lngi);
+        findAmbulance(new OnReceived() {
+            @Override
+            public void onReceive(ArrayList<UserModel> model) {
+                if (model == null || model.isEmpty()){
+                    listener.onFound(null);
+                }else {
+                    int i = ClosestPoint.get(lat, lng, model);
+                    if (model.get(i).getUid().equals(excludeUid)){
+                        try {
+                            model.remove(i);
+                            i = ClosestPoint.get(lat,lng,model);
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                    listener.onFound(model.get(i));
+                }
+            }
+        });
+    }
+
     public static void getNearestPolice(String lati, String lngi, OnFound listener){
         double lat = Double.parseDouble(lati);
         double lng = Double.parseDouble(lngi);
@@ -70,7 +94,10 @@ public class NearestSafe {
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         ArrayList<UserModel> m = new ArrayList<>();
                         for (DataSnapshot snapshot1 : snapshot.getChildren()){
-                            m.add(snapshot1.getValue(UserModel.class));
+                            boolean isActive = Boolean.TRUE.equals(snapshot1.child("isActive").getValue(Boolean.class));
+                            if (isActive) {
+                                m.add(snapshot1.getValue(UserModel.class));
+                            }
                         }
                         listener.onReceive(m);
                     }
@@ -89,7 +116,10 @@ public class NearestSafe {
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         ArrayList<UserModel> m = new ArrayList<>();
                         for (DataSnapshot snapshot1 : snapshot.getChildren()){
-                            m.add(snapshot1.getValue(UserModel.class));
+                            boolean isActive = Boolean.TRUE.equals(snapshot1.child("isActive").getValue(Boolean.class));
+                            if (isActive) {
+                                m.add(snapshot1.getValue(UserModel.class));
+                            }
                         }
                         listener.onReceive(m);
                     }
