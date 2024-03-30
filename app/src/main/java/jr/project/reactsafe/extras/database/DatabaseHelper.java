@@ -171,14 +171,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             model.setLATITUDE(cursor.getString(2));
             model.setLONGITUDE(cursor.getString(3));
             model.setSTATUS(cursor.getString(4));
-            model.setPATIENT(cursor.getString(5));
-            model.setPARENT(cursor.getString(6));
-            model.setHOSPITAL(cursor.getString(7));
-            model.setPOLICE(cursor.getString(8));
+            model.setPATIENT(returnModel(cursor.getString(5)));
+            model.setPARENT(returnModel(cursor.getString(6)));
+            model.setHOSPITAL(returnModel(cursor.getString(7)));
+            model.setPOLICE(returnModel(cursor.getString(8)));
 
             rec.add(model);
         }
         return rec;
+    }
+
+    UserModel returnModel(String model){
+        return new Gson().fromJson(model, UserModel.class);
     }
 
 }

@@ -67,6 +67,8 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
     int sec = 60;
     AlertModel alertModel;
 
+    UserModel patientModel,parentModel,hospitalModel,policeModel;
+
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +78,11 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
 
         String id = getIntent().getStringExtra("id");
         String uid = getIntent().getStringExtra("uid");
+
+        patientModel  = new UserModel();
+        parentModel   = new UserModel();
+        hospitalModel = new UserModel();
+        policeModel   = new UserModel();
 
         dbRef = FirebaseDatabase.getInstance().getReference();
 
