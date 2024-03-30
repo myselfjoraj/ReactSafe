@@ -146,6 +146,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * 1 - in progress
      * 2 - cancelled
      * 3 - completed
+     * 4 - expired
      * **/
     public String updateAlertOnAmbulance(String timestamp,String status){
         SQLiteDatabase database=this.getWritableDatabase();

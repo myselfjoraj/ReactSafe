@@ -48,6 +48,7 @@ import java.util.List;
 
 import jr.project.reactsafe.R;
 import jr.project.reactsafe.databinding.ActivityAmbulanceAcceptBinding;
+import jr.project.reactsafe.extras.database.DatabaseHelper;
 import jr.project.reactsafe.extras.database.FirebaseHelper;
 import jr.project.reactsafe.extras.misc.DirectionsJSONParser;
 import jr.project.reactsafe.extras.misc.NearestSafe;
@@ -102,9 +103,8 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
                 sec--;
             }
             public  void onFinish(){
-                Toast.makeText(AmbulanceAcceptActivity.this, "timer finished", Toast.LENGTH_SHORT).show();
                 if (!didAccept){
-                    //changeAmbulance(alertModel.getLat(),alertModel.getLng(),alertModel.getTimestamp(),uid,alertModel)
+                    changeAmbulance(true,alertModel.getLat(),alertModel.getLng(),alertModel.getTimestamp(),uid,alertModel);
                 }
             }
         };
@@ -125,7 +125,7 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
                     binding.patientAddress.setText(alertModel.getLat()+" Lat, "+alertModel.getLng()+" Lng");
 
                     binding.reject.setOnClickListener(v -> {
-                        changeAmbulance(alertModel.getLat(), alertModel.getLng(), alertModel.getTimestamp(), uid, alertModel);
+                        changeAmbulance(false,alertModel.getLat(), alertModel.getLng(), alertModel.getTimestamp(), uid, alertModel);
                     });
                 }
             }
@@ -138,6 +138,10 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
             timer.cancel();
             dbRef.child("ambulance").child(uid).child("alert")
                     .child(id).child("isAccepted").setValue("true");
+            try (DatabaseHelper db = new DatabaseHelper(AmbulanceAcceptActivity.this)){
+                db.insertAmbulanceAccepts(id,alertModel.getLat(),alertModel.getLng(),"1",
+                        patientModel,parentModel,hospitalModel,policeModel);
+            }
         });
 
 
@@ -157,7 +161,16 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
                 CameraUpdateFactory.newLatLngZoom(cLoc,15));
     }
 
-    void changeAmbulance(String lat, String lng,String id,String hisUid,AlertModel alertModel){
+    void changeAmbulance(boolean isExpired,String lat, String lng,String id,String hisUid,AlertModel alertModel){
+        String stat = "2";
+        if (isExpired){
+            stat = "4";
+        }
+        try (DatabaseHelper db = new DatabaseHelper(AmbulanceAcceptActivity.this)){
+            db.insertAmbulanceAccepts(id,alertModel.getLat(),alertModel.getLng(),stat,
+                    patientModel,parentModel,hospitalModel,policeModel);
+        }
+
         NearestSafe.getNearestAmbulance(lat, lng, FirebaseAuth.getInstance().getUid(), model -> {
             if(model!=null && model.getUid() != null && !model.getUid().isEmpty()) {
                 // remove from my node
@@ -175,6 +188,7 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
 
     void getPatient(String uid){
         FirebaseHelper.getUser(uid, model -> {
+            patientModel = model;
             binding.patientName.setText(model.getName());
             if (model.getProfileImage()!=null)
                 Glide.with(AmbulanceAcceptActivity.this)
@@ -188,6 +202,7 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
 
     void getParent(String uid){
         FirebaseHelper.getUser(uid, model -> {
+            parentModel = model;
             binding.parentName.setText(model.getName());
             if (model.getProfileImage()!=null)
                 Glide.with(AmbulanceAcceptActivity.this)
@@ -200,6 +215,7 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
 
     void getPolice(String uid){
         FirebaseHelper.getEntity("police", uid, model -> {
+            policeModel = model;
             binding.policeName.setText(model.getName());
             if (model.getProfileImage()!=null)
                 Glide.with(AmbulanceAcceptActivity.this)
@@ -213,6 +229,7 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
 
     void getHospital(String uid,String lat,String lng){
         FirebaseHelper.getEntity("hospital", uid, model -> {
+            hospitalModel = model;
             binding.hospitalName.setText(model.getName());
             if (model.getProfileImage()!=null)
                 Glide.with(AmbulanceAcceptActivity.this)
