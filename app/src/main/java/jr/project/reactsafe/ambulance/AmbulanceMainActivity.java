@@ -1,6 +1,8 @@
 package jr.project.reactsafe.ambulance;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -44,6 +46,8 @@ import jr.project.reactsafe.extras.model.RecentModel;
 import jr.project.reactsafe.extras.model.UserModel;
 import jr.project.reactsafe.extras.util.CircleImageView;
 import jr.project.reactsafe.extras.util.Extras;
+import jr.project.reactsafe.parent.ParentForegroundService;
+import jr.project.reactsafe.parent.ParentMainActivity;
 import jr.project.reactsafe.user.UserMainActivity;
 import jr.project.reactsafe.user.UserPreferenceHelper;
 import jr.project.reactsafe.user.UserSettingsActivity;
@@ -113,7 +117,15 @@ public class AmbulanceMainActivity extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {}});
 
-        binding.start.setOnCheckedChangeListener((buttonView, isChecked) -> dbRef.child("isActive").setValue(isChecked));
+        Intent intent = new Intent(AmbulanceMainActivity.this, AmbulanceForegroundService.class);
+        binding.start.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                startService(intent);
+            }else {
+                stopService(intent);
+            }
+            dbRef.child("isActive").setValue(isChecked);
+        });
 
 
         dbRef.child("alert").addValueEventListener(new ValueEventListener() {
@@ -142,7 +154,7 @@ public class AmbulanceMainActivity extends AppCompatActivity {
                                     });
                                 }
                                 if (isAccepted != null && isAccepted.equals("true")){
-                                    accepted.add(model);
+                                    //accepted.add(model);
                                 }else {
                                     pending.add(model);
                                 }
@@ -154,7 +166,25 @@ public class AmbulanceMainActivity extends AppCompatActivity {
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {}});
 
+        if (isMyServiceRunning(AmbulanceForegroundService.class)){
+            binding.start.setChecked(true);
+            dbRef.child("isActive").setValue(true);
+        }else {
+            binding.start.setChecked(false);
+            dbRef.child("isActive").setValue(false);
+        }
 
+
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -169,6 +199,27 @@ public class AmbulanceMainActivity extends AppCompatActivity {
         try (DatabaseHelper databaseHelper = new DatabaseHelper(AmbulanceMainActivity.this)){
             ArrayList<AcceptModel> models = databaseHelper.readAmbulanceAccepts();
             acceptedRecyclerView.setModel(models);
+            ArrayList<String> str = new ArrayList<>();
+            if (pending!=null){
+                for (int i = 0 ; i < pending.size() ; i++){
+                    str.add(pending.get(i).getUid());
+                }
+            }
+            try {
+                for (AcceptModel m : models) {
+                    if (str.contains(m.getPATIENT().getUid())) {
+                        for (int i = 0; i < pending.size(); i++) {
+                            if (pending.get(i).getUid().equals(m.getPATIENT().getUid())) {
+                                pending.remove(i);
+                                pendingRecyclerView.setModel(pending);
+                            }
+                        }
+                    }
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
             if (!models.isEmpty()){
                 binding.noItemsAvailableTv.setVisibility(View.GONE);
             }

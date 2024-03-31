@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -84,6 +85,9 @@ public class UserSettingsActivity extends AppCompatActivity {
         if (s!=null){
             if (!s.equals("user") || !s.equals("parent")){
                 binding.pairDevice.setVisibility(View.GONE);
+                try (DatabaseHelper helper = new DatabaseHelper(UserSettingsActivity.this)){
+                    binding.happenedAccidents.setText(helper.readAmbulanceAccepts().size()+" Accidents Received");
+                }
             }
         }
 

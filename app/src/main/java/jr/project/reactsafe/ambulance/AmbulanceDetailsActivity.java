@@ -46,6 +46,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import jr.project.reactsafe.R;
 import jr.project.reactsafe.databinding.ActivityAmbulanceAcceptBinding;
@@ -152,8 +153,9 @@ public class AmbulanceDetailsActivity extends AppCompatActivity implements OnMap
                 status = "EXPIRED";
             }
             binding.completedTV.setText(status);
-        }
 
+
+        }
     }
 
     void SetUpForReListening(String id,String uid){
@@ -181,6 +183,25 @@ public class AmbulanceDetailsActivity extends AppCompatActivity implements OnMap
                             getPolice(alertModel.getPolice());
                             getHospital(alertModel.getHospital(),alertModel.getLat(),alertModel.getLng());
                             binding.patientAddress.setText(alertModel.getLat()+" Lat, "+alertModel.getLng()+" Lng");
+
+                            binding.directions.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    String uri = "http://maps.google.com/maps?q=loc:" + alertModel.getLat() + "," + alertModel.getLng() + " (" + "React Safe Accident Detected" + ")";
+                                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                                    startActivity(intent);
+                                }
+                            });
+
+                            binding.complete.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    binding.btnLay.setVisibility(View.GONE);
+                                    binding.completedTV.setVisibility(View.VISIBLE);
+                                    binding.completedTV.setText("COMPLETED");
+                                    new DatabaseHelper(AmbulanceDetailsActivity.this).updateAlertOnAmbulance(id,"3");
+                                }
+                            });
                         }
                     }
 

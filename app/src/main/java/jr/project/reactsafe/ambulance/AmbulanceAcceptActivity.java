@@ -137,12 +137,18 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
         binding.accept.setOnClickListener(v -> {
             didAccept = true;
             timer.cancel();
-            dbRef.child("ambulance").child(uid).child("alert")
+            dbRef.child("ambulance").child(FirebaseAuth.getInstance().getUid()).child("alert")
                     .child(id).child("isAccepted").setValue("true");
             try (DatabaseHelper db = new DatabaseHelper(AmbulanceAcceptActivity.this)){
                 db.insertAmbulanceAccepts(id,alertModel.getLat(),alertModel.getLng(),"1",
                         patientModel,parentModel,hospitalModel,policeModel);
+                Intent intent = new Intent(AmbulanceAcceptActivity.this, AmbulanceDetailsActivity.class);
+                intent.putExtra("id",alertModel.getTimestamp());
+                intent.putExtra("uid",patientModel.getUid());
+                startActivity(intent);
+                finish();
             }
+
         });
 
 
@@ -174,10 +180,10 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
         }
 
         NearestSafe.getNearestAmbulance(lat, lng, FirebaseAuth.getInstance().getUid(), model -> {
-            String uid = "temp_ambulance";
-            if(model!=null && model.getUid() != null && !model.getUid().isEmpty()) {
-                uid = model.getUid();
+            if (model == null){
+                return;
             }
+            String uid = model.getUid();
             // remove from my node
             dbRef.child("ambulance").child(FirebaseAuth.getInstance().getUid())
                     .child("alert").child(id).removeValue();

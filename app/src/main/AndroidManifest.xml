@@ -130,9 +130,15 @@
         <service
             android:name=".extras.sensor.AccidentDetectionService"
             android:enabled="true"
+            android:foregroundServiceType="specialUse"
             android:exported="false" />
         <service
             android:name=".parent.ParentForegroundService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="specialUse" />
+        <service
+            android:name=".ambulance.AmbulanceForegroundService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="specialUse" />

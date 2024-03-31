@@ -7,7 +7,9 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
@@ -57,7 +59,16 @@ public class ParentForegroundService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        startForeground(111, createNotification());
+        if (Build.VERSION.SDK_INT >= 34) {
+            startForeground(
+                    111,
+                    createNotification(),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+        }else {
+            startForeground(
+                    111,
+                    createNotification());
+        }
 
         mPref = new ParentPreferenceHelper(this);
 
