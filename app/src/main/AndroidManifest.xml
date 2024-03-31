@@ -30,6 +30,9 @@
         android:theme="@style/Theme.ReactSafe"
         tools:targetApi="31">
         <activity
+            android:name=".ambulance.AmbulanceDetailsActivity"
+            android:exported="false" />
+        <activity
             android:name=".ambulance.AmbulanceAcceptActivity"
             android:exported="false" />
         <activity

@@ -1,11 +1,14 @@
 package jr.project.reactsafe.extras.misc;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
@@ -58,12 +61,18 @@ public class NearestSafe {
                     if (model.get(i).getUid().equals(excludeUid)){
                         try {
                             model.remove(i);
-                            i = ClosestPoint.get(lat,lng,model);
+                            if (!model.isEmpty()) {
+                                i = ClosestPoint.get(lat, lng, model);
+                                listener.onFound(model.get(i));
+                            }else {
+                                listener.onFound(null);
+                            }
                         }catch (Exception e){
                             e.printStackTrace();
                         }
+                    }else {
+                        listener.onFound(model.get(i));
                     }
-                    listener.onFound(model.get(i));
                 }
             }
         });

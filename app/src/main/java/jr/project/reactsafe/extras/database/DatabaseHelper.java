@@ -182,6 +182,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return rec;
     }
 
+    public ArrayList<AcceptModel> readAmbulanceAcceptsById(String id){
+        ArrayList<AcceptModel> rec = new ArrayList<>();
+        SQLiteDatabase database=this.getWritableDatabase();
+        String qry="SELECT * FROM AMBULANCE_ACCEPTS WHERE TIMESTAMP="+id;
+        Cursor cursor=database.rawQuery(qry,null);
+        while (cursor.moveToNext()){
+
+            AcceptModel model = new AcceptModel();
+            model.setTIMESTAMP(cursor.getString(1));
+            model.setLATITUDE(cursor.getString(2));
+            model.setLONGITUDE(cursor.getString(3));
+            model.setSTATUS(cursor.getString(4));
+            model.setPATIENT(returnModel(cursor.getString(5)));
+            model.setPARENT(returnModel(cursor.getString(6)));
+            model.setHOSPITAL(returnModel(cursor.getString(7)));
+            model.setPOLICE(returnModel(cursor.getString(8)));
+
+            rec.add(model);
+        }
+        return rec;
+    }
+
     UserModel returnModel(String model){
         return new Gson().fromJson(model, UserModel.class);
     }

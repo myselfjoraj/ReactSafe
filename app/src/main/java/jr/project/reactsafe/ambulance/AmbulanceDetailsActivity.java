@@ -8,8 +8,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -40,28 +38,29 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
 import jr.project.reactsafe.R;
 import jr.project.reactsafe.databinding.ActivityAmbulanceAcceptBinding;
+import jr.project.reactsafe.databinding.ActivityAmbulanceDetailsBinding;
 import jr.project.reactsafe.extras.database.DatabaseHelper;
 import jr.project.reactsafe.extras.database.FirebaseHelper;
 import jr.project.reactsafe.extras.misc.DirectionsJSONParser;
 import jr.project.reactsafe.extras.misc.NearestSafe;
 import jr.project.reactsafe.extras.misc.SharedPreference;
+import jr.project.reactsafe.extras.model.AcceptModel;
 import jr.project.reactsafe.extras.model.AlertModel;
 import jr.project.reactsafe.extras.model.UserModel;
 import jr.project.reactsafe.extras.util.Extras;
-import jr.project.reactsafe.parent.ParentAccidentProceedings;
 
-public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class AmbulanceDetailsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    ActivityAmbulanceAcceptBinding binding;
+    ActivityAmbulanceDetailsBinding binding;
     GoogleMap mMap;
     LatLng cLoc = new LatLng(37.0902, 95.7129);
     DatabaseReference dbRef;
@@ -75,7 +74,7 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityAmbulanceAcceptBinding.inflate(getLayoutInflater());
+        binding = ActivityAmbulanceDetailsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         String id = getIntent().getStringExtra("id");
@@ -88,62 +87,9 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
 
         dbRef = FirebaseDatabase.getInstance().getReference();
 
-        binding.time.setText("Accident Detected On "+Extras.getTimeFromTimeStamp(id));
-
-        getPatient(uid);
-
-        //new SharedPreference(this).putLong("startedAlertOn", Calendar.getInstance().getTimeInMillis() + 60000);
-
-        long defaultSec = Extras.getTimestamp() + 60000;
-        sec = (int) ((new SharedPreference(this)
-                .getLong("startedAlertOn",defaultSec)/1000) - (Extras.getTimestamp()/1000));
-
-        CountDownTimer timer = new CountDownTimer(sec* 1000L, 1000){
-            public void onTick(long millisUntilFinished){
-                binding.expiry.setText("Expires on "+sec+" Sec");
-                sec--;
-            }
-            public  void onFinish(){
-                if (!didAccept){
-                    //changeAmbulance(true,alertModel.getLat(),alertModel.getLng(),alertModel.getTimestamp(),uid,alertModel);
-                }
-            }
-        };
-
-        timer.start();
+        binding.time.setText("Accident Detected On "+ Extras.getTimeFromTimeStamp(id));
 
 
-        dbRef.child("users").child(uid).child("alerts").child(id)
-                .addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (!snapshot.exists()){
-                    finish();
-                }else {
-                    alertModel = snapshot.getValue(AlertModel.class);
-                    getPolice(alertModel.getPolice());
-                    getHospital(alertModel.getHospital(),alertModel.getLat(),alertModel.getLng());
-                    binding.patientAddress.setText(alertModel.getLat()+" Lat, "+alertModel.getLng()+" Lng");
-
-                    binding.reject.setOnClickListener(v -> {
-                        changeAmbulance(false,alertModel.getLat(), alertModel.getLng(), alertModel.getTimestamp(), uid, alertModel);
-                    });
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}});
-
-        binding.accept.setOnClickListener(v -> {
-            didAccept = true;
-            timer.cancel();
-            dbRef.child("ambulance").child(uid).child("alert")
-                    .child(id).child("isAccepted").setValue("true");
-            try (DatabaseHelper db = new DatabaseHelper(AmbulanceAcceptActivity.this)){
-                db.insertAmbulanceAccepts(id,alertModel.getLat(),alertModel.getLng(),"1",
-                        patientModel,parentModel,hospitalModel,policeModel);
-            }
-        });
 
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapView);
@@ -162,42 +108,49 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
                 CameraUpdateFactory.newLatLngZoom(cLoc,15));
     }
 
-    void changeAmbulance(boolean isExpired,String lat, String lng,String id,String hisUid,AlertModel alertModel){
-        showPleaseWaitDialog("Please wait ...");
-        String stat = "2";
-        if (isExpired){
-            stat = "4";
-        }
-        try (DatabaseHelper db = new DatabaseHelper(AmbulanceAcceptActivity.this)){
-            db.insertAmbulanceAccepts(id,alertModel.getLat(),alertModel.getLng(),stat,
-                    patientModel,parentModel,hospitalModel,policeModel);
+    void SetUpForDatabaseListening(String id){
+
+        try (DatabaseHelper helper = new DatabaseHelper(AmbulanceDetailsActivity.this)){
+            ArrayList<AcceptModel> models = helper.readAmbulanceAcceptsById(id);
         }
 
-        NearestSafe.getNearestAmbulance(lat, lng, FirebaseAuth.getInstance().getUid(), model -> {
-            String uid = "temp_ambulance";
-            if(model!=null && model.getUid() != null && !model.getUid().isEmpty()) {
-                uid = model.getUid();
-            }
-            // remove from my node
-            dbRef.child("ambulance").child(FirebaseAuth.getInstance().getUid())
-                    .child("alert").child(id).removeValue();
-            // set in user
-            dbRef.child("users").child(hisUid).child("alerts")
-                    .child(id).child("ambulance").setValue(uid);
-            //set in other ambulance
-            dbRef.child("ambulance").child(uid).child("alert")
-                    .child(id).setValue(alertModel);
-            dismissPleaseWaitDialog();
-            finish();
-        });
     }
+
+    void SetUpForReListening(String id,String uid){
+        getPatient(uid);
+
+        //new SharedPreference(this).putLong("startedAlertOn", Calendar.getInstance().getTimeInMillis() + 60000);
+
+        long defaultSec = Extras.getTimestamp() + 60000;
+        sec = (int) ((new SharedPreference(this)
+                .getLong("startedAlertOn",defaultSec)/1000) - (Extras.getTimestamp()/1000));
+
+
+        dbRef.child("users").child(uid).child("alerts").child(id)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (!snapshot.exists()){
+                            finish();
+                        }else {
+                            alertModel = snapshot.getValue(AlertModel.class);
+                            getPolice(alertModel.getPolice());
+                            getHospital(alertModel.getHospital(),alertModel.getLat(),alertModel.getLng());
+                            binding.patientAddress.setText(alertModel.getLat()+" Lat, "+alertModel.getLng()+" Lng");
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {}});
+    }
+
 
     void getPatient(String uid){
         FirebaseHelper.getUser(uid, model -> {
             patientModel = model;
             binding.patientName.setText(model.getName());
             if (model.getProfileImage()!=null)
-                Glide.with(AmbulanceAcceptActivity.this)
+                Glide.with(AmbulanceDetailsActivity.this)
                         .load(model.getProfileImage())
                         .placeholder(R.drawable.avatar)
                         .into(binding.patientIv);
@@ -211,7 +164,7 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
             parentModel = model;
             binding.parentName.setText(model.getName());
             if (model.getProfileImage()!=null)
-                Glide.with(AmbulanceAcceptActivity.this)
+                Glide.with(AmbulanceDetailsActivity.this)
                         .load(model.getProfileImage())
                         .placeholder(R.drawable.avatar)
                         .into(binding.parentIv);
@@ -224,12 +177,12 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
             policeModel = model;
             binding.policeName.setText(model.getName());
             if (model.getProfileImage()!=null)
-                Glide.with(AmbulanceAcceptActivity.this)
+                Glide.with(AmbulanceDetailsActivity.this)
                         .load(model.getProfileImage())
                         .placeholder(R.drawable.avatar)
                         .into(binding.policeIv);
             binding.policeCall.setOnClickListener(v -> callPhone(model.getPhone()));
-            binding.policeAddress.setText(Extras.getLocationString(AmbulanceAcceptActivity.this,model.getLat(),model.getLng()));
+            binding.policeAddress.setText(Extras.getLocationString(AmbulanceDetailsActivity.this,model.getLat(),model.getLng()));
         });
     }
 
@@ -238,12 +191,12 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
             hospitalModel = model;
             binding.hospitalName.setText(model.getName());
             if (model.getProfileImage()!=null)
-                Glide.with(AmbulanceAcceptActivity.this)
+                Glide.with(AmbulanceDetailsActivity.this)
                         .load(model.getProfileImage())
                         .placeholder(R.drawable.avatar)
                         .into(binding.hospitalIv);
             binding.hospitalCall.setOnClickListener(v -> callPhone(model.getPhone()));
-            String loc = Extras.getLocationString(AmbulanceAcceptActivity.this,model.getLat(),model.getLng());
+            String loc = Extras.getLocationString(AmbulanceDetailsActivity.this,model.getLat(),model.getLng());
             binding.hospitalAddress.setText(loc);
             binding.hospitalAddress2.setText(loc);
 
@@ -306,7 +259,6 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
 
             ParserTask parserTask = new ParserTask();
 
-
             parserTask.execute(result);
 
         }
@@ -359,7 +311,7 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
 
                 lineOptions.addAll(points);
                 lineOptions.width(12);
-                lineOptions.color(ContextCompat.getColor(AmbulanceAcceptActivity.this,R.color.react_safe));
+                lineOptions.color(ContextCompat.getColor(AmbulanceDetailsActivity.this,R.color.react_safe));
                 lineOptions.geodesic(true);
 
             }
@@ -451,4 +403,5 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
             progressDialog.dismiss();
         }
     }
+
 }

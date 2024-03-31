@@ -36,7 +36,9 @@ import java.util.Objects;
 
 import jr.project.reactsafe.R;
 import jr.project.reactsafe.databinding.ActivityAmbulanceMainBinding;
+import jr.project.reactsafe.extras.database.DatabaseHelper;
 import jr.project.reactsafe.extras.database.FirebaseHelper;
+import jr.project.reactsafe.extras.model.AcceptModel;
 import jr.project.reactsafe.extras.model.RecentModel;
 import jr.project.reactsafe.extras.model.UserModel;
 import jr.project.reactsafe.extras.util.CircleImageView;
@@ -51,6 +53,7 @@ public class AmbulanceMainActivity extends AppCompatActivity {
     String uid;
     ArrayList<UserModel> accepted,pending;
     PendingRecyclerView pendingRecyclerView;
+    AcceptedRecyclerView acceptedRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +78,12 @@ public class AmbulanceMainActivity extends AppCompatActivity {
         binding.pendingRv.setLayoutManager(new LinearLayoutManager(this));
         binding.pendingRv.setAdapter(pendingRecyclerView);
 
+        acceptedRecyclerView = new AcceptedRecyclerView();
+        binding.allRv.setLayoutManager(new LinearLayoutManager(this));
+        binding.allRv.setAdapter(acceptedRecyclerView);
+
+        readAllAccepts();
+
         DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference().child("ambulance").child(uid);
         dbRef.child("isActive").addValueEventListener(new ValueEventListener() {
             @Override
@@ -95,7 +104,6 @@ public class AmbulanceMainActivity extends AppCompatActivity {
         dbRef.child("alert").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot1) {
-                        accepted.clear();
                         pending.clear();
                         for (DataSnapshot snapshot : snapshot1.getChildren()){
                             if (snapshot.exists()){
@@ -134,17 +142,29 @@ public class AmbulanceMainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (binding!=null && acceptedRecyclerView!=null){
+            readAllAccepts();
+        }
+    }
+
+    private void readAllAccepts() {
+        try (DatabaseHelper databaseHelper = new DatabaseHelper(AmbulanceMainActivity.this)){
+            ArrayList<AcceptModel> models = databaseHelper.readAmbulanceAccepts();
+            acceptedRecyclerView.setModel(models);
+            if (!models.isEmpty()){
+                binding.noItemsAvailableTv.setVisibility(View.GONE);
+            }
+        }
+    }
+
     private void setNoView() {
         if (!pending.isEmpty()){
             binding.noItemsPendingTv.setVisibility(View.GONE);
         }else {
             binding.noItemsPendingTv.setVisibility(View.VISIBLE);
-        }
-
-        if (!accepted.isEmpty()){
-            binding.noItemsAvailableTv.setVisibility(View.GONE);
-        }else {
-            binding.noItemsAvailableTv.setVisibility(View.VISIBLE);
         }
     }
 
@@ -214,9 +234,9 @@ public class AmbulanceMainActivity extends AppCompatActivity {
     }
 
     public class AcceptedRecyclerView extends RecyclerView.Adapter<AcceptedRecyclerView.MyViewHolder>{
-        ArrayList<UserModel> models = new ArrayList<>();
+        ArrayList<AcceptModel> models = new ArrayList<>();
 
-        public void setModel(ArrayList<UserModel> models){
+        public void setModel(ArrayList<AcceptModel> models){
             this.models = models;
             notifyDataSetChanged();
         }
@@ -232,7 +252,8 @@ public class AmbulanceMainActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
 
-            UserModel model = models.get(position);
+            UserModel model = models.get(position).getPATIENT();
+            String ts = models.get(position).getTIMESTAMP();
 
             if (model.getProfileImage()!=null)
                 Glide.with(AmbulanceMainActivity.this)
@@ -241,9 +262,23 @@ public class AmbulanceMainActivity extends AppCompatActivity {
                         .into(holder.iv);
 
             holder.title.setText(model.getName());
-            String d = "Accident detected on "+Extras.getStandardFormDateFromTimeStamp(model.getTimestamp())
-                    +" on "+Extras.getTimeFromTimeStamp(model.getTimestamp());
+            String d = "Accident detected on "+Extras.getStandardFormDateFromTimeStamp(ts)
+                    +" on "+Extras.getTimeFromTimeStamp(ts);
             holder.desc.setText(d);
+
+            String mode = models.get(position).getSTATUS();
+
+            if (mode.equals("1")){
+                mode = "IN PROGRESS";
+            }else if (mode.equals("2")){
+                mode  = "CANCELLED";
+            } else if (mode.equals("3")){
+                mode = "COMPLETED";
+            }else {
+                mode = "EXPIRED";
+            }
+
+            holder.progress.setText(mode);
 
         }
 
@@ -255,13 +290,14 @@ public class AmbulanceMainActivity extends AppCompatActivity {
 
 
         public class MyViewHolder extends RecyclerView.ViewHolder{
-            TextView title,desc;
+            TextView title,desc,progress;
             CircleImageView iv;
             Button btn;
             public MyViewHolder(@NonNull View itemView) {
                 super(itemView);
                 title = itemView.findViewById(R.id.title);
                 desc  = itemView.findViewById(R.id.desc);
+                progress = itemView.findViewById(R.id.progress);
                 btn = itemView.findViewById(R.id.button);
                 iv = itemView.findViewById(R.id.pImage);
             }
