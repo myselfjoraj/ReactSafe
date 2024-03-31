@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -267,6 +268,7 @@ public class AmbulanceMainActivity extends AppCompatActivity {
             holder.desc.setText(d);
 
             String mode = models.get(position).getSTATUS();
+            String tp = models.get(position).getSTATUS();
 
             if (mode.equals("1")){
                 mode = "IN PROGRESS";
@@ -280,6 +282,27 @@ public class AmbulanceMainActivity extends AppCompatActivity {
 
             holder.progress.setText(mode);
 
+            holder.item.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v){
+                    if (tp.equals("1")){
+                        //mode = "IN PROGRESS";
+                        startMyAct(model.getTimestamp(),model.getUid());
+                    }else if (tp.equals("2")){
+                        //mode  = "CANCELLED";
+                        startMyAct(model.getTimestamp(),null);
+                    } else if (tp.equals("3")){
+                        //mode = "COMPLETED";
+                        startMyAct(model.getTimestamp(),null);
+                    }else {
+                        //mode = "EXPIRED";
+                        startMyAct(model.getTimestamp(),null);
+                    }
+                }
+            });
+
+
+
         }
 
 
@@ -288,9 +311,17 @@ public class AmbulanceMainActivity extends AppCompatActivity {
             return models.size();
         }
 
+        void startMyAct(String id,String uid){
+            Intent intent = new Intent(AmbulanceMainActivity.this,AmbulanceDetailsActivity.class);
+            intent.putExtra("id",id);
+            intent.putExtra("uid",uid);
+            startActivity(intent);
+        }
+
 
         public class MyViewHolder extends RecyclerView.ViewHolder{
             TextView title,desc,progress;
+            LinearLayout item;
             CircleImageView iv;
             Button btn;
             public MyViewHolder(@NonNull View itemView) {
@@ -300,6 +331,7 @@ public class AmbulanceMainActivity extends AppCompatActivity {
                 progress = itemView.findViewById(R.id.progress);
                 btn = itemView.findViewById(R.id.button);
                 iv = itemView.findViewById(R.id.pImage);
+                item = itemView.findViewById(R.id.item);
             }
         }
     }

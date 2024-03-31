@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -89,8 +90,11 @@ public class AmbulanceDetailsActivity extends AppCompatActivity implements OnMap
 
         binding.time.setText("Accident Detected On "+ Extras.getTimeFromTimeStamp(id));
 
-
-
+        if (uid == null || uid.isEmpty()){
+            SetUpForDatabaseListening(id);
+        }else {
+            SetUpForReListening(id,uid);
+        }
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapView);
         if (mapFragment != null)
@@ -109,14 +113,36 @@ public class AmbulanceDetailsActivity extends AppCompatActivity implements OnMap
     }
 
     void SetUpForDatabaseListening(String id){
-
+        binding.btnLay.setVisibility(View.GONE);
+        binding.completedTV.setVisibility(View.VISIBLE);
         try (DatabaseHelper helper = new DatabaseHelper(AmbulanceDetailsActivity.this)){
             ArrayList<AcceptModel> models = helper.readAmbulanceAcceptsById(id);
+            AcceptModel model = models.get(0);
+
+            setPatient(model.getPATIENT());
+            setParent(model.getPARENT());
+            setHospital(model.getLATITUDE(),model.getLONGITUDE(),model.getHOSPITAL());
+            setPolice(model.getPOLICE());
+
+            String s = model.getSTATUS();
+            String status = "IN PROGRESS";
+            if (s.equals("2")){
+                status = "CANCELLED";
+            }else if (s.equals("3")){
+                status = "COMPLETED";
+            } else if (s.equals("4")) {
+                status = "EXPIRED";
+            }
+            binding.completedTV.setText(status);
         }
 
     }
 
     void SetUpForReListening(String id,String uid){
+
+        binding.btnLay.setVisibility(View.VISIBLE);
+        binding.completedTV.setVisibility(View.GONE);
+
         getPatient(uid);
 
         //new SharedPreference(this).putLong("startedAlertOn", Calendar.getInstance().getTimeInMillis() + 60000);
@@ -147,61 +173,70 @@ public class AmbulanceDetailsActivity extends AppCompatActivity implements OnMap
 
     void getPatient(String uid){
         FirebaseHelper.getUser(uid, model -> {
-            patientModel = model;
-            binding.patientName.setText(model.getName());
-            if (model.getProfileImage()!=null)
-                Glide.with(AmbulanceDetailsActivity.this)
-                        .load(model.getProfileImage())
-                        .placeholder(R.drawable.avatar)
-                        .into(binding.patientIv);
-            binding.patientCall.setOnClickListener(v -> callPhone(model.getPhone()));
+            setPatient(model);
             getParent(model.getPairedBy());
         });
     }
 
+    void setPatient(UserModel model){
+        patientModel = model;
+        binding.patientName.setText(model.getName());
+        if (model.getProfileImage()!=null)
+            Glide.with(AmbulanceDetailsActivity.this)
+                    .load(model.getProfileImage())
+                    .placeholder(R.drawable.avatar)
+                    .into(binding.patientIv);
+        binding.patientCall.setOnClickListener(v -> callPhone(model.getPhone()));
+    }
+
     void getParent(String uid){
-        FirebaseHelper.getUser(uid, model -> {
-            parentModel = model;
-            binding.parentName.setText(model.getName());
-            if (model.getProfileImage()!=null)
-                Glide.with(AmbulanceDetailsActivity.this)
-                        .load(model.getProfileImage())
-                        .placeholder(R.drawable.avatar)
-                        .into(binding.parentIv);
-            binding.parentCall.setOnClickListener(v -> callPhone(model.getPhone()));
-        });
+        FirebaseHelper.getUser(uid, this::setParent);
+    }
+
+    void setParent(UserModel model){
+        parentModel = model;
+        binding.parentName.setText(model.getName());
+        if (model.getProfileImage()!=null)
+            Glide.with(AmbulanceDetailsActivity.this)
+                    .load(model.getProfileImage())
+                    .placeholder(R.drawable.avatar)
+                    .into(binding.parentIv);
+        binding.parentCall.setOnClickListener(v -> callPhone(model.getPhone()));
     }
 
     void getPolice(String uid){
-        FirebaseHelper.getEntity("police", uid, model -> {
-            policeModel = model;
-            binding.policeName.setText(model.getName());
-            if (model.getProfileImage()!=null)
-                Glide.with(AmbulanceDetailsActivity.this)
-                        .load(model.getProfileImage())
-                        .placeholder(R.drawable.avatar)
-                        .into(binding.policeIv);
-            binding.policeCall.setOnClickListener(v -> callPhone(model.getPhone()));
-            binding.policeAddress.setText(Extras.getLocationString(AmbulanceDetailsActivity.this,model.getLat(),model.getLng()));
-        });
+        FirebaseHelper.getEntity("police", uid, this::setPolice);
+    }
+
+    void setPolice(UserModel model){
+        policeModel = model;
+        binding.policeName.setText(model.getName());
+        if (model.getProfileImage()!=null)
+            Glide.with(AmbulanceDetailsActivity.this)
+                    .load(model.getProfileImage())
+                    .placeholder(R.drawable.avatar)
+                    .into(binding.policeIv);
+        binding.policeCall.setOnClickListener(v -> callPhone(model.getPhone()));
+        binding.policeAddress.setText(Extras.getLocationString(AmbulanceDetailsActivity.this,model.getLat(),model.getLng()));
     }
 
     void getHospital(String uid,String lat,String lng){
-        FirebaseHelper.getEntity("hospital", uid, model -> {
-            hospitalModel = model;
-            binding.hospitalName.setText(model.getName());
-            if (model.getProfileImage()!=null)
-                Glide.with(AmbulanceDetailsActivity.this)
-                        .load(model.getProfileImage())
-                        .placeholder(R.drawable.avatar)
-                        .into(binding.hospitalIv);
-            binding.hospitalCall.setOnClickListener(v -> callPhone(model.getPhone()));
-            String loc = Extras.getLocationString(AmbulanceDetailsActivity.this,model.getLat(),model.getLng());
-            binding.hospitalAddress.setText(loc);
-            binding.hospitalAddress2.setText(loc);
+        FirebaseHelper.getEntity("hospital", uid, model -> setHospital(lat,lng,model));
+    }
 
-            setPolyLineInMap(lat,lng,model.getLat(),model.getLng());
-        });
+    void setHospital(String lat,String lng,UserModel model){
+        hospitalModel = model;
+        binding.hospitalName.setText(model.getName());
+        if (model.getProfileImage()!=null)
+            Glide.with(AmbulanceDetailsActivity.this)
+                    .load(model.getProfileImage())
+                    .placeholder(R.drawable.avatar)
+                    .into(binding.hospitalIv);
+        binding.hospitalCall.setOnClickListener(v -> callPhone(model.getPhone()));
+        String loc = Extras.getLocationString(AmbulanceDetailsActivity.this,model.getLat(),model.getLng());
+        binding.hospitalAddress.setText(loc);
+        binding.hospitalAddress2.setText(loc);
+        setPolyLineInMap(lat,lng,model.getLat(),model.getLng());
     }
 
     void callPhone(String phone){
