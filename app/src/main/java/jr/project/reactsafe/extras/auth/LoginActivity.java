@@ -107,6 +107,8 @@ public class LoginActivity extends AppCompatActivity {
                             public void getReceiver(UserModel model) {
                                 new UserPreferenceHelper(LoginActivity.this).setProfileName(model.getName());
                                 new UserPreferenceHelper(LoginActivity.this).setProfileImage(model.getProfileImage());
+                                new UserPreferenceHelper(LoginActivity.this).setProfileNumber(model.getPhone());
+
                                 new SharedPreference(LoginActivity.this).setUserTypeInPref(model.getTitle());
                                 startActivity(new Intent(LoginActivity.this, SplashScreenActivity.class));
                             }

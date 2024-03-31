@@ -46,6 +46,7 @@ import jr.project.reactsafe.extras.util.CircleImageView;
 import jr.project.reactsafe.extras.util.Extras;
 import jr.project.reactsafe.user.UserMainActivity;
 import jr.project.reactsafe.user.UserPreferenceHelper;
+import jr.project.reactsafe.user.UserSettingsActivity;
 
 public class AmbulanceMainActivity extends AppCompatActivity {
 
@@ -65,12 +66,25 @@ public class AmbulanceMainActivity extends AppCompatActivity {
         uid = FirebaseAuth.getInstance().getUid();
 
         String name = new UserPreferenceHelper(this).getProfileName();
+        String image = new UserPreferenceHelper(this).getProfileImage();
+        if (image!=null)
+            Glide.with(this)
+                    .load(image)
+                    .placeholder(R.drawable.avatar)
+                    .into(binding.myProfImg);
 
         if (name!=null){
             binding.welcomeName.setText("Welcome "+name+",");
         }else {
             binding.welcomeName.setText("Welcome,");
         }
+
+        binding.myProfImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(AmbulanceMainActivity.this, UserSettingsActivity.class));
+            }
+        });
 
         accepted = new ArrayList<>();
         pending  = new ArrayList<>();
@@ -211,6 +225,16 @@ public class AmbulanceMainActivity extends AppCompatActivity {
                 }
             });
 
+            holder.iv.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(AmbulanceMainActivity.this,AmbulanceAcceptActivity.class);
+                    intent.putExtra("id",model.getTimestamp());
+                    intent.putExtra("uid",model.getUid());
+                    startActivity(intent);
+                }
+            });
+
         }
 
 
@@ -287,16 +311,16 @@ public class AmbulanceMainActivity extends AppCompatActivity {
                 public void onClick(View v){
                     if (tp.equals("1")){
                         //mode = "IN PROGRESS";
-                        startMyAct(model.getTimestamp(),model.getUid());
+                        startMyAct(ts,model.getUid());
                     }else if (tp.equals("2")){
                         //mode  = "CANCELLED";
-                        startMyAct(model.getTimestamp(),null);
+                        startMyAct(ts,null);
                     } else if (tp.equals("3")){
                         //mode = "COMPLETED";
-                        startMyAct(model.getTimestamp(),null);
+                        startMyAct(ts,null);
                     }else {
                         //mode = "EXPIRED";
-                        startMyAct(model.getTimestamp(),null);
+                        startMyAct(ts,null);
                     }
                 }
             });

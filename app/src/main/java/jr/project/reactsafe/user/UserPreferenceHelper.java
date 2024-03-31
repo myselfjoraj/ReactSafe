@@ -35,6 +35,10 @@ public class UserPreferenceHelper {
         mPref.putString("myProfileImage", url);
     }
 
+    public void setProfileNumber(String number){
+        mPref.putString("myProfileNumber", number);
+    }
+
     public String getProfileName(){
         return mPref.getString("myProfileName",FirebaseAuth.getInstance().getCurrentUser().getEmail());
     }
@@ -45,6 +49,10 @@ public class UserPreferenceHelper {
 
     public String getProfileImage(){
         return mPref.getString("myProfileImage", null);
+    }
+
+    public String getProfileNumber(){
+        return mPref.getString("myProfileNumber", null);
     }
 
     public void setPairedDeviceDetails(String a){

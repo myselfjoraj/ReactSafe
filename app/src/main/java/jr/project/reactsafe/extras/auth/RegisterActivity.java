@@ -80,6 +80,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         String name = binding.etName.getText().toString();
         String email = binding.etEmail.getText().toString();
+        String phone = binding.etPhone.getText().toString();
         String pass = binding.etPassword.getText().toString();
 
         if (name.isEmpty()){
@@ -93,12 +94,16 @@ public class RegisterActivity extends AppCompatActivity {
         }else if (pass.isEmpty() || pass.length() < 6){
             Toast.makeText(this, "Password should be greater than six characters.", Toast.LENGTH_SHORT).show();
             return;
+        }else if (phone.length() != 10){
+            Toast.makeText(this, "Please enter a correct phone number.", Toast.LENGTH_SHORT).show();
+            return;
         }
 
         showPleaseWaitDialog("Please wait...");
         model = new UserModel();
         model.setName(name);
         model.setEmail(email);
+        model.setPhone(phone);
 
         if (title == 1){
             model.setTitle("user");

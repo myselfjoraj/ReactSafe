@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,6 +20,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 
@@ -27,10 +29,18 @@ import java.util.Objects;
 
 import jr.project.reactsafe.R;
 import jr.project.reactsafe.SplashScreenActivity;
+import jr.project.reactsafe.ambulance.AmbulanceMainActivity;
 import jr.project.reactsafe.databinding.ActivityUserSettingsBinding;
+import jr.project.reactsafe.extras.auth.LoginActivity;
 import jr.project.reactsafe.extras.database.DatabaseHelper;
+import jr.project.reactsafe.extras.misc.SharedPreference;
 import jr.project.reactsafe.extras.model.RecentModel;
 import jr.project.reactsafe.extras.util.CircleImageView;
+import jr.project.reactsafe.hospital.HospitalMainActivity;
+import jr.project.reactsafe.parent.PairUserDeviceActivity;
+import jr.project.reactsafe.parent.ParentMainActivity;
+import jr.project.reactsafe.parent.ParentPreferenceHelper;
+import jr.project.reactsafe.police.PoliceMainActivity;
 
 public class UserSettingsActivity extends AppCompatActivity {
 
@@ -70,6 +80,13 @@ public class UserSettingsActivity extends AppCompatActivity {
 
         binding.signOut.setOnClickListener(v -> showSignOutDialog());
 
+        String s = new SharedPreference(this).getUserTypeInPref();
+        if (s!=null){
+            if (!s.equals("user") || !s.equals("parent")){
+                binding.pairDevice.setVisibility(View.GONE);
+            }
+        }
+
     }
 
     int occurredAccidents = 0;
@@ -104,16 +121,21 @@ public class UserSettingsActivity extends AppCompatActivity {
 
         CircleImageView pImage  = bottomSheetDialog.findViewById(R.id.profileImage);
         EditText  nameBox = bottomSheetDialog.findViewById(R.id.nameField);
+        EditText  phoneBox = bottomSheetDialog.findViewById(R.id.phoneField);
         Button    save    = bottomSheetDialog.findViewById(R.id.save);
 
         String name = mPref.getProfileName();
         String email = mPref.getProfileEmail();
         String link = mPref.getProfileImage();
+        String phone = mPref.getProfileNumber();
 
         if (!Objects.equals(name,email)){
             assert nameBox != null;
             nameBox.setText(mPref.getProfileName());
         }
+
+        if (phone!=null)
+            phoneBox.setText(phone);
 
         if (link!=null) {
             assert pImage != null;
@@ -149,6 +171,7 @@ public class UserSettingsActivity extends AppCompatActivity {
         save.setOnClickListener(v -> {
 
             String new_name = nameBox.getText().toString();
+            String new_phone = phoneBox.getText().toString();
             if (new_name.isEmpty()){
                 Toast.makeText(UserSettingsActivity.this,
                         "Please enter your name!", Toast.LENGTH_SHORT
@@ -161,6 +184,18 @@ public class UserSettingsActivity extends AppCompatActivity {
                 return;
             }
 
+            if (new_phone.isEmpty()){
+                Toast.makeText(UserSettingsActivity.this,
+                        "Please enter your phone number!", Toast.LENGTH_SHORT
+                ).show();
+                return;
+            }else if (new_phone.length() != 10 ){
+                Toast.makeText(UserSettingsActivity.this,
+                        "Invalid phone number!", Toast.LENGTH_SHORT
+                ).show();
+                return;
+            }
+
             if (profileUri!=null) {
                 FirebaseStorage.getInstance().getReference().child("profileImages")
                         .child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).putFile(profileUri)
@@ -168,16 +203,15 @@ public class UserSettingsActivity extends AppCompatActivity {
                             Objects.requireNonNull(taskSnapshot.getMetadata().getReference()).getDownloadUrl()
                                     .addOnCompleteListener(task -> {
                                         String profileImageLink = String.valueOf(task.getResult());
-                                        FirebaseDatabase.getInstance().getReference().child("users").child(uid)
-                                                .child("profileImage").setValue(profileImageLink);
+                                        throwToDb(profileImageLink);
                                         mPref.setProfileImage(profileImageLink);
                                     });
                         });
             }
 
-            FirebaseDatabase.getInstance().getReference().child("users").child(uid)
-                    .child("name").setValue(new_name);
+            throwToDb(new_name,new_phone);
             mPref.setProfileName(new_name);
+            mPref.setProfileNumber(new_phone);
 
             //re setting views
             binding.name.setText(mPref.getProfileName());
@@ -192,6 +226,32 @@ public class UserSettingsActivity extends AppCompatActivity {
 
         bottomSheetDialog.show();
     }
+    void throwToDb(String name,String phone){
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("users")
+                .child(FirebaseAuth.getInstance().getUid());
+        ref.child("phone").setValue(phone);
+        ref.child("name").setValue(name);
+        String s = new SharedPreference(this).getUserTypeInPref();
+        if (!s.equals("user") || !s.equals("parent")){
+            DatabaseReference ref2 = FirebaseDatabase.getInstance().getReference().child(s)
+                    .child(FirebaseAuth.getInstance().getUid());
+            ref2.child("phone").setValue(phone);
+            ref2.child("name").setValue(name);
+        }
+    }
+
+    void throwToDb(String profileImage){
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("users")
+                .child(FirebaseAuth.getInstance().getUid());
+        ref.child("profileImage").setValue(profileImage);
+        String s = new SharedPreference(this).getUserTypeInPref();
+        if (!s.equals("user") || !s.equals("parent")){
+            DatabaseReference ref2 = FirebaseDatabase.getInstance().getReference().child(s)
+                    .child(FirebaseAuth.getInstance().getUid());
+            ref2.child("profileImage").setValue(profileImage);
+        }
+    }
+
     // Initialize result launcher
     public void setResultLauncher() {
         resultLauncher = registerForActivityResult(

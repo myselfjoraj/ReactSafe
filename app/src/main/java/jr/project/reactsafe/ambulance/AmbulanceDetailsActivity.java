@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -90,15 +91,30 @@ public class AmbulanceDetailsActivity extends AppCompatActivity implements OnMap
 
         binding.time.setText("Accident Detected On "+ Extras.getTimeFromTimeStamp(id));
 
-        if (uid == null || uid.isEmpty()){
-            SetUpForDatabaseListening(id);
-        }else {
-            SetUpForReListening(id,uid);
-        }
-
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapView);
         if (mapFragment != null)
-            mapFragment.getMapAsync(this);
+            mapFragment.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(@NonNull GoogleMap googleMap) {
+                    mMap = googleMap;
+                    googleMap.addMarker(new MarkerOptions()
+                            .position(cLoc)
+                            .title("You")
+                            .icon(Extras.bitmapFromVector(getApplicationContext(),R.drawable.marker_map_icon)));
+                    googleMap.moveCamera(
+                            CameraUpdateFactory.newLatLngZoom(cLoc,15));
+
+                    if (uid == null || uid.isEmpty()){
+                        SetUpForDatabaseListening(id);
+                    }else {
+                        SetUpForReListening(id,uid);
+                    }
+
+                }
+            });
+
+
+
     }
 
     @Override
@@ -123,6 +139,8 @@ public class AmbulanceDetailsActivity extends AppCompatActivity implements OnMap
             setParent(model.getPARENT());
             setHospital(model.getLATITUDE(),model.getLONGITUDE(),model.getHOSPITAL());
             setPolice(model.getPOLICE());
+
+            binding.patientAddress.setText(model.getLATITUDE()+" Lat, "+model.getLONGITUDE()+" Lng");
 
             String s = model.getSTATUS();
             String status = "IN PROGRESS";
@@ -240,7 +258,10 @@ public class AmbulanceDetailsActivity extends AppCompatActivity implements OnMap
     }
 
     void callPhone(String phone){
-        Intent phone_intent = new Intent(Intent.ACTION_CALL);
+        if (phone == null || phone.isEmpty()){
+            Toast.makeText(this, "Phone number is not provided!", Toast.LENGTH_SHORT).show();
+        }
+        Intent phone_intent = new Intent(Intent.ACTION_DIAL);
         phone_intent.setData(Uri.parse("tel:" + phone));
         startActivity(phone_intent);
     }
