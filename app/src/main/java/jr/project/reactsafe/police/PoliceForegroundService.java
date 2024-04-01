@@ -1,4 +1,4 @@
-package jr.project.reactsafe.hospital;
+package jr.project.reactsafe.police;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -27,13 +27,12 @@ import jr.project.reactsafe.R;
 import jr.project.reactsafe.ambulance.AmbulanceMainActivity;
 import jr.project.reactsafe.extras.misc.SharedPreference;
 
-public class HospitalForegroundService extends Service {
+public class PoliceForegroundService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         return super.onStartCommand(intent, flags, startId);
@@ -45,18 +44,18 @@ public class HospitalForegroundService extends Service {
 
         if (Build.VERSION.SDK_INT >= 34) {
             startForeground(
-                    112,
+                    113,
                     createNotification(),
                     ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
         }else {
             startForeground(
-                    112,
+                    113,
                     createNotification());
         }
 
 
 
-        FirebaseDatabase.getInstance().getReference().child("hospital")
+        FirebaseDatabase.getInstance().getReference().child("police")
                 .child(FirebaseAuth.getInstance().getUid()).child("alert")
                 .addValueEventListener(new ValueEventListener() {
                     @Override
@@ -64,7 +63,7 @@ public class HospitalForegroundService extends Service {
                         for (DataSnapshot snapshot : snapshot1.getChildren()){
                             if (snapshot.exists()){
                                 String isAccepted = snapshot.child("isAccepted").getValue(String.class);
-                                Log.e("HospitalReceived","A new alert received!");
+                                Log.e("PoliceReceived","A new alert received!");
 
                                 if (isAccepted == null || !isAccepted.equals("true")){
                                     notifyHighAlert();
@@ -80,7 +79,7 @@ public class HospitalForegroundService extends Service {
 
     private void notifyHighAlert() {
 
-        Intent contentIntent = new Intent(this, HospitalMainActivity.class);
+        Intent contentIntent = new Intent(this, PoliceMainActivity.class);
         PendingIntent contentPendingIntent = PendingIntent.getActivity(this, 0, contentIntent, 0);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "lockChannel")
@@ -119,7 +118,7 @@ public class HospitalForegroundService extends Service {
             notificationManager.createNotificationChannel(channel);
         }
 
-        Intent notificationIntent = new Intent(this, HospitalMainActivity.class);
+        Intent notificationIntent = new Intent(this, AmbulanceMainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
 
         return new NotificationCompat.Builder(this, "hospital_channel")

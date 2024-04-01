@@ -238,6 +238,11 @@ public class AmbulanceMainActivity extends AppCompatActivity {
         ArrayList<UserModel> models = new ArrayList<>();
 
         public void setModel(ArrayList<UserModel> models){
+            if (!models.isEmpty()){
+                binding.noItemsPendingTv.setVisibility(View.GONE);
+            }else {
+                binding.noItemsPendingTv.setVisibility(View.VISIBLE);
+            }
             this.models = models;
             notifyDataSetChanged();
         }

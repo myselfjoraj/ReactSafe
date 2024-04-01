@@ -131,7 +131,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cv.put("STATUS",STATUS);
         cv.put("PATIENT",new Gson().toJson(PATIENT));
         cv.put("PARENT",new Gson().toJson(PARENT));
-        cv.put("HOSPITAL",new Gson().toJson(HOSPITAL));
+        cv.put("AMBULANCE",new Gson().toJson(HOSPITAL));
         cv.put("POLICE",new Gson().toJson(POLICE));
         float r=database.insert("HOSPITAL_ACCEPTS",null,cv);
         if (r==-1){
@@ -174,7 +174,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             model.setSTATUS(cursor.getString(4));
             model.setPATIENT(returnModel(cursor.getString(5)));
             model.setPARENT(returnModel(cursor.getString(6)));
-            model.setHOSPITAL(returnModel(cursor.getString(7)));
+            model.setAMBULANCE(returnModel(cursor.getString(7)));
             model.setPOLICE(returnModel(cursor.getString(8)));
 
             rec.add(model);
@@ -196,7 +196,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             model.setSTATUS(cursor.getString(4));
             model.setPATIENT(returnModel(cursor.getString(5)));
             model.setPARENT(returnModel(cursor.getString(6)));
-            model.setHOSPITAL(returnModel(cursor.getString(7)));
+            model.setAMBULANCE(returnModel(cursor.getString(7)));
             model.setPOLICE(returnModel(cursor.getString(8)));
 
             rec.add(model);
@@ -282,6 +282,90 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             model.setPARENT(returnModel(cursor.getString(6)));
             model.setHOSPITAL(returnModel(cursor.getString(7)));
             model.setPOLICE(returnModel(cursor.getString(8)));
+
+            rec.add(model);
+        }
+        return rec;
+    }
+
+    // POLICE { POLICE_ACCEPTS }
+    public String insertPoliceAccepts(String TIMESTAMP, String LATITUDE , String LONGITUDE , String STATUS,
+                                         UserModel PATIENT,UserModel PARENT,UserModel HOSPITAL,UserModel AMBULANCE){
+        SQLiteDatabase database=this.getWritableDatabase();
+        ContentValues cv=new ContentValues();
+        cv.put("TIMESTAMP",TIMESTAMP);
+        cv.put("LATITUDE",LATITUDE);
+        cv.put("LONGITUDE",LONGITUDE);
+        cv.put("STATUS",STATUS);
+        cv.put("PATIENT",new Gson().toJson(PATIENT));
+        cv.put("PARENT",new Gson().toJson(PARENT));
+        cv.put("HOSPITAL",new Gson().toJson(HOSPITAL));
+        cv.put("AMBULANCE",new Gson().toJson(AMBULANCE));
+        float r=database.insert("POLICE_ACCEPTS",null,cv);
+        if (r==-1){
+            return "failed";
+        }else {
+            return "success";
+        }
+    }
+
+    /**
+     * status val
+     * 1 - in progress
+     * 2 - cancelled
+     * 3 - completed
+     * 4 - expired
+     * **/
+    public String updateAlertOnPolice(String timestamp,String status){
+        SQLiteDatabase database=this.getWritableDatabase();
+        ContentValues cv=new ContentValues();
+        cv.put("STATUS",status);
+        float id=database.update("POLICE_ACCEPTS",cv,"TIMESTAMP="+timestamp,null);
+        if (id==-1){
+            return "failed";
+        }else {
+            return "success";
+        }
+    }
+
+    public ArrayList<AcceptModel> readPoliceAccepts(){
+        ArrayList<AcceptModel> rec = new ArrayList<>();
+        SQLiteDatabase database=this.getWritableDatabase();
+        String qry="SELECT * FROM POLICE_ACCEPTS ORDER BY ID DESC";
+        Cursor cursor=database.rawQuery(qry,null);
+        while (cursor.moveToNext()){
+
+            AcceptModel model = new AcceptModel();
+            model.setTIMESTAMP(cursor.getString(1));
+            model.setLATITUDE(cursor.getString(2));
+            model.setLONGITUDE(cursor.getString(3));
+            model.setSTATUS(cursor.getString(4));
+            model.setPATIENT(returnModel(cursor.getString(5)));
+            model.setPARENT(returnModel(cursor.getString(6)));
+            model.setHOSPITAL(returnModel(cursor.getString(7)));
+            model.setAMBULANCE(returnModel(cursor.getString(8)));
+
+            rec.add(model);
+        }
+        return rec;
+    }
+
+    public ArrayList<AcceptModel> readPoliceAcceptsById(String id){
+        ArrayList<AcceptModel> rec = new ArrayList<>();
+        SQLiteDatabase database=this.getWritableDatabase();
+        String qry="SELECT * FROM POLICE_ACCEPTS WHERE TIMESTAMP="+id;
+        Cursor cursor=database.rawQuery(qry,null);
+        while (cursor.moveToNext()){
+
+            AcceptModel model = new AcceptModel();
+            model.setTIMESTAMP(cursor.getString(1));
+            model.setLATITUDE(cursor.getString(2));
+            model.setLONGITUDE(cursor.getString(3));
+            model.setSTATUS(cursor.getString(4));
+            model.setPATIENT(returnModel(cursor.getString(5)));
+            model.setPARENT(returnModel(cursor.getString(6)));
+            model.setHOSPITAL(returnModel(cursor.getString(7)));
+            model.setAMBULANCE(returnModel(cursor.getString(8)));
 
             rec.add(model);
         }
