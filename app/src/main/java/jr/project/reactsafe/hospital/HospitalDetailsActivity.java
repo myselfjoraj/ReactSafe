@@ -9,15 +9,15 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import jr.project.reactsafe.R;
-import jr.project.reactsafe.databinding.ActivityHospitalMainBinding;
+import jr.project.reactsafe.databinding.ActivityHospitalDetailsBinding;
 
-public class HospitalMainActivity extends AppCompatActivity {
+public class HospitalDetailsActivity extends AppCompatActivity {
 
-    ActivityHospitalMainBinding binding;
+    ActivityHospitalDetailsBinding binding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityHospitalMainBinding.inflate(getLayoutInflater());
+        binding = ActivityHospitalDetailsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
 
