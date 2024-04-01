@@ -32,6 +32,36 @@ public class NearestSafe {
         });
     }
 
+    public static void getNearestHospital(String lati, String lngi, String excludeUid,OnFound listener){
+        double lat = Double.parseDouble(lati);
+        double lng = Double.parseDouble(lngi);
+        findHospital(new OnReceived() {
+            @Override
+            public void onReceive(ArrayList<UserModel> model) {
+                if (model == null || model.isEmpty()){
+                    listener.onFound(null);
+                }else {
+                    int i = ClosestPoint.get(lat, lng, model);
+                    if (model.get(i).getUid().equals(excludeUid)){
+                        try {
+                            model.remove(i);
+                            if (!model.isEmpty()) {
+                                i = ClosestPoint.get(lat, lng, model);
+                                listener.onFound(model.get(i));
+                            }else {
+                                listener.onFound(null);
+                            }
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }else {
+                        listener.onFound(model.get(i));
+                    }
+                }
+            }
+        });
+    }
+
     public static void getNearestAmbulance(String lati, String lngi, OnFound listener){
         double lat = Double.parseDouble(lati);
         double lng = Double.parseDouble(lngi);

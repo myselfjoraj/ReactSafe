@@ -99,7 +99,7 @@ public class HospitalAcceptActivity extends AppCompatActivity implements OnMapRe
             }
             public  void onFinish(){
                 if (!didAccept){
-                    //changeAmbulance(true,alertModel.getLat(),alertModel.getLng(),alertModel.getTimestamp(),uid,alertModel);
+                    changeHospital(true,alertModel.getLat(),alertModel.getLng(),alertModel.getTimestamp(),uid,alertModel);
                 }
             }
         };
@@ -120,7 +120,7 @@ public class HospitalAcceptActivity extends AppCompatActivity implements OnMapRe
                             binding.patientAddress.setText(alertModel.getLat()+" Lat, "+alertModel.getLng()+" Lng");
 
                             binding.reject.setOnClickListener(v -> {
-                                changeAmbulance(false,alertModel.getLat(), alertModel.getLng(), alertModel.getTimestamp(), uid, alertModel);
+                                changeHospital(false,alertModel.getLat(), alertModel.getLng(), alertModel.getTimestamp(), uid, alertModel);
                             });
                         }
                     }
@@ -164,30 +164,30 @@ public class HospitalAcceptActivity extends AppCompatActivity implements OnMapRe
                 CameraUpdateFactory.newLatLngZoom(cLoc,15));
     }
 
-    void changeAmbulance(boolean isExpired, String lat, String lng, String id, String hisUid, AlertModel alertModel){
+    void changeHospital(boolean isExpired, String lat, String lng, String id, String hisUid, AlertModel alertModel){
         showPleaseWaitDialog("Please wait ...");
         String stat = "2";
         if (isExpired){
             stat = "4";
         }
         try (DatabaseHelper db = new DatabaseHelper(HospitalAcceptActivity.this)){
-            db.insertAmbulanceAccepts(id,alertModel.getLat(),alertModel.getLng(),stat,
+            db.insertHospitalAccepts(id,alertModel.getLat(),alertModel.getLng(),stat,
                     patientModel,parentModel,ambulanceModel,policeModel);
         }
 
-        NearestSafe.getNearestAmbulance(lat, lng, FirebaseAuth.getInstance().getUid(), model -> {
+        NearestSafe.getNearestHospital(lat, lng, FirebaseAuth.getInstance().getUid(), model -> {
+            // remove from my node
+            dbRef.child("ambulance").child(FirebaseAuth.getInstance().getUid())
+                    .child("alert").child(id).removeValue();
             if (model == null){
                 return;
             }
             String uid = model.getUid();
-            // remove from my node
-            dbRef.child("ambulance").child(FirebaseAuth.getInstance().getUid())
-                    .child("alert").child(id).removeValue();
             // set in user
             dbRef.child("users").child(hisUid).child("alerts")
-                    .child(id).child("ambulance").setValue(uid);
+                    .child(id).child("hospital").setValue(uid);
             //set in other ambulance
-            dbRef.child("ambulance").child(uid).child("alert")
+            dbRef.child("hospital").child(uid).child("alert")
                     .child(id).setValue(alertModel);
             dismissPleaseWaitDialog();
             finish();

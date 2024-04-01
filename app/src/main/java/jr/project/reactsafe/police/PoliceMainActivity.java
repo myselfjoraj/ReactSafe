@@ -192,7 +192,7 @@ public class PoliceMainActivity extends AppCompatActivity {
 
     private void readAllAccepts() {
         try (DatabaseHelper databaseHelper = new DatabaseHelper(PoliceMainActivity.this)){
-            ArrayList<AcceptModel> models = databaseHelper.readHospitalAccepts();
+            ArrayList<AcceptModel> models = databaseHelper.readPoliceAccepts();
             acceptedRecyclerView.setModel(models);
             ArrayList<String> str = new ArrayList<>();
             if (pending!=null){

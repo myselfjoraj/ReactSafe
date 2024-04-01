@@ -122,7 +122,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // HOSPITAL { HOSPITAL_ACCEPTS }
     public String insertHospitalAccepts(String TIMESTAMP, String LATITUDE , String LONGITUDE , String STATUS,
-                                         UserModel PATIENT,UserModel PARENT,UserModel HOSPITAL,UserModel POLICE){
+                                         UserModel PATIENT,UserModel PARENT,UserModel AMBULANCE,UserModel POLICE){
         SQLiteDatabase database=this.getWritableDatabase();
         ContentValues cv=new ContentValues();
         cv.put("TIMESTAMP",TIMESTAMP);
@@ -131,7 +131,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cv.put("STATUS",STATUS);
         cv.put("PATIENT",new Gson().toJson(PATIENT));
         cv.put("PARENT",new Gson().toJson(PARENT));
-        cv.put("AMBULANCE",new Gson().toJson(HOSPITAL));
+        cv.put("AMBULANCE",new Gson().toJson(AMBULANCE));
         cv.put("POLICE",new Gson().toJson(POLICE));
         float r=database.insert("HOSPITAL_ACCEPTS",null,cv);
         if (r==-1){
