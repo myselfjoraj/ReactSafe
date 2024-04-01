@@ -177,7 +177,7 @@ public class HospitalAcceptActivity extends AppCompatActivity implements OnMapRe
 
         NearestSafe.getNearestHospital(lat, lng, FirebaseAuth.getInstance().getUid(), model -> {
             // remove from my node
-            dbRef.child("ambulance").child(FirebaseAuth.getInstance().getUid())
+            dbRef.child("hospital").child(FirebaseAuth.getInstance().getUid())
                     .child("alert").child(id).removeValue();
             if (model == null){
                 return;

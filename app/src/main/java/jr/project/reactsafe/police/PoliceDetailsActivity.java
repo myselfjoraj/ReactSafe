@@ -5,8 +5,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -24,7 +25,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -44,22 +44,20 @@ import java.util.HashMap;
 import java.util.List;
 
 import jr.project.reactsafe.R;
-import jr.project.reactsafe.ambulance.AmbulanceAcceptActivity;
 import jr.project.reactsafe.ambulance.AmbulanceDetailsActivity;
-import jr.project.reactsafe.databinding.ActivityPoliceAcceptBinding;
+import jr.project.reactsafe.databinding.ActivityPoliceDetailsBinding;
 import jr.project.reactsafe.extras.database.DatabaseHelper;
 import jr.project.reactsafe.extras.database.FirebaseHelper;
 import jr.project.reactsafe.extras.misc.DirectionsJSONParser;
-import jr.project.reactsafe.extras.misc.NearestSafe;
 import jr.project.reactsafe.extras.misc.SharedPreference;
+import jr.project.reactsafe.extras.model.AcceptModel;
 import jr.project.reactsafe.extras.model.AlertModel;
 import jr.project.reactsafe.extras.model.UserModel;
 import jr.project.reactsafe.extras.util.Extras;
-import jr.project.reactsafe.hospital.HospitalAcceptActivity;
 
-public class PoliceAcceptActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class PoliceDetailsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    ActivityPoliceAcceptBinding binding;
+    ActivityPoliceDetailsBinding binding;
     GoogleMap mMap;
     LatLng cLoc = new LatLng(37.0902, 95.7129);
     DatabaseReference dbRef;
@@ -67,26 +65,97 @@ public class PoliceAcceptActivity extends AppCompatActivity implements OnMapRead
     int sec = 60;
     AlertModel alertModel;
     ProgressDialog progressDialog;
-    UserModel patientModel,parentModel,ambulanceModel,hospitalModel;
+    UserModel patientModel,parentModel,hospitalModel,ambulanceModel;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityPoliceAcceptBinding.inflate(getLayoutInflater());
+        binding = ActivityPoliceDetailsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
 
 
         String id = getIntent().getStringExtra("id");
         String uid = getIntent().getStringExtra("uid");
 
-        patientModel  = new UserModel();
-        parentModel   = new UserModel();
-        hospitalModel = new UserModel();
-        ambulanceModel   = new UserModel();
+        patientModel   = new UserModel();
+        parentModel    = new UserModel();
+        hospitalModel  = new UserModel();
+        ambulanceModel = new UserModel();
 
         dbRef = FirebaseDatabase.getInstance().getReference();
 
-        binding.time.setText("Accident Detected On "+Extras.getTimeFromTimeStamp(id));
+        binding.time.setText("Accident Detected On "+ Extras.getTimeFromTimeStamp(id));
+
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapView);
+        if (mapFragment != null)
+            mapFragment.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(@NonNull GoogleMap googleMap) {
+                    mMap = googleMap;
+                    googleMap.addMarker(new MarkerOptions()
+                            .position(cLoc)
+                            .title("You")
+                            .icon(Extras.bitmapFromVector(getApplicationContext(),R.drawable.marker_map_icon)));
+                    googleMap.moveCamera(
+                            CameraUpdateFactory.newLatLngZoom(cLoc,15));
+
+                    if (uid == null || uid.isEmpty()){
+                        SetUpForDatabaseListening(id);
+                    }else {
+                        SetUpForReListening(id,uid);
+                    }
+
+                }
+            });
+
+
+
+
+    }
+
+    @Override
+    public void onMapReady(@NonNull GoogleMap googleMap) {
+        mMap = googleMap;
+        googleMap.addMarker(new MarkerOptions()
+                .position(cLoc)
+                .title("You")
+                .icon(Extras.bitmapFromVector(getApplicationContext(),R.drawable.marker_map_icon)));
+        googleMap.moveCamera(
+                CameraUpdateFactory.newLatLngZoom(cLoc,15));
+    }
+
+    void SetUpForDatabaseListening(String id){
+        binding.btnLay.setVisibility(View.GONE);
+        binding.completedTV.setVisibility(View.VISIBLE);
+        try (DatabaseHelper helper = new DatabaseHelper(PoliceDetailsActivity.this)){
+            ArrayList<AcceptModel> models = helper.readAmbulanceAcceptsById(id);
+            AcceptModel model = models.get(0);
+
+            setPatient(model.getPATIENT());
+            setParent(model.getPARENT());
+            setHospital(model.getLATITUDE(),model.getLONGITUDE(),model.getHOSPITAL());
+            setAmbulance(model.getAMBULANCE());
+
+            binding.patientAddress.setText(model.getLATITUDE()+" Lat, "+model.getLONGITUDE()+" Lng");
+
+            String s = model.getSTATUS();
+            String status = "IN PROGRESS";
+            if (s.equals("2")){
+                status = "CANCELLED";
+            }else if (s.equals("3")){
+                status = "COMPLETED";
+            } else if (s.equals("4")) {
+                status = "EXPIRED";
+            }
+            binding.completedTV.setText(status);
+
+
+        }
+    }
+
+    void SetUpForReListening(String id,String uid){
+
+        binding.btnLay.setVisibility(View.VISIBLE);
+        binding.completedTV.setVisibility(View.GONE);
 
         getPatient(uid);
 
@@ -109,111 +178,106 @@ public class PoliceAcceptActivity extends AppCompatActivity implements OnMapRead
                             getHospital(alertModel.getHospital(),alertModel.getLat(),alertModel.getLng());
                             binding.patientAddress.setText(alertModel.getLat()+" Lat, "+alertModel.getLng()+" Lng");
 
-//                            binding.reject.setOnClickListener(v -> {
-//                                changeAmbulance(false,alertModel.getLat(), alertModel.getLng(), alertModel.getTimestamp(), uid, alertModel);
-//                            });
+                            binding.directions.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    String uri = "http://maps.google.com/maps?q=loc:" + alertModel.getLat() + "," + alertModel.getLng() + " (" + "React Safe Accident Detected" + ")";
+                                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                                    startActivity(intent);
+                                }
+                            });
+
+                            binding.complete.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    binding.btnLay.setVisibility(View.GONE);
+                                    binding.completedTV.setVisibility(View.VISIBLE);
+                                    binding.completedTV.setText("COMPLETED");
+                                    new DatabaseHelper(PoliceDetailsActivity.this).updateAlertOnPolice(id,"3");
+                                }
+                            });
+
                         }
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {}});
-
-        binding.accept.setOnClickListener(v -> {
-            didAccept = true;
-            dbRef.child("police").child(FirebaseAuth.getInstance().getUid()).child("alert")
-                    .child(id).child("isAccepted").setValue("true");
-            try (DatabaseHelper db = new DatabaseHelper(PoliceAcceptActivity.this)){
-                db.insertPoliceAccepts(id,alertModel.getLat(),alertModel.getLng(),"1",
-                        patientModel,parentModel,hospitalModel,ambulanceModel);
-                Intent intent = new Intent(PoliceAcceptActivity.this, PoliceDetailsActivity.class);
-                intent.putExtra("id",alertModel.getTimestamp());
-                intent.putExtra("uid",patientModel.getUid());
-                startActivity(intent);
-                finish();
-            }
-
-        });
-
-
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapView);
-        if (mapFragment != null)
-            mapFragment.getMapAsync(this);
-
-
-
     }
-    @Override
-    public void onMapReady(@NonNull GoogleMap googleMap) {
-        mMap = googleMap;
-        googleMap.addMarker(new MarkerOptions()
-                .position(cLoc)
-                .title("You")
-                .icon(Extras.bitmapFromVector(getApplicationContext(),R.drawable.marker_map_icon)));
-        googleMap.moveCamera(
-                CameraUpdateFactory.newLatLngZoom(cLoc,15));
-    }
+
 
     void getPatient(String uid){
         FirebaseHelper.getUser(uid, model -> {
-            patientModel = model;
-            binding.patientName.setText(model.getName());
-            if (model.getProfileImage()!=null)
-                Glide.with(PoliceAcceptActivity.this)
-                        .load(model.getProfileImage())
-                        .placeholder(R.drawable.avatar)
-                        .into(binding.patientIv);
-            binding.patientCall.setOnClickListener(v -> callPhone(model.getPhone()));
+            setPatient(model);
             getParent(model.getPairedBy());
         });
     }
 
-    void getParent(String uid){
-        FirebaseHelper.getUser(uid, model -> {
-            parentModel = model;
-            binding.parentName.setText(model.getName());
-            if (model.getProfileImage()!=null)
-                Glide.with(PoliceAcceptActivity.this)
-                        .load(model.getProfileImage())
-                        .placeholder(R.drawable.avatar)
-                        .into(binding.parentIv);
-            binding.parentCall.setOnClickListener(v -> callPhone(model.getPhone()));
-        });
+    void setPatient(UserModel model){
+        patientModel = model;
+        binding.patientName.setText(model.getName());
+        if (model.getProfileImage()!=null)
+            Glide.with(PoliceDetailsActivity.this)
+                    .load(model.getProfileImage())
+                    .placeholder(R.drawable.avatar)
+                    .into(binding.patientIv);
+        binding.patientCall.setOnClickListener(v -> callPhone(model.getPhone()));
     }
 
-    void getHospital(String uid,String lat,String lng){
-        FirebaseHelper.getEntity("hospital", uid, model -> {
-            hospitalModel = model;
-            binding.hospitalName.setText(model.getName());
-            if (model.getProfileImage()!=null)
-                Glide.with(PoliceAcceptActivity.this)
-                        .load(model.getProfileImage())
-                        .placeholder(R.drawable.avatar)
-                        .into(binding.hospitalIv);
-            binding.hospitalCall.setOnClickListener(v -> callPhone(model.getPhone()));
-            String loc = Extras.getLocationString(PoliceAcceptActivity.this,model.getLat(),model.getLng());
-            binding.hospitalAddress2.setText(loc);
-            binding.hospitalAddress.setText(loc);
-            setPolyLineInMap(lat,lng,model.getLat(),model.getLng());
-        });
+    void getParent(String uid){
+        FirebaseHelper.getUser(uid, this::setParent);
+    }
+
+    void setParent(UserModel model){
+        parentModel = model;
+        binding.parentName.setText(model.getName());
+        if (model.getProfileImage()!=null)
+            Glide.with(PoliceDetailsActivity.this)
+                    .load(model.getProfileImage())
+                    .placeholder(R.drawable.avatar)
+                    .into(binding.parentIv);
+        binding.parentCall.setOnClickListener(v -> callPhone(model.getPhone()));
     }
 
     void getAmbulance(String uid){
-        FirebaseHelper.getEntity("ambulance", uid, model -> {
-            ambulanceModel = model;
-            binding.ambulanceName.setText(model.getName());
-            if (model.getProfileImage()!=null)
-                Glide.with(PoliceAcceptActivity.this)
-                        .load(model.getProfileImage())
-                        .placeholder(R.drawable.avatar)
-                        .into(binding.ambulanceIv);
-            binding.ambulanceCall.setOnClickListener(v -> callPhone(model.getPhone()));
-            String loc = Extras.getLocationString(PoliceAcceptActivity.this,model.getLat(),model.getLng());
-            binding.ambulanceAddress.setText(loc);
-        });
+        FirebaseHelper.getEntity("ambulance", uid, this::setAmbulance);
+    }
+
+    void setAmbulance(UserModel model){
+        ambulanceModel = model;
+        binding.ambulanceName.setText(model.getName());
+        if (model.getProfileImage()!=null)
+            Glide.with(PoliceDetailsActivity.this)
+                    .load(model.getProfileImage())
+                    .placeholder(R.drawable.avatar)
+                    .into(binding.ambulanceIv);
+        binding.ambulanceCall.setOnClickListener(v -> callPhone(model.getPhone()));
+        binding.ambulanceAddress.setText(Extras.getLocationString(PoliceDetailsActivity.this,model.getLat(),model.getLng()));
+    }
+
+    void getHospital(String uid,String lat,String lng){
+        FirebaseHelper.getEntity("hospital", uid, model -> setHospital(lat,lng,model));
+    }
+
+    void setHospital(String lat,String lng,UserModel model){
+        hospitalModel = model;
+        binding.hospitalName.setText(model.getName());
+        if (model.getProfileImage()!=null)
+            Glide.with(PoliceDetailsActivity.this)
+                    .load(model.getProfileImage())
+                    .placeholder(R.drawable.avatar)
+                    .into(binding.hospitalIv);
+        binding.hospitalCall.setOnClickListener(v -> callPhone(model.getPhone()));
+        String loc = Extras.getLocationString(PoliceDetailsActivity.this,model.getLat(),model.getLng());
+        binding.hospitalAddress.setText(loc);
+        binding.hospitalAddress2.setText(loc);
+        setPolyLineInMap(lat,lng,model.getLat(),model.getLng());
     }
 
     void callPhone(String phone){
-        Intent phone_intent = new Intent(Intent.ACTION_CALL);
+        if (phone == null || phone.isEmpty()){
+            Toast.makeText(this, "Phone number is not provided!", Toast.LENGTH_SHORT).show();
+        }
+        Intent phone_intent = new Intent(Intent.ACTION_DIAL);
         phone_intent.setData(Uri.parse("tel:" + phone));
         startActivity(phone_intent);
     }
@@ -267,7 +331,6 @@ public class PoliceAcceptActivity extends AppCompatActivity implements OnMapRead
 
             ParserTask parserTask = new ParserTask();
 
-
             parserTask.execute(result);
 
         }
@@ -320,7 +383,7 @@ public class PoliceAcceptActivity extends AppCompatActivity implements OnMapRead
 
                 lineOptions.addAll(points);
                 lineOptions.width(12);
-                lineOptions.color(ContextCompat.getColor(PoliceAcceptActivity.this,R.color.react_safe));
+                lineOptions.color(ContextCompat.getColor(AmbulanceDetailsActivity.this,R.color.react_safe));
                 lineOptions.geodesic(true);
 
             }
@@ -412,4 +475,6 @@ public class PoliceAcceptActivity extends AppCompatActivity implements OnMapRead
             progressDialog.dismiss();
         }
     }
+
+
 }

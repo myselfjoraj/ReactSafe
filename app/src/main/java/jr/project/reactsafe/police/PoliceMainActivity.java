@@ -384,7 +384,7 @@ public class PoliceMainActivity extends AppCompatActivity {
         }
 
         void startMyAct(String id,String uid){
-            Intent intent = new Intent(PoliceMainActivity.this, HospitalDetailsActivity.class)
+            Intent intent = new Intent(PoliceMainActivity.this, PoliceDetailsActivity.class);
             intent.putExtra("id",id);
             intent.putExtra("uid",uid);
             startActivity(intent);
