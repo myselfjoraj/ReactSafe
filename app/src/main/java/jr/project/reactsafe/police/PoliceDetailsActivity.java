@@ -383,7 +383,7 @@ public class PoliceDetailsActivity extends AppCompatActivity implements OnMapRea
 
                 lineOptions.addAll(points);
                 lineOptions.width(12);
-                lineOptions.color(ContextCompat.getColor(AmbulanceDetailsActivity.this,R.color.react_safe));
+                lineOptions.color(ContextCompat.getColor(PoliceDetailsActivity.this,R.color.react_safe));
                 lineOptions.geodesic(true);
 
             }
