@@ -1,6 +1,7 @@
 package jr.project.reactsafe.police;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -22,17 +23,23 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 
 import jr.project.reactsafe.R;
 import jr.project.reactsafe.databinding.ActivityPoliceTransferBinding;
+import jr.project.reactsafe.extras.database.DatabaseHelper;
 import jr.project.reactsafe.extras.database.FirebaseHelper;
 import jr.project.reactsafe.extras.misc.NearestSafe;
 import jr.project.reactsafe.extras.model.AcceptModel;
+import jr.project.reactsafe.extras.model.AlertModel;
 import jr.project.reactsafe.extras.model.UserModel;
 import jr.project.reactsafe.extras.util.CircleImageView;
 import jr.project.reactsafe.extras.util.Extras;
+import jr.project.reactsafe.hospital.HospitalAcceptActivity;
 import jr.project.reactsafe.hospital.HospitalDetailsActivity;
 import jr.project.reactsafe.hospital.HospitalMainActivity;
 
@@ -132,12 +139,12 @@ public class PoliceTransferActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
 
-
                 }
             });
 
 
         }
+
 
 
         @Override
@@ -159,6 +166,20 @@ public class PoliceTransferActivity extends AppCompatActivity {
                 iv = itemView.findViewById(R.id.iv);
                 item = itemView.findViewById(R.id.item);
             }
+        }
+    }
+
+    ProgressDialog progressDialog;
+    private void showPleaseWaitDialog(String msg) {
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(msg);
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+    }
+
+    private void dismissPleaseWaitDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
         }
     }
 }
