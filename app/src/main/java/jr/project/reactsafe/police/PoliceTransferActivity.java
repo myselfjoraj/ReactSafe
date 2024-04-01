@@ -3,6 +3,8 @@ package jr.project.reactsafe.police;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -24,6 +27,8 @@ import java.util.ArrayList;
 
 import jr.project.reactsafe.R;
 import jr.project.reactsafe.databinding.ActivityPoliceTransferBinding;
+import jr.project.reactsafe.extras.database.FirebaseHelper;
+import jr.project.reactsafe.extras.misc.NearestSafe;
 import jr.project.reactsafe.extras.model.AcceptModel;
 import jr.project.reactsafe.extras.model.UserModel;
 import jr.project.reactsafe.extras.util.CircleImageView;
@@ -35,19 +40,66 @@ public class PoliceTransferActivity extends AppCompatActivity {
 
     ActivityPoliceTransferBinding binding;
 
+    TransferRecyclerAdapter adapter;
+    ArrayList<UserModel> models;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityPoliceTransferBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        adapter = new TransferRecyclerAdapter();
+
+        binding.rv.setLayoutManager(new LinearLayoutManager(this));
+        binding.rv.setAdapter(adapter);
+
+        NearestSafe.findPolice(model -> {
+            adapter.setModel(model);
+            models = model;
+        });
+
+        binding.search.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s!=null && s.length() > 0){
+                    filter(s.toString());
+                }else {
+                    adapter.setModel(models);
+                }
+            }
+        });
+
 
     }
 
-    public class TransferRecyclerAdapter extends RecyclerView.Adapter<TransferRecyclerAdapter.MyViewHolder> {
-        ArrayList<AcceptModel> models = new ArrayList<>();
+    private void filter(String text) {
+        ArrayList<UserModel> filteredlist = new ArrayList<>();
+        for (UserModel item : models) {
+            if (item.getName().toLowerCase().contains(text.toLowerCase())) {
+                filteredlist.add(item);
+            }
+        }
+        if (!filteredlist.isEmpty()) {
+            adapter.setModel(filteredlist);
+        }else {
+            adapter.setModel(models);
+        }
+    }
 
-        public void setModel(ArrayList<AcceptModel> models) {
+    public class TransferRecyclerAdapter extends RecyclerView.Adapter<TransferRecyclerAdapter.MyViewHolder> {
+        ArrayList<UserModel> models = new ArrayList<>();
+
+        public void setModel(ArrayList<UserModel> models) {
             this.models = models;
             notifyDataSetChanged();
         }
@@ -63,51 +115,24 @@ public class PoliceTransferActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
 
-            UserModel model = models.get(position).getPATIENT();
-            String ts = models.get(position).getTIMESTAMP();
+            UserModel model = models.get(position);
 
             if (model.getProfileImage() != null)
-                Glide.with(HospitalMainActivity.this)
+                Glide.with(PoliceTransferActivity.this)
                         .load(model.getProfileImage())
                         .placeholder(R.drawable.avatar)
                         .into(holder.iv);
 
             holder.title.setText(model.getName());
-            String d = "Accident detected on " + Extras.getStandardFormDateFromTimeStamp(ts)
-                    + " on " + Extras.getTimeFromTimeStamp(ts);
+            String d = Extras.getLocationString(PoliceTransferActivity.this,model.getLat(),model.getLng());
             holder.desc.setText(d);
 
-            String mode = models.get(position).getSTATUS();
-            String tp = models.get(position).getSTATUS();
-
-            if (mode.equals("1")) {
-                mode = "IN PROGRESS";
-            } else if (mode.equals("2")) {
-                mode = "CANCELLED";
-            } else if (mode.equals("3")) {
-                mode = "COMPLETED";
-            } else {
-                mode = "EXPIRED";
-            }
-
-            holder.progress.setText(mode);
 
             holder.item.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (tp.equals("1")) {
-                        //mode = "IN PROGRESS";
-                        startMyAct(ts, model.getUid());
-                    } else if (tp.equals("2")) {
-                        //mode  = "CANCELLED";
-                        startMyAct(ts, null);
-                    } else if (tp.equals("3")) {
-                        //mode = "COMPLETED";
-                        startMyAct(ts, null);
-                    } else {
-                        //mode = "EXPIRED";
-                        startMyAct(ts, null);
-                    }
+
+
                 }
             });
 
@@ -120,17 +145,10 @@ public class PoliceTransferActivity extends AppCompatActivity {
             return models.size();
         }
 
-        void startMyAct(String id, String uid) {
-            Intent intent = new Intent(HospitalMainActivity.this, HospitalDetailsActivity.class);
-            intent.putExtra("id", id);
-            intent.putExtra("uid", uid);
-            startActivity(intent);
-
-        }
 
 
         public class MyViewHolder extends RecyclerView.ViewHolder {
-            TextView title, desc, progress;
+            TextView title, desc;
             LinearLayout item;
             CircleImageView iv;
 
