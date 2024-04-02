@@ -180,6 +180,8 @@ public class HospitalAcceptActivity extends AppCompatActivity implements OnMapRe
             dbRef.child("hospital").child(FirebaseAuth.getInstance().getUid())
                     .child("alert").child(id).removeValue();
             if (model == null){
+                dismissPleaseWaitDialog();
+                finish();
                 return;
             }
             String uid = model.getUid();

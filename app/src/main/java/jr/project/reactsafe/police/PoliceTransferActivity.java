@@ -1,6 +1,7 @@
 package jr.project.reactsafe.police;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
@@ -138,7 +140,10 @@ public class PoliceTransferActivity extends AppCompatActivity {
             holder.item.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    Intent returnIntent = new Intent();
+                    returnIntent.putExtra("result",new Gson().toJson(model));
+                    setResult(Activity.RESULT_OK,returnIntent);
+                    finish();
                 }
             });
 

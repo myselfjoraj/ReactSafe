@@ -181,6 +181,8 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
 
         NearestSafe.getNearestAmbulance(lat, lng, FirebaseAuth.getInstance().getUid(), model -> {
             if (model == null){
+                dismissPleaseWaitDialog();
+                finish();
                 return;
             }
             String uid = model.getUid();
