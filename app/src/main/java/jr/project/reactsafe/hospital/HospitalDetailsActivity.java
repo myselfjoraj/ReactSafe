@@ -124,7 +124,7 @@ public class HospitalDetailsActivity extends AppCompatActivity implements OnMapR
         binding.btnLay.setVisibility(View.GONE);
         binding.completedTV.setVisibility(View.VISIBLE);
         try (DatabaseHelper helper = new DatabaseHelper(HospitalDetailsActivity.this)){
-            ArrayList<AcceptModel> models = helper.readAmbulanceAcceptsById(id);
+            ArrayList<AcceptModel> models = helper.readHospitalAcceptsById(id);
             AcceptModel model = models.get(0);
 
             setPatient(model.getPATIENT());

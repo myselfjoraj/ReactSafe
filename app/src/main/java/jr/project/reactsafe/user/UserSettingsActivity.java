@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -279,13 +280,21 @@ public class UserSettingsActivity extends AppCompatActivity {
                 .setPositiveButton("NO", (dialog, which) -> { })
                 .setNegativeButton("YES", (dialog, which) -> {
                     FirebaseAuth.getInstance().signOut();
-                    ((ActivityManager) UserSettingsActivity.this
-                            .getSystemService(Context.ACTIVITY_SERVICE))
-                            .clearApplicationUserData();
+                    clearData();
                     startActivity(new Intent(UserSettingsActivity.this, SplashScreenActivity.class));
+                    finishAffinity();
                 });
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+    }
+
+    void clearData(){
+        String packageName = getPackageName();
+        SharedPreferences preferences = getSharedPreferences(packageName + "_preferences", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear();
+        editor.apply();
+        deleteDatabase("ReactSafeDb");
     }
 
 }

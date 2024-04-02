@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import jr.project.reactsafe.ApplicationController;
 import jr.project.reactsafe.R;
 import jr.project.reactsafe.ambulance.AmbulanceDetailsActivity;
 import jr.project.reactsafe.databinding.ActivityPoliceDetailsBinding;
@@ -66,6 +67,7 @@ public class PoliceDetailsActivity extends AppCompatActivity implements OnMapRea
     AlertModel alertModel;
     ProgressDialog progressDialog;
     UserModel patientModel,parentModel,hospitalModel,ambulanceModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,9 +109,6 @@ public class PoliceDetailsActivity extends AppCompatActivity implements OnMapRea
                 }
             });
 
-
-
-
     }
 
     @Override
@@ -127,7 +126,7 @@ public class PoliceDetailsActivity extends AppCompatActivity implements OnMapRea
         binding.btnLay.setVisibility(View.GONE);
         binding.completedTV.setVisibility(View.VISIBLE);
         try (DatabaseHelper helper = new DatabaseHelper(PoliceDetailsActivity.this)){
-            ArrayList<AcceptModel> models = helper.readAmbulanceAcceptsById(id);
+            ArrayList<AcceptModel> models = helper.readPoliceAcceptsById(id);
             AcceptModel model = models.get(0);
 
             setPatient(model.getPATIENT());
@@ -144,7 +143,7 @@ public class PoliceDetailsActivity extends AppCompatActivity implements OnMapRea
             }else if (s.equals("3")){
                 status = "COMPLETED";
             } else if (s.equals("4")) {
-                status = "EXPIRED";
+                status = "TRANSFERRED";
             }
             binding.completedTV.setText(status);
 

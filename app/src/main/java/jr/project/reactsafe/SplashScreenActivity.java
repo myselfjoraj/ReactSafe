@@ -56,6 +56,7 @@ public class SplashScreenActivity extends AppCompatActivity {
                     getActivity();
                 }else {
                     startActivity(new Intent(this,LoginActivity.class));
+                    finishAffinity();
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -71,31 +72,38 @@ public class SplashScreenActivity extends AppCompatActivity {
         switch (s){
             case "user":
                 startActivity(new Intent(this, UserMainActivity.class));
+                finishAffinity();
                 Log.e("ReactSafeLoginSystem"," user called");
                 break;
             case "parent":
                 if (new ParentPreferenceHelper(this).getPairedDeviceDetails() == null){
                     startActivity(new Intent(this, PairUserDeviceActivity.class));
+                    finishAffinity();
                     Log.e("ReactSafeLoginSystem","pair user called");
                 }else {
                     startActivity(new Intent(this, ParentMainActivity.class));
+                    finishAffinity();
                     Log.e("ReactSafeLoginSystem","parent called");
                 }
                 break;
             case "ambulance":
                 startActivity(new Intent(this, AmbulanceMainActivity.class));
+                finishAffinity();
                 Log.e("ReactSafeLoginSystem","ambulance called");
                 break;
             case "hospital":
                 startActivity(new Intent(this, HospitalMainActivity.class));
+                finishAffinity();
                 Log.e("ReactSafeLoginSystem","hospital called");
                 break;
             case "police":
                 startActivity(new Intent(this, PoliceMainActivity.class));
+                finishAffinity();
                 Log.e("ReactSafeLoginSystem","police called");
                 break;
             default:
                 startActivity(new Intent(this,LoginActivity.class));
+                finishAffinity();
                 Log.e("ReactSafeLoginSystem","login called");
                 break;
 

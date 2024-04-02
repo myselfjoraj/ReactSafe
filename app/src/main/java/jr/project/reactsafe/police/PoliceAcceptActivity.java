@@ -37,6 +37,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 
 import org.json.JSONObject;
 
@@ -60,9 +61,11 @@ import jr.project.reactsafe.extras.misc.DirectionsJSONParser;
 import jr.project.reactsafe.extras.misc.NearestSafe;
 import jr.project.reactsafe.extras.misc.SharedPreference;
 import jr.project.reactsafe.extras.model.AlertModel;
+import jr.project.reactsafe.extras.model.LocationModel;
 import jr.project.reactsafe.extras.model.UserModel;
 import jr.project.reactsafe.extras.util.Extras;
 import jr.project.reactsafe.hospital.HospitalAcceptActivity;
+import jr.project.reactsafe.hospital.HospitalDetailsActivity;
 
 public class PoliceAcceptActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -74,6 +77,7 @@ public class PoliceAcceptActivity extends AppCompatActivity implements OnMapRead
     int sec = 60;
     AlertModel alertModel;
     ProgressDialog progressDialog;
+    String id;
     UserModel patientModel,parentModel,ambulanceModel,hospitalModel;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,8 +86,7 @@ public class PoliceAcceptActivity extends AppCompatActivity implements OnMapRead
         setContentView(binding.getRoot());
 
 
-
-        String id = getIntent().getStringExtra("id");
+        id = getIntent().getStringExtra("id");
         String uid = getIntent().getStringExtra("uid");
 
         patientModel  = new UserModel();
@@ -112,6 +115,7 @@ public class PoliceAcceptActivity extends AppCompatActivity implements OnMapRead
                             finish();
                         }else {
                             alertModel = snapshot.getValue(AlertModel.class);
+                            alertModel.setUid(uid);
                             getAmbulance(alertModel.getAmbulance());
                             getHospital(alertModel.getHospital(),alertModel.getLat(),alertModel.getLng());
                             binding.patientAddress.setText(alertModel.getLat()+" Lat, "+alertModel.getLng()+" Lng");
@@ -161,7 +165,24 @@ public class PoliceAcceptActivity extends AppCompatActivity implements OnMapRead
             new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
                     Intent intent = result.getData();
-                    Toast.makeText(PoliceAcceptActivity.this, ""+intent.getStringExtra("result"), Toast.LENGTH_SHORT).show();
+                    UserModel model = new Gson().fromJson(intent.getStringExtra("result"),UserModel.class);
+
+                    FirebaseHelper.InsertAlertOnPoliceId(model.getUid(),new LocationModel(
+                            alertModel.getLat(),
+                            alertModel.getLng(),
+                            alertModel.getUid(),
+                            alertModel.getTimestamp()
+                    ));
+                    FirebaseHelper.InsertAlertPolice(alertModel.getUid(),alertModel.getTimestamp(),model.getUid());
+
+                    dbRef.child("police").child(FirebaseAuth.getInstance().getUid()).child("alert")
+                            .child(id).removeValue();
+
+                    try (DatabaseHelper db = new DatabaseHelper(PoliceAcceptActivity.this)){
+                        db.insertPoliceAccepts(alertModel.getTimestamp(),alertModel.getLat(),alertModel.getLng(),"4",
+                                patientModel,parentModel,hospitalModel,ambulanceModel);
+                        finish();
+                    }
                 }
             });
 

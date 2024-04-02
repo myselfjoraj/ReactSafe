@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -33,6 +34,7 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
+import jr.project.reactsafe.ApplicationController;
 import jr.project.reactsafe.R;
 import jr.project.reactsafe.ambulance.AmbulanceForegroundService;
 import jr.project.reactsafe.databinding.ActivityPoliceMainBinding;
@@ -349,7 +351,7 @@ public class PoliceMainActivity extends AppCompatActivity {
             } else if (mode.equals("3")){
                 mode = "COMPLETED";
             }else {
-                mode = "EXPIRED";
+                mode = "TRANSFERRED";
             }
 
             holder.progress.setText(mode);
@@ -384,6 +386,7 @@ public class PoliceMainActivity extends AppCompatActivity {
         }
 
         void startMyAct(String id,String uid){
+            Toast.makeText(PoliceMainActivity.this, "Please wait while we fetch details ...", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(PoliceMainActivity.this, PoliceDetailsActivity.class);
             intent.putExtra("id",id);
             intent.putExtra("uid",uid);

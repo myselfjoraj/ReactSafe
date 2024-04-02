@@ -64,6 +64,13 @@ public class FirebaseHelper {
         ref2.child("police").setValue(police);
     }
 
+    public static void InsertAlertPolice(String uid,String ts,String police){
+        DatabaseReference ref =  dbRef.child("alert").child(uid);
+        DatabaseReference ref2 =  dbRef.child("users").child(uid).child("alerts").child(ts);
+        ref.child("police").setValue(police);
+        ref2.child("police").setValue(police);
+    }
+
     public static void InsertAlertHospital(String ts,String hospital){
         DatabaseReference ref =  dbRef.child("alert").child(mUid);
         DatabaseReference ref2 =  dbRef.child("users").child(mUid).child("alerts").child(ts);
