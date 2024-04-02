@@ -161,7 +161,7 @@ public class HospitalMainActivity extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {}});
 
-        if (isMyServiceRunning(HospitalMainActivity.class)){
+        if (isMyServiceRunning(HospitalForegroundService.class)){
             binding.start.setChecked(true);
             dbRef.child("isActive").setValue(true);
         }else {

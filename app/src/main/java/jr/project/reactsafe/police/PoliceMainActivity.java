@@ -143,7 +143,7 @@ public class PoliceMainActivity extends AppCompatActivity {
                                 model.setPhone(model1.getPhone());
                                 Log.e("PoliceReceived",""+new Gson().toJson(model1));
                                 if (isAccepted != null && isAccepted.equals("true")){
-                                    accepted.add(model);
+                                    //accepted.add(model);
                                 }else {
                                     pending.add(model);
                                 }
@@ -220,6 +220,7 @@ public class PoliceMainActivity extends AppCompatActivity {
             if (!models.isEmpty()){
                 binding.noItemsAvailableTv.setVisibility(View.GONE);
             }
+            setNoView();
         }
     }
 

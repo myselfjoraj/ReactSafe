@@ -182,11 +182,6 @@ public class UserSettingsActivity extends AppCompatActivity {
                         "Please enter your name!", Toast.LENGTH_SHORT
                 ).show();
                 return;
-            }else if (new_name.length() > 22 ){
-                Toast.makeText(UserSettingsActivity.this,
-                        "Your name exceeds the character limit of 22!", Toast.LENGTH_SHORT
-                ).show();
-                return;
             }
 
             if (new_phone.isEmpty()){

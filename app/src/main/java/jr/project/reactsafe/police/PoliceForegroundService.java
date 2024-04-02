@@ -85,7 +85,7 @@ public class PoliceForegroundService extends Service {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "lockChannel")
                 .setSmallIcon(R.drawable.avatar)
                 .setContentTitle("Accident Received")
-                .setContentText("Please accept a nearby accident.")
+                .setContentText("An accident has occurred in your locality.")
                 .setAutoCancel(true)
                 .setContentIntent(contentPendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -112,7 +112,7 @@ public class PoliceForegroundService extends Service {
 
 
     private Notification createNotification() {
-        NotificationChannel channel = new NotificationChannel("hospital_channel", "Hospital Channel", NotificationManager.IMPORTANCE_DEFAULT);
+        NotificationChannel channel = new NotificationChannel("police_channel", "Police Channel", NotificationManager.IMPORTANCE_DEFAULT);
         NotificationManager notificationManager = getSystemService(NotificationManager.class);
         if (notificationManager != null) {
             notificationManager.createNotificationChannel(channel);
@@ -121,9 +121,9 @@ public class PoliceForegroundService extends Service {
         Intent notificationIntent = new Intent(this, AmbulanceMainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
 
-        return new NotificationCompat.Builder(this, "hospital_channel")
+        return new NotificationCompat.Builder(this, "police_channel")
                 .setContentTitle("React Safe")
-                .setContentText("Checking for casualties.")
+                .setContentText("Looking for accidents.")
                 .setSmallIcon(R.drawable.avatar)
                 .setContentIntent(pendingIntent)
                 .build();

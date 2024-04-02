@@ -99,7 +99,11 @@ public class HospitalAcceptActivity extends AppCompatActivity implements OnMapRe
             }
             public  void onFinish(){
                 if (!didAccept){
-                    changeHospital(true,alertModel.getLat(),alertModel.getLng(),alertModel.getTimestamp(),uid,alertModel);
+                    try {
+                        changeHospital(true, alertModel.getLat(), alertModel.getLng(), alertModel.getTimestamp(), uid, alertModel);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
                 }
             }
         };
