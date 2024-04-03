@@ -75,8 +75,31 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        initiateLogin(email,pass);
+        if (email.equals("admin") && pass.equals("React@01")){
+            setAdminLogIn();
+        }else {
+            initiateLogin(email, pass);
+        }
 
+    }
+
+    void setAdminLogIn(){
+        showPleaseWaitDialog("Logging in ...");
+        FirebaseHelper.getUser("admin", model -> {
+            if (model != null) {
+                new UserPreferenceHelper(LoginActivity.this).setProfileName(model.getName());
+                new UserPreferenceHelper(LoginActivity.this).setProfileImage(model.getProfileImage());
+                new UserPreferenceHelper(LoginActivity.this).setProfileNumber(model.getPhone());
+            }else {
+                new UserPreferenceHelper(LoginActivity.this).setProfileName("Administrator");
+                new UserPreferenceHelper(LoginActivity.this).setProfileEmail("admin@reactsafe.com");
+                new UserPreferenceHelper(LoginActivity.this).setProfileNumber("8086786159");
+            }
+
+            new UserPreferenceHelper(LoginActivity.this).setIAmAdmin(true);
+            dismissPleaseWaitDialog();
+            startActivity(new Intent(LoginActivity.this, SplashScreenActivity.class));
+        });
     }
 
 

@@ -17,6 +17,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 
+import jr.project.reactsafe.admin.AdminMainActivity;
 import jr.project.reactsafe.ambulance.AmbulanceMainActivity;
 import jr.project.reactsafe.extras.auth.LoginActivity;
 import jr.project.reactsafe.extras.misc.SharedPreference;
@@ -26,6 +27,7 @@ import jr.project.reactsafe.parent.ParentMainActivity;
 import jr.project.reactsafe.parent.ParentPreferenceHelper;
 import jr.project.reactsafe.police.PoliceMainActivity;
 import jr.project.reactsafe.user.UserMainActivity;
+import jr.project.reactsafe.user.UserPreferenceHelper;
 
 @SuppressLint("CustomSplashScreen")
 public class SplashScreenActivity extends AppCompatActivity {
@@ -54,7 +56,10 @@ public class SplashScreenActivity extends AppCompatActivity {
                 sleep(3000);
                 if (mAuth.getUid() != null){
                     getActivity();
-                }else {
+                } else if (new UserPreferenceHelper(this).getIAmAdmin()) {
+                    startActivity(new Intent(this, AdminMainActivity.class));
+                    finishAffinity();
+                } else {
                     startActivity(new Intent(this,LoginActivity.class));
                     finishAffinity();
                 }

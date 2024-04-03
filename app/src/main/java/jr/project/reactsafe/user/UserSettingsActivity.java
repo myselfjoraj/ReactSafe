@@ -92,6 +92,10 @@ public class UserSettingsActivity extends AppCompatActivity {
             }
         }
 
+        if (new UserPreferenceHelper(this).getIAmAdmin()){
+            binding.accCard.setVisibility(View.GONE);
+        }
+
     }
 
     int occurredAccidents = 0;
@@ -227,12 +231,16 @@ public class UserSettingsActivity extends AppCompatActivity {
         bottomSheetDialog.show();
     }
     void throwToDb(String name,String phone){
+        String uid = "admin";
+        if (FirebaseAuth.getInstance().getCurrentUser()!=null){
+            uid = FirebaseAuth.getInstance().getUid();
+        }
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("users")
-                .child(FirebaseAuth.getInstance().getUid());
+                .child(uid);
         ref.child("phone").setValue(phone);
         ref.child("name").setValue(name);
         String s = new SharedPreference(this).getUserTypeInPref();
-        if (!s.equals("user") || !s.equals("parent")){
+        if (s!=null && (!s.equals("user") || !s.equals("parent"))){
             DatabaseReference ref2 = FirebaseDatabase.getInstance().getReference().child(s)
                     .child(FirebaseAuth.getInstance().getUid());
             ref2.child("phone").setValue(phone);
@@ -241,11 +249,15 @@ public class UserSettingsActivity extends AppCompatActivity {
     }
 
     void throwToDb(String profileImage){
+        String uid = "admin";
+        if (FirebaseAuth.getInstance().getCurrentUser()!=null){
+            uid = FirebaseAuth.getInstance().getUid();
+        }
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("users")
-                .child(FirebaseAuth.getInstance().getUid());
+                .child(uid);
         ref.child("profileImage").setValue(profileImage);
         String s = new SharedPreference(this).getUserTypeInPref();
-        if (!s.equals("user") || !s.equals("parent")){
+        if (s!=null && (!s.equals("user") || !s.equals("parent"))){
             DatabaseReference ref2 = FirebaseDatabase.getInstance().getReference().child(s)
                     .child(FirebaseAuth.getInstance().getUid());
             ref2.child("profileImage").setValue(profileImage);

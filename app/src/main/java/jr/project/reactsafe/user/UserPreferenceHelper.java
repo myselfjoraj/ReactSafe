@@ -40,11 +40,19 @@ public class UserPreferenceHelper {
     }
 
     public String getProfileName(){
-        return mPref.getString("myProfileName",FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        String mail = "Administrator";
+        if (FirebaseAuth.getInstance().getCurrentUser() != null){
+            mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        }
+        return mPref.getString("myProfileName",mail);
     }
 
     public String getProfileEmail(){
-        return mPref.getString("myProfileEmail", FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        String mail = "admin@reactsafe.com";
+        if (FirebaseAuth.getInstance().getCurrentUser() != null){
+            mail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        }
+        return mPref.getString("myProfileEmail", mail);
     }
 
     public String getProfileImage(){
@@ -70,6 +78,14 @@ public class UserPreferenceHelper {
         }else {
             return null;
         }
+    }
+
+    public boolean getIAmAdmin(){
+        return mPref.getBoolean("amIAdmin",false);
+    }
+
+    public void setIAmAdmin(boolean isAdmin){
+        mPref.putBoolean("amIAdmin",isAdmin);
     }
 
 }
