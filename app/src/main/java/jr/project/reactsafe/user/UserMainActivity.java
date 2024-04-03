@@ -100,6 +100,8 @@ public class UserMainActivity extends AppCompatActivity implements OnMapReadyCal
         binding = ActivityUserMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        FirebaseHelper.getBlocked(val -> { if (val){ Extras.transferToBlocked(getApplicationContext()); }});
+
         mPref  = new SharedPreference(UserMainActivity.this);
         intent = new Intent(UserMainActivity.this, AccidentDetectionService.class);
 

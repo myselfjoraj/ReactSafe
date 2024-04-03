@@ -67,6 +67,8 @@ public class AmbulanceMainActivity extends AppCompatActivity {
         binding = ActivityAmbulanceMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        FirebaseHelper.getBlocked(val -> { if (val){ Extras.transferToBlocked(getApplicationContext()); }});
+
         uid = FirebaseAuth.getInstance().getUid();
 
         String name = new UserPreferenceHelper(this).getProfileName();

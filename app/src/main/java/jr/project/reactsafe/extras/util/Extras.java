@@ -2,6 +2,7 @@ package jr.project.reactsafe.extras.util;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
@@ -19,6 +20,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import jr.project.reactsafe.BlockedInfoActivity;
 
 @SuppressLint("SimpleDateFormat")
 public class Extras {
@@ -115,6 +118,10 @@ public class Extras {
 
         return loc;
 
+    }
+
+    public static void transferToBlocked(Context context){
+        context.startActivity(new Intent(context, BlockedInfoActivity.class));
     }
 
 }

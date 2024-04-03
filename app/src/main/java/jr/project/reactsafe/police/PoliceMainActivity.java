@@ -66,6 +66,8 @@ public class PoliceMainActivity extends AppCompatActivity {
 
         uid = FirebaseAuth.getInstance().getUid();
 
+        FirebaseHelper.getBlocked(val -> { if (val){ Extras.transferToBlocked(getApplicationContext()); }});
+
         String name = new UserPreferenceHelper(this).getProfileName();
         String image = new UserPreferenceHelper(this).getProfileImage();
         if (image!=null)

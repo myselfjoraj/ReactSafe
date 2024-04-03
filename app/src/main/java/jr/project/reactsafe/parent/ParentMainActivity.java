@@ -75,6 +75,8 @@ public class ParentMainActivity extends AppCompatActivity implements OnMapReadyC
         binding = ActivityParentMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        FirebaseHelper.getBlocked(val -> { if (val){ Extras.transferToBlocked(getApplicationContext()); }});
+
         mPref = new ParentPreferenceHelper(ParentMainActivity.this);
         intent = new Intent(ParentMainActivity.this, ParentForegroundService.class);
 

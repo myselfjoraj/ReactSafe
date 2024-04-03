@@ -94,6 +94,7 @@ public class UserSettingsActivity extends AppCompatActivity {
 
         if (new UserPreferenceHelper(this).getIAmAdmin()){
             binding.accCard.setVisibility(View.GONE);
+            binding.accountSettings.setVisibility(View.GONE);
         }
 
     }

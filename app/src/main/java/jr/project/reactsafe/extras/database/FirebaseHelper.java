@@ -194,11 +194,7 @@ public class FirebaseHelper {
         dbRef.child("users").child(mUid).child("presence").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
-                    listener.value("1");
-                }else {
-                    listener.value("0");
-                }
+                listener.value(snapshot.exists());
             }
 
             @Override
@@ -252,8 +248,27 @@ public class FirebaseHelper {
                 });
     }
 
+    public static void getBlocked(OnValueReceived listener){
+        FirebaseDatabase.getInstance().getReference().child("users")
+                .child(FirebaseAuth.getInstance().getUid()).child("blocked")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()){
+                            boolean isBlocked = Boolean.TRUE.equals(snapshot.getValue(Boolean.class));
+                            listener.value(isBlocked);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+    }
+
     public interface OnValueReceived{
-        void value(String value);
+        void value(boolean val);
     }
 
     public interface OnLocationReceived{

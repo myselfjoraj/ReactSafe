@@ -26,6 +26,7 @@ import jr.project.reactsafe.R;
 import jr.project.reactsafe.databinding.ActivityPairUserDeviceBinding;
 import jr.project.reactsafe.extras.database.FirebaseHelper;
 import jr.project.reactsafe.extras.model.UserModel;
+import jr.project.reactsafe.extras.util.Extras;
 import jr.project.reactsafe.user.PairParentActivity;
 
 public class PairUserDeviceActivity extends AppCompatActivity {
@@ -38,6 +39,8 @@ public class PairUserDeviceActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityPairUserDeviceBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        FirebaseHelper.getBlocked(val -> { if (val){ Extras.transferToBlocked(getApplicationContext()); }});
 
         mPref = new ParentPreferenceHelper(this);
 

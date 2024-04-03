@@ -287,7 +287,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Lock your cloud box app with a passcode" />
+                        android:text="Lock the application with a passcode" />
                 </LinearLayout>
 
             </LinearLayout>
