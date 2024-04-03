@@ -63,8 +63,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<UsersListAdapter.MyVi
                     .into(holder.iv);
 
         holder.title.setText(model.getName());
-        String d = Extras.getLocationString(context,model.getLat(),model.getLng());
-        holder.desc.setText(d);
+        holder.desc.setText(model.getEmail());
 
         holder.item.setOnClickListener(new View.OnClickListener() {
             @Override

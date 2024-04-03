@@ -106,7 +106,7 @@ public class Extras {
             String country = addresses.get(0).getCountryName();
             String postalCode = addresses.get(0).getPostalCode();
             String knownName = addresses.get(0).getFeatureName();
-            if (city != null && state != null){
+            if (city != null && !city.equals("null") && state != null &&!state.equals("null") ){
                 loc = lat + ", " +lng;
             }
         }catch (Exception e){

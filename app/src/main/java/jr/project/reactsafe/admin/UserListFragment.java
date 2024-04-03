@@ -19,6 +19,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -56,6 +57,13 @@ public class UserListFragment extends Fragment {
 
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));
         rv.setAdapter(adapter);
+
+        adapter.setListener(new UsersListAdapter.OnUserClick() {
+            @Override
+            public void OnModelReceived(UserModel model) {
+                Toast.makeText(getContext(), ""+new Gson().toJson(model), Toast.LENGTH_SHORT).show();
+            }
+        });
 
         et.addTextChangedListener(new TextWatcher() {
             @Override
@@ -104,6 +112,7 @@ public class UserListFragment extends Fragment {
                         }
                     }
                 }
+                adapter.setModel(models);
             }
 
             @Override
