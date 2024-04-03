@@ -5,6 +5,7 @@ public class UserModel {
     String uid,name,email,title,phone,lng,lat,profileImage,pairedBy,pairedOn,timestamp;
     boolean isParent;
     boolean isActive;
+    boolean isBlocked;
 
     public UserModel(){/* empty */}
 
@@ -143,5 +144,13 @@ public class UserModel {
 
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public boolean isBlocked() {
+        return isBlocked;
+    }
+
+    public void setBlocked(boolean blocked) {
+        isBlocked = blocked;
     }
 }

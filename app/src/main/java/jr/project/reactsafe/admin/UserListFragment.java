@@ -1,5 +1,6 @@
 package jr.project.reactsafe.admin;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -58,11 +59,10 @@ public class UserListFragment extends Fragment {
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));
         rv.setAdapter(adapter);
 
-        adapter.setListener(new UsersListAdapter.OnUserClick() {
-            @Override
-            public void OnModelReceived(UserModel model) {
-                Toast.makeText(getContext(), ""+new Gson().toJson(model), Toast.LENGTH_SHORT).show();
-            }
+        adapter.setListener(model -> {
+            Intent i = new Intent(requireContext(),AdminUserDetailsActivity.class);
+            i.putExtra("model",new Gson().toJson(model));
+            startActivity(i);
         });
 
         et.addTextChangedListener(new TextWatcher() {
