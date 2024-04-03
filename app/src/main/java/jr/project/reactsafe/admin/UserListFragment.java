@@ -21,11 +21,6 @@ import java.util.Objects;
 import jr.project.reactsafe.R;
 import jr.project.reactsafe.extras.model.UserModel;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link UserListFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class UserListFragment extends Fragment {
 
     ArrayList<UserModel> models = new ArrayList<>();
