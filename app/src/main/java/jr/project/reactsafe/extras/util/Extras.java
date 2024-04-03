@@ -87,8 +87,8 @@ public class Extras {
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
-    public static String getLocationString(Context context,String lat , String lng){
-        String loc = " ";
+    public static String getLocationString(Context context,String lat,String lng){
+        String loc = lat + ", " +lng;
         try {
 
             double lati = Double.parseDouble(lat);
@@ -106,7 +106,9 @@ public class Extras {
             String country = addresses.get(0).getCountryName();
             String postalCode = addresses.get(0).getPostalCode();
             String knownName = addresses.get(0).getFeatureName();
-            loc = city+", "+state;
+            if (city != null && state != null){
+                loc = lat + ", " +lng;
+            }
         }catch (Exception e){
             e.printStackTrace();
         }

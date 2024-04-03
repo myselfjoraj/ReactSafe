@@ -4,10 +4,15 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
@@ -24,6 +29,7 @@ import jr.project.reactsafe.extras.model.UserModel;
 public class UserListFragment extends Fragment {
 
     ArrayList<UserModel> models = new ArrayList<>();
+    UsersListAdapter adapter;
     public UserListFragment() {
         // Required empty public constructor
     }
@@ -43,7 +49,46 @@ public class UserListFragment extends Fragment {
 
         getUsersListFromDb();
 
+        EditText et     = v.findViewById(R.id.search);
+        RecyclerView rv = v.findViewById(R.id.rv);
+
+        adapter = new UsersListAdapter(requireContext());
+
+        rv.setLayoutManager(new LinearLayoutManager(requireContext()));
+        rv.setAdapter(adapter);
+
+        et.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s!=null && s.length() > 0){
+                    filter(s.toString());
+                }else {
+                    adapter.setModel(models);
+                }
+            }
+        });
+
         return v;
+    }
+
+    private void filter(String text) {
+        ArrayList<UserModel> filteredlist = new ArrayList<>();
+        for (UserModel item : models) {
+            if (item.getName().toLowerCase().contains(text.toLowerCase())) {
+                filteredlist.add(item);
+            }
+        }
+        if (!filteredlist.isEmpty()) {
+            adapter.setModel(filteredlist);
+        }else {
+            adapter.setModel(models);
+        }
     }
 
     void getUsersListFromDb(){
