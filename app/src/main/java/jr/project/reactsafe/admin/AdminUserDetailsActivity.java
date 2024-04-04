@@ -105,7 +105,7 @@ public class AdminUserDetailsActivity extends AppCompatActivity {
         });
 
         binding.save.setOnClickListener(v -> {
-
+            showPleaseWaitDialog("Updating ...");
             String new_name = binding.nameField.getText().toString();
             String new_phone = binding.numberField.getText().toString();
             if (new_name.isEmpty()){
@@ -128,6 +128,8 @@ public class AdminUserDetailsActivity extends AppCompatActivity {
             }
 
             if (profileUri!=null) {
+                dismissPleaseWaitDialog();
+                showPleaseWaitDialog("Uploading Image ...");
                 FirebaseStorage.getInstance().getReference().child("profileImages")
                         .child(model.getUid()).putFile(profileUri)
                         .addOnSuccessListener(taskSnapshot -> {
@@ -135,21 +137,18 @@ public class AdminUserDetailsActivity extends AppCompatActivity {
                                     .addOnCompleteListener(task -> {
                                         String profileImageLink = String.valueOf(task.getResult());
                                         throwToDb(profileImageLink);
-                                        mPref.setProfileImage(profileImageLink);
+                                        throwToDb(new_name, new_phone);
+                                        dismissPleaseWaitDialog();
+                                        Toast.makeText(this, "Profile updated successfully ...", Toast.LENGTH_SHORT).show();
                                     });
                         });
+            }else {
+                throwToDb(new_name, new_phone);
+                dismissPleaseWaitDialog();
+                Toast.makeText(this, "Profile updated successfully ...", Toast.LENGTH_SHORT).show();
             }
 
-            throwToDb(new_name,new_phone);
-            mPref.setProfileName(new_name);
-            mPref.setProfileNumber(new_phone);
-
-            //re setting views
-            if (profileUri!=null)
-                Glide.with(AdminUserDetailsActivity.this)
-                        .load(profileUri)
-                        .placeholder(R.drawable.avatar)
-                        .into(binding.profileImage);
+            blockUnblock(check);
 
 
         });
@@ -177,10 +176,10 @@ public class AdminUserDetailsActivity extends AppCompatActivity {
                 .child(uid);
         ref.child("phone").setValue(phone);
         ref.child("name").setValue(name);
-        String s = new SharedPreference(this).getUserTypeInPref();
+        String s = model.getTitle();
         if (s!=null && (!s.equals("user") || !s.equals("parent"))){
             DatabaseReference ref2 = FirebaseDatabase.getInstance().getReference().child(s)
-                    .child(FirebaseAuth.getInstance().getUid());
+                    .child(uid);
             ref2.child("phone").setValue(phone);
             ref2.child("name").setValue(name);
         }
@@ -191,10 +190,10 @@ public class AdminUserDetailsActivity extends AppCompatActivity {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("users")
                 .child(uid);
         ref.child("profileImage").setValue(profileImage);
-        String s = new SharedPreference(this).getUserTypeInPref();
+        String s = model.getTitle();
         if (s!=null && (!s.equals("user") || !s.equals("parent"))){
             DatabaseReference ref2 = FirebaseDatabase.getInstance().getReference().child(s)
-                    .child(FirebaseAuth.getInstance().getUid());
+                    .child(uid);
             ref2.child("profileImage").setValue(profileImage);
         }
     }

@@ -7,6 +7,21 @@
     android:layout_height="match_parent"
     tools:context=".BlockedInfoActivity">
 
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        android:backgroundTint="@color/react_safe"
+        android:background="@drawable/corner_button_drawable"
+        android:text="Login Securely"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button4" />
+
     <TextView
         android:id="@+id/textView22"
         android:layout_width="wrap_content"
@@ -18,16 +33,18 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button3"
+        android:id="@+id/button4"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
         android:layout_marginEnd="30dp"
         android:backgroundTint="@color/react_safe"
+        android:background="@drawable/corner_button_drawable"
         android:text="exit"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView22" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

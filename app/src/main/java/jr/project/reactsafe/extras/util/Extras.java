@@ -121,7 +121,9 @@ public class Extras {
     }
 
     public static void transferToBlocked(Context context){
-        context.startActivity(new Intent(context, BlockedInfoActivity.class));
+        Intent intent = new Intent(context, BlockedInfoActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
     }
 
 }

@@ -5,7 +5,7 @@ public class UserModel {
     String uid,name,email,title,phone,lng,lat,profileImage,pairedBy,pairedOn,timestamp;
     boolean isParent;
     boolean isActive;
-    boolean isBlocked;
+    boolean blocked;
 
     public UserModel(){/* empty */}
 
@@ -147,10 +147,10 @@ public class UserModel {
     }
 
     public boolean isBlocked() {
-        return isBlocked;
+        return blocked;
     }
 
     public void setBlocked(boolean blocked) {
-        isBlocked = blocked;
+        this.blocked = blocked;
     }
 }

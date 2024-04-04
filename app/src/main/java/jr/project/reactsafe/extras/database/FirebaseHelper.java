@@ -257,6 +257,8 @@ public class FirebaseHelper {
                         if (snapshot.exists()){
                             boolean isBlocked = Boolean.TRUE.equals(snapshot.getValue(Boolean.class));
                             listener.value(isBlocked);
+                        }else {
+                            listener.value(false);
                         }
                     }
 
