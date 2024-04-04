@@ -23,6 +23,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -63,6 +64,7 @@ import jr.project.reactsafe.extras.util.ScreenReceiver;
 import jr.project.reactsafe.parent.ParentPreferenceHelper;
 import jr.project.reactsafe.user.AccidentAlertActivity;
 import jr.project.reactsafe.user.UserMainActivity;
+import jr.project.reactsafe.user.UserPreferenceHelper;
 
 public class AccidentDetectionService extends Service implements SensorEventListener {
 
@@ -269,7 +271,8 @@ public class AccidentDetectionService extends Service implements SensorEventList
         if (mp.isPlaying()) {
             mp.stop();
             mp.release();
-            mp.reset();
+            mp = new MediaPlayer();
+            ApplicationController.setMediaPlayer(mp);
         }
         Uri url = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.alarm_tone);
         mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -308,33 +311,47 @@ public class AccidentDetectionService extends Service implements SensorEventList
             if(model!=null && model.getUid() != null && !model.getUid().isEmpty()) {
                 FirebaseHelper.InsertAlertHospital(id,model.getUid());
             }
+            Log.e("AccidentDetectionService","hospital -- "+model.getUid());
         });
 
         NearestSafe.getNearestAmbulance(db.get(0) + "", db.get(1) + "", model -> {
             if(model!=null && model.getUid() != null && !model.getUid().isEmpty()) {
                 FirebaseHelper.InsertAlertAmbulance(id,model.getUid());
             }
+            Log.e("AccidentDetectionService","ambulance -- "+model.getUid());
         });
 
         NearestSafe.getNearestPolice(db.get(0) + "", db.get(1) + "", model -> {
             if(model!=null && model.getUid() != null && !model.getUid().isEmpty()) {
                 FirebaseHelper.InsertAlertPolice(id,model.getUid());
             }
+            Log.e("AccidentDetectionService","police -- "+model.getUid());
         });
 
-        Handler timerHandler2 = new Handler();
-        timerRunnable2 = new Runnable() {
-            @Override
-            public void run() {
-                snd--;
-                if (snd == 0) {
-                    forceInsertAlertInNodes();
-                    timerHandler2.removeCallbacksAndMessages(timerRunnable2);
-                }
-                timerHandler2.postDelayed(this, 1000);
+//        Handler timerHandler2 = new Handler();
+//        timerRunnable2 = new Runnable() {
+//            @Override
+//            public void run() {
+//                snd--;
+//                if (snd == 0) {
+//                    forceInsertAlertInNodes();
+//                    timerHandler2.removeCallbacksAndMessages(timerRunnable2);
+//                }
+//                timerHandler2.postDelayed(this, 1000);
+//            }
+//        };
+//        timerHandler2.post(timerRunnable2);
+
+        CountDownTimer timer = new CountDownTimer(90* 1000L, 1000){
+            public void onTick(long millisUntilFinished){
+                Log.e("AccidentDetectionService","forcefully inserting nodes in "+(millisUntilFinished/1000));
+            }
+            public  void onFinish(){
+                forceInsertAlertInNodes();
             }
         };
-        timerHandler2.post(timerRunnable2);
+
+        timer.start();
 
     }
 
@@ -352,6 +369,7 @@ public class AccidentDetectionService extends Service implements SensorEventList
                 if (ts == null){
                     ts = p+"";
                 }
+                showAsMessageToParent(ts);
                 LocationModel l = new LocationModel(loc().get(0)+"",loc().get(1)+"",
                         FirebaseAuth.getInstance().getUid(),ts);
                 String police    = snapshot1.child("police").getValue(String.class);
@@ -380,6 +398,16 @@ public class AccidentDetectionService extends Service implements SensorEventList
 
             }
         });
+    }
+
+    void showAsMessageToParent(String ts){
+        try {
+            String pid = new UserPreferenceHelper(this).getPairedDeviceDetails().get(0).getUid();
+            FirebaseDatabase.getInstance().getReference().child("users").child(pid)
+                    .child("offlineAccident").setValue(ts);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 

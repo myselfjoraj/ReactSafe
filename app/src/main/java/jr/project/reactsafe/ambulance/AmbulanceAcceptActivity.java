@@ -105,7 +105,7 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
             }
             public  void onFinish(){
                 if (!didAccept){
-                    //changeAmbulance(true,alertModel.getLat(),alertModel.getLng(),alertModel.getTimestamp(),uid,alertModel);
+                    changeAmbulance(true,alertModel.getLat(),alertModel.getLng(),alertModel.getTimestamp(),uid,alertModel);
                 }
             }
         };

@@ -11,6 +11,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import jr.project.reactsafe.extras.model.UserModel;
 
@@ -128,12 +129,12 @@ public class NearestSafe {
     public static void findHospital(OnReceived listener){
 
         FirebaseDatabase.getInstance().getReference().child("hospital")
-                .addValueEventListener(new ValueEventListener() {
+                .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         ArrayList<UserModel> m = new ArrayList<>();
                         for (DataSnapshot snapshot1 : snapshot.getChildren()){
-                            boolean isActive = Boolean.TRUE.equals(snapshot1.child("isActive").getValue(Boolean.class));
+                            boolean isActive = Objects.equals("true",snapshot1.child("isActive").getValue(String.class));
                             if (isActive) {
                                 m.add(snapshot1.getValue(UserModel.class));
                             }
@@ -150,12 +151,12 @@ public class NearestSafe {
     public static void findAmbulance(OnReceived listener){
 
         FirebaseDatabase.getInstance().getReference().child("ambulance")
-                .addValueEventListener(new ValueEventListener() {
+                .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         ArrayList<UserModel> m = new ArrayList<>();
                         for (DataSnapshot snapshot1 : snapshot.getChildren()){
-                            boolean isActive = Boolean.TRUE.equals(snapshot1.child("isActive").getValue(Boolean.class));
+                            boolean isActive = Objects.equals("true",snapshot1.child("isActive").getValue(String.class));
                             if (isActive) {
                                 m.add(snapshot1.getValue(UserModel.class));
                             }
@@ -172,7 +173,7 @@ public class NearestSafe {
     public static void findPolice(OnReceived listener){
 
         FirebaseDatabase.getInstance().getReference().child("police")
-                .addValueEventListener(new ValueEventListener() {
+                .addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 ArrayList<UserModel> m = new ArrayList<>();

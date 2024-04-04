@@ -3,6 +3,7 @@ package jr.project.reactsafe.user;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.view.View;
 import android.view.WindowManager;
@@ -45,6 +46,7 @@ public class AccidentAlertActivity extends AppCompatActivity {
     int sec = 30;
     boolean isT = false;
     boolean isParent = false;
+    boolean isToClose = false;
     Runnable timerRunnable;
     SharedPreference mPref;
     @Override
@@ -69,24 +71,55 @@ public class AccidentAlertActivity extends AppCompatActivity {
         long defaultSec = Extras.getTimestamp() + 30000;
         sec = (int) ((mPref.getLong("startedAlertOn",defaultSec)/1000) - (Extras.getTimestamp()/1000));
 
-        Handler timerHandler = new Handler();
-        timerRunnable = new Runnable() {
-            @Override
-            public void run() {
+//        Handler timerHandler = new Handler();
+//        timerRunnable = new Runnable() {
+//            @Override
+//            public void run() {
+//                runOnUiThread(() -> {
+//                    binding.count.setText(sec + "");
+//                    binding.progress.setProgress(sec);
+//                });
+//                sec --;
+//                if (sec == 0){
+//                    timerHandler.removeCallbacksAndMessages(timerRunnable);
+//                    startActivity();
+//                }
+//                timerHandler.postDelayed(this, 1000);
+//            }
+//        };
+//
+//        timerRunnable.run();
+
+        if (isToClose || (sec < 1)){
+            Intent i = new Intent();
+            if (isParent){
+                i.setClass(AccidentAlertActivity.this, ParentMainActivity.class);
+            }else {
+                i.setClass(AccidentAlertActivity.this, UserMainActivity.class);
+            }
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
+            finishAffinity();
+        }
+
+        CountDownTimer timer = new CountDownTimer(sec* 1000L, 1000){
+            public void onTick(long millisUntilFinished){
+                sec --;
                 runOnUiThread(() -> {
                     binding.count.setText(sec + "");
                     binding.progress.setProgress(sec);
                 });
-                sec --;
-                if (sec == 0){
-                    timerHandler.removeCallbacksAndMessages(timerRunnable);
+            }
+            public  void onFinish(){
+                if (!isT) {
+                    isToClose = true;
+                    forceInsertAlertInNodes();
                     startActivity();
                 }
-                timerHandler.postDelayed(this, 1000);
             }
         };
 
-        timerRunnable.run();
+        timer.start();
 
         String s = new SharedPreference(this).getUserTypeInPref();
         if (Objects.equals(s,"parent")){
@@ -222,7 +255,6 @@ public class AccidentAlertActivity extends AppCompatActivity {
                         String police    = snapshot.child("police").getValue(String.class);
                         String ambulance = snapshot.child("ambulance").getValue(String.class);
                         String hospital  = snapshot.child("hospital").getValue(String.class);
-                        Toast.makeText(AccidentAlertActivity.this, "got -- "+ambulance, Toast.LENGTH_SHORT).show();
                         if (police!=null) {
                             FirebaseHelper.InsertAlertOnPoliceId(police, l);
                         }

@@ -3,6 +3,7 @@ package jr.project.reactsafe.parent;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.view.View;
 import android.view.WindowManager;
@@ -51,25 +52,39 @@ public class ParentSnoozeActivity extends AppCompatActivity {
         binding = ActivityParentSnoozeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+//
+//        Handler timerHandler = new Handler();
+//        timerRunnable = new Runnable() {
+//            @Override
+//            public void run() {
+//                runOnUiThread(() -> {
+//                    binding.count.setText(sec + "");
+//                    binding.progress.setProgress(sec);
+//                });
+//                sec --;
+//                if (sec == 0){
+//                    timerHandler.removeCallbacksAndMessages(timerRunnable);
+//                    forceInsertAlertInNodes();
+//                }
+//                timerHandler.postDelayed(this, 1000);
+//            }
+//        };
+//
+//        timerRunnable.run();
 
-        Handler timerHandler = new Handler();
-        timerRunnable = new Runnable() {
-            @Override
-            public void run() {
+        CountDownTimer timer = new CountDownTimer(sec* 1000L, 1000){
+            public void onTick(long millisUntilFinished){
                 runOnUiThread(() -> {
                     binding.count.setText(sec + "");
                     binding.progress.setProgress(sec);
                 });
-                sec --;
-                if (sec == 0){
-                    timerHandler.removeCallbacksAndMessages(timerRunnable);
-                    forceInsertAlertInNodes();
-                }
-                timerHandler.postDelayed(this, 1000);
+            }
+            public  void onFinish(){
+                forceInsertAlertInNodes();
             }
         };
 
-        timerRunnable.run();
+        timer.start();
 
 
         binding.swipeBtn.setOnStateChangeListener(new OnStateChangeListener() {

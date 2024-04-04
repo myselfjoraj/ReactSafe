@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -76,7 +77,8 @@ public class ParentForegroundService extends Service {
 
         ArrayList<UserModel> model  = mPref.getPairedDeviceDetails();
 
-        FirebaseDatabase.getInstance().getReference().child("alert").child(model.get(0).getUid())
+        FirebaseDatabase.getInstance().getReference().child("alert")
+                .child(model.get(0).getUid())
                 .addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -91,11 +93,12 @@ public class ParentForegroundService extends Service {
                     }
                     if (ts == null)
                         return;
-                    long time = Long.parseLong(ts);
+                    long time = Long.parseLong(ts) + 30000;
                     long diff = time - Extras.getTimestamp();
+                    Toast.makeText(context, " received -- "+(diff/1000), Toast.LENGTH_SHORT).show();
                     if (diff < 30000 && diff > 0){
                         int diffInSec = (int) (diff/1000);
-                        sec = (int) diffInSec+60;
+                        sec = (int) diffInSec+30;
                         Log.e("ParentForeground",sec+" -- balance seconds");
                         timerRunnable.run();
                     }else if (diff >= 30000 && diff <= 60000){

@@ -5,6 +5,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -83,6 +84,8 @@ public class ParentMainActivity extends AppCompatActivity implements OnMapReadyC
         if (mPref.getIsOnAccident()!=null){
             startActivity(new Intent(this,ParentAccidentProceedings.class));
         }
+
+        fetchOfflineAccident();
 
         DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference()
                 .child("users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
@@ -198,6 +201,29 @@ public class ParentMainActivity extends AppCompatActivity implements OnMapReadyC
         }
 
 
+    }
+
+    void fetchOfflineAccident(){
+        DatabaseReference mRef = FirebaseDatabase.getInstance().getReference().child("users")
+                .child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()))
+                .child("offlineAccident");
+        mRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()){
+                            mPref.setIsOnAccident(snapshot.getValue(String.class));
+                            mRef.removeValue();
+                            if (mPref.getIsOnAccident()!=null){
+                                startActivity(new Intent(ParentMainActivity.this,ParentAccidentProceedings.class));
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
     }
 
     @Override

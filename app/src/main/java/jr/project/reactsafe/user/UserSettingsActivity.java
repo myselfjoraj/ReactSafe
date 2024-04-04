@@ -2,6 +2,7 @@ package jr.project.reactsafe.user;
 
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -303,6 +304,7 @@ public class UserSettingsActivity extends AppCompatActivity {
                 .setNegativeButton("YES", (dialog, which) -> {
                     FirebaseAuth.getInstance().signOut();
                     mPref.setIAmAdmin(false);
+                    cancelNotification();
                     clearData();
                     startActivity(new Intent(UserSettingsActivity.this, SplashScreenActivity.class));
                     finishAffinity();
@@ -318,6 +320,17 @@ public class UserSettingsActivity extends AppCompatActivity {
         editor.clear();
         editor.apply();
         deleteDatabase("ReactSafeDb");
+    }
+
+    public void cancelNotification() {
+        try {
+            String ns = Context.NOTIFICATION_SERVICE;
+            NotificationManager nMgr = (NotificationManager) getSystemService(ns);
+            nMgr.cancelAll();
+        }catch (Exception e){
+            e.printStackTrace();
+
+        }
     }
 
 }
