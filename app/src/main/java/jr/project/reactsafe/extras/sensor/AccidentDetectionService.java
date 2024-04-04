@@ -19,7 +19,9 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -42,6 +44,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -65,7 +68,7 @@ public class AccidentDetectionService extends Service implements SensorEventList
 
     private static final int NOTIFICATION_ID = 123;
     private static final float FALL_THRESHOLD = 20.0f;
-    private static final int MIN_SAMPLES_FOR_FALL = 5;
+    private static final int MIN_SAMPLES_FOR_FALL = 2;
     private static final int RESET_COUNTER_DELAY = 2000;
 
     private int consecutiveHighFallCounter = 0;
@@ -233,7 +236,7 @@ public class AccidentDetectionService extends Service implements SensorEventList
 
     }
 
-    private void notifyHighFall() {
+    private void notifyHighFall(){
 
         Intent broadcastIntent = new Intent("jr.project.reactsafe.FALL_DETECTED");
         sendBroadcast(broadcastIntent);
@@ -262,10 +265,24 @@ public class AccidentDetectionService extends Service implements SensorEventList
         }
         notificationManager.notify(722, builder.build());
 
-        MediaPlayer mp = MediaPlayer.create(this, R.raw.alarm_tone);
+        MediaPlayer mp = ApplicationController.getMediaPlayer();
+        if (mp.isPlaying()) {
+            mp.stop();
+            mp.release();
+            mp.reset();
+        }
+        Uri url = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.alarm_tone);
+        mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
+        try {
+            mp.setDataSource(this, url);
+            mp.prepare();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        //MediaPlayer.create(this, R.raw.alarm_tone);
         //AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         //audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
-        ApplicationController.setMediaPlayer(mp);
         mp.start();
 
         insertFallInDb();

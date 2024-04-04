@@ -67,6 +67,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_gravity="center_vertical"
+                app:tint="@color/react_safe"
                 android:layout_marginStart="10dp"
                 android:padding="3dp"
                 app:srcCompat="@drawable/account_settings" />
@@ -117,7 +118,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="10dp"
                 android:padding="3dp"
-                android:tint="@android:color/holo_blue_bright"
+                app:tint="@color/react_safe"
                 app:srcCompat="@drawable/smartphone_device_icon" />
 
             <EditText

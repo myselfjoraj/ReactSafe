@@ -34,6 +34,8 @@ public class PairedDevicesActivity extends AppCompatActivity {
         binding = ActivityPairedDevicesBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        binding.backBtn.setOnClickListener(v -> finish());
+
         models = new UserPreferenceHelper(PairedDevicesActivity.this)
                 .getPairedDeviceDetails();
 

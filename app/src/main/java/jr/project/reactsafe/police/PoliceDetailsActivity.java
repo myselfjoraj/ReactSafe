@@ -74,6 +74,8 @@ public class PoliceDetailsActivity extends AppCompatActivity implements OnMapRea
         binding = ActivityPoliceDetailsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        binding.myProfImg.setOnClickListener(v -> finish());
+
 
         String id = getIntent().getStringExtra("id");
         String uid = getIntent().getStringExtra("uid");

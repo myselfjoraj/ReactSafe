@@ -57,6 +57,8 @@ public class PoliceTransferActivity extends AppCompatActivity {
         binding = ActivityPoliceTransferBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        binding.myProfImg.setOnClickListener(v -> finish());
+
         adapter = new TransferRecyclerAdapter();
 
         binding.rv.setLayoutManager(new LinearLayoutManager(this));

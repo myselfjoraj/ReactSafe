@@ -40,6 +40,8 @@ public class PairUserDeviceActivity extends AppCompatActivity {
         binding = ActivityPairUserDeviceBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        binding.backBtn.setOnClickListener(v -> finish());
+
         FirebaseHelper.getBlocked(val -> { if (val){ Extras.transferToBlocked(getApplicationContext()); }});
 
         mPref = new ParentPreferenceHelper(this);

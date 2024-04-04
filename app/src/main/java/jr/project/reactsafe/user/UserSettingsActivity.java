@@ -83,12 +83,26 @@ public class UserSettingsActivity extends AppCompatActivity {
         binding.signOut.setOnClickListener(v -> showSignOutDialog());
 
         String s = new SharedPreference(this).getUserTypeInPref();
+        Toast.makeText(this, "---"+s, Toast.LENGTH_SHORT).show();
+        boolean isDisp = Objects.equals("user",s) || Objects.equals("parent",s);
         if (s!=null){
-            if (!s.equals("user") || !s.equals("parent")){
+            if (!isDisp){
                 binding.pairDevice.setVisibility(View.GONE);
                 try (DatabaseHelper helper = new DatabaseHelper(UserSettingsActivity.this)){
-                    binding.happenedAccidents.setText(helper.readAmbulanceAccepts().size()+" Accidents Received");
+                    String t = " ";
+                    if (s.equals("ambulance")) {
+                        t = helper.readAmbulanceAccepts().size() + " Accidents Received";
+                    }else if (s.equals("hospital")) {
+                        t = helper.readHospitalAccepts().size() + " Accidents Received";
+                    }else if (s.equals("police")){
+                        t = helper.readPoliceAccepts().size() + " Accidents Received";
+                    }else {
+                        t = helper.readRecentFalls().size() + " Accidents Detected";
+                    }
+                    binding.happenedAccidents.setText(t);
                 }
+            }else {
+                binding.pairDevice.setVisibility(View.VISIBLE);
             }
         }
 
@@ -288,6 +302,7 @@ public class UserSettingsActivity extends AppCompatActivity {
                 .setPositiveButton("NO", (dialog, which) -> { })
                 .setNegativeButton("YES", (dialog, which) -> {
                     FirebaseAuth.getInstance().signOut();
+                    mPref.setIAmAdmin(false);
                     clearData();
                     startActivity(new Intent(UserSettingsActivity.this, SplashScreenActivity.class));
                     finishAffinity();

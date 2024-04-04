@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -148,6 +149,8 @@ public class HospitalAcceptActivity extends AppCompatActivity implements OnMapRe
             }
 
         });
+
+         binding.myProfImg.setOnClickListener(v -> finish());
 
 
 

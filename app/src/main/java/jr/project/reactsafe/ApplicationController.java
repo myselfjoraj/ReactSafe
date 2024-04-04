@@ -4,6 +4,7 @@ import android.app.Application;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.media.MediaPlayer;
+import android.os.StrictMode;
 
 public class ApplicationController extends Application {
 
@@ -29,6 +30,13 @@ public class ApplicationController extends Application {
         mediaPlayer = mp;
     }
 
+    public static MediaPlayer getMediaPlayer(){
+        if (mediaPlayer == null) {
+            mediaPlayer = new MediaPlayer();
+        }
+        return mediaPlayer;
+    }
+
     public static void releaseMediaPlayer(){
         if (mediaPlayer!=null && mediaPlayer.isPlaying()){
             mediaPlayer.stop();
@@ -41,6 +49,10 @@ public class ApplicationController extends Application {
     public void onCreate() {
         super.onCreate();
         context = getApplicationContext();
+
+        Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(getApplicationContext()));
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
     }
 
     public static Context getAppContext() {

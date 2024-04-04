@@ -85,6 +85,7 @@ public class PoliceAcceptActivity extends AppCompatActivity implements OnMapRead
         binding = ActivityPoliceAcceptBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        binding.myProfImg.setOnClickListener(v -> finish());
 
         id = getIntent().getStringExtra("id");
         String uid = getIntent().getStringExtra("uid");

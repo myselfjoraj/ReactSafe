@@ -72,6 +72,7 @@ public class HospitalDetailsActivity extends AppCompatActivity implements OnMapR
         binding = ActivityHospitalDetailsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        binding.myProfImg.setOnClickListener(v -> finish());
 
         String id = getIntent().getStringExtra("id");
         String uid = getIntent().getStringExtra("uid");

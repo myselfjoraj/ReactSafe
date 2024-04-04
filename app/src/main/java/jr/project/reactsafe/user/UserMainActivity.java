@@ -66,6 +66,7 @@ import java.util.TimerTask;
 
 import jr.project.reactsafe.ApplicationController;
 import jr.project.reactsafe.R;
+import jr.project.reactsafe.SplashScreenActivity;
 import jr.project.reactsafe.databinding.ActivityUserMainBinding;
 import jr.project.reactsafe.extras.database.DatabaseHelper;
 import jr.project.reactsafe.extras.database.FirebaseHelper;
@@ -222,6 +223,9 @@ public class UserMainActivity extends AppCompatActivity implements OnMapReadyCal
 
         }
 
+        setProfileDetails();
+        setPairedDevice();
+
         final LocationManager manager = (LocationManager) UserMainActivity.this.getSystemService(Context.LOCATION_SERVICE);
         if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
             EnableLocationOrExit();
@@ -251,6 +255,47 @@ public class UserMainActivity extends AppCompatActivity implements OnMapReadyCal
             }
         });
 
+    }
+
+    void setPairedDevice(){
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference()
+                .child("users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
+        dbRef.child("pairedBy").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!snapshot.exists()){
+                    new UserPreferenceHelper(UserMainActivity.this).setPairedDeviceDetails(null);
+                    setUi();
+                }else {
+                    FirebaseHelper.getUser(snapshot.getValue(String.class), new FirebaseHelper.OnReceivedUser() {
+                        @Override
+                        public void getReceiver(UserModel model) {
+                            if (model!=null) {
+                                ArrayList<UserModel> m = new ArrayList<>();
+                                m.add(model);
+                                new UserPreferenceHelper(UserMainActivity.this)
+                                        .setPairedDeviceDetails(new Gson().toJson(m));
+                                setUi();
+                            }
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    void setProfileDetails(){
+        FirebaseHelper.getUser(FirebaseAuth.getInstance().getUid(), model -> {
+            new UserPreferenceHelper(UserMainActivity.this).setProfileEmail(model.getEmail());
+            new UserPreferenceHelper(UserMainActivity.this).setProfileNumber(model.getPhone());
+            new UserPreferenceHelper(UserMainActivity.this).setProfileImage(model.getProfileImage());
+            new UserPreferenceHelper(UserMainActivity.this).setProfileName(model.getName());
+        });
     }
 
     @Override

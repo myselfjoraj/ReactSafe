@@ -143,7 +143,7 @@
                             android:layout_marginStart="5dp"
                             android:layout_weight="1"
                             android:fontFamily="monospace"
-                            android:text="Accident Ratio"
+                            android:text="Accidents"
                             android:textColor="@color/black"
                             android:textSize="17sp"
                             android:textStyle="bold" />
