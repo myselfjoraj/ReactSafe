@@ -72,8 +72,9 @@ public class ParentSnoozeActivity extends AppCompatActivity {
 //
 //        timerRunnable.run();
 
-        CountDownTimer timer = new CountDownTimer(sec* 1000L, 1000){
+        new CountDownTimer(60000L, 1000){
             public void onTick(long millisUntilFinished){
+                sec --;
                 runOnUiThread(() -> {
                     binding.count.setText(sec + "");
                     binding.progress.setProgress(sec);
@@ -82,9 +83,9 @@ public class ParentSnoozeActivity extends AppCompatActivity {
             public  void onFinish(){
                 forceInsertAlertInNodes();
             }
-        };
+        }.start();
 
-        timer.start();
+        //timer.start();
 
 
         binding.swipeBtn.setOnStateChangeListener(new OnStateChangeListener() {

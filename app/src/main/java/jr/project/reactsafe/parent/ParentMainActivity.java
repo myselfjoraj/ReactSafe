@@ -170,8 +170,9 @@ public class ParentMainActivity extends AppCompatActivity implements OnMapReadyC
         });
 
         FirebaseHelper.GetPairedUserLocation(model.get(0).getUid(), (lat, lng) -> {
-            if (lat == null || lng == null)
+            if (lat == null || lng == null || mMap == null)
                 return;
+
             mMap.clear();
             updatedTs = Extras.getTimestamp();
             binding.lastUpdated.setText(Extras.getStandardFormDateFromTimeStamp(updatedTs+"")

@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.pm.ServiceInfo;
 import android.media.MediaPlayer;
 import android.os.Build;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
@@ -56,6 +57,8 @@ public class ParentForegroundService extends Service {
     ParentPreferenceHelper mPref;
     Context context;
 
+    boolean isTimerStarted = false;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -95,22 +98,25 @@ public class ParentForegroundService extends Service {
                         return;
                     long time = Long.parseLong(ts) + 30000;
                     long diff = time - Extras.getTimestamp();
-                    Toast.makeText(context, " received -- "+(diff/1000), Toast.LENGTH_SHORT).show();
-                    if (diff < 30000 && diff > 0){
+                    //Toast.makeText(context, " received -- "+(diff/1000), Toast.LENGTH_SHORT).show();
+                    if (diff < 30000 && diff > 0 && !isTimerStarted){
                         int diffInSec = (int) (diff/1000);
-                        sec = (int) diffInSec+30;
+                        sec = (int) diffInSec;//+30
+                        Log.e("ParentForeground","diff is "+diffInSec +" second is "+sec+" ");
                         Log.e("ParentForeground",sec+" -- balance seconds");
-                        timerRunnable.run();
-                    }else if (diff >= 30000 && diff <= 60000){
-                        timerRunnable.run();
-                    }else {
-                        if (diff > 60000 && diff <= 90000){
-                            sec = (int) (diff/1000);
-                        } else {
-                            sec = 2;
-                        }
-                        timerRunnable.run();
+                        //timerRunnable.run();
+                        timer.start();
                     }
+//                    }else if (diff >= 30000 && diff <= 60000){
+//                        timer.start();
+//                    }else {
+//                        if (diff > 60000 && diff <= 90000){
+//                            sec = (int) (diff/1000);
+//                        } else {
+//                            sec = 2;
+//                        }
+//                        timer.start();
+//                    }
 
                     new DatabaseHelper(ParentForegroundService.this).insertFall(
                             ts,Extras.getLocationString(ParentForegroundService.this,lat,lng),lat,lng,"1"
@@ -119,7 +125,7 @@ public class ParentForegroundService extends Service {
                     Log.e("ParentForeground",diff+" -- difference");
                 }else {
                     ApplicationController.releaseMediaPlayer();
-                    timerHandler.removeCallbacksAndMessages(timerRunnable);
+                    //timerHandler.removeCallbacksAndMessages(timerRunnable);
                 }
             }
 
@@ -131,19 +137,39 @@ public class ParentForegroundService extends Service {
 
     }
 
-    Handler timerHandler = new Handler();
-    Runnable timerRunnable = new Runnable() {
-        @Override
-        public void run() {
-            sec --;
-            Log.e("ParentForeground",sec+" -- seconds left");
-            if (sec == 0){
-                new SharedPreference(context).putLong("startedAlertOn",Extras.getTimestamp());
-                notifyHighFall();
-                timerHandler.removeCallbacksAndMessages(timerRunnable);
-            }
+//    Handler timerHandler = new Handler();
+//    Runnable timerRunnable = new Runnable() {
+//        @Override
+//        public void run() {
+//            sec --;
+//
+//            if (sec == 0){
+//                new SharedPreference(context).putLong("startedAlertOn",Extras.getTimestamp());
+//                notifyHighFall();
+//                timerHandler.removeCallbacksAndMessages(timerRunnable);
+//            }
+//
+//            timerHandler.postDelayed(this, 1000);
+//        }
+//    };
 
-            timerHandler.postDelayed(this, 1000);
+    int seconds = 0;
+    CountDownTimer timer = new CountDownTimer(30000L, 1000){
+        public void onTick(long millisUntilFinished){
+            if (seconds == 0){
+                seconds = sec;
+            }else {
+                seconds --;
+            }
+            isTimerStarted = true;
+            //sec --;
+            Log.e("ParentForeground",seconds+" -- seconds left");
+        }
+        public  void onFinish(){
+            isTimerStarted = false;
+            Log.e("ParentForeground","finished alert");
+            new SharedPreference(context).putLong("startedAlertOn",Extras.getTimestamp());
+            notifyHighFall();
         }
     };
 
