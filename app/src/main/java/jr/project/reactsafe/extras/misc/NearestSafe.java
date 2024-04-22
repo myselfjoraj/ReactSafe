@@ -134,7 +134,12 @@ public class NearestSafe {
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         ArrayList<UserModel> m = new ArrayList<>();
                         for (DataSnapshot snapshot1 : snapshot.getChildren()){
-                            boolean isActive = Objects.equals("true",snapshot1.child("isActive").getValue(String.class));
+                            boolean isActive;
+                            try {
+                                isActive = Objects.equals("true",snapshot1.child("isActive").getValue(String.class));
+                            }catch (Exception e){
+                                isActive = Boolean.TRUE.equals(snapshot1.child("isActive").getValue(Boolean.class));
+                            }
                             if (isActive) {
                                 m.add(snapshot1.getValue(UserModel.class));
                             }
@@ -156,7 +161,12 @@ public class NearestSafe {
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         ArrayList<UserModel> m = new ArrayList<>();
                         for (DataSnapshot snapshot1 : snapshot.getChildren()){
-                            boolean isActive = Objects.equals("true",snapshot1.child("isActive").getValue(String.class));
+                            boolean isActive;
+                            try {
+                                isActive = Objects.equals("true",snapshot1.child("isActive").getValue(String.class));
+                            }catch (Exception e){
+                                isActive = Boolean.TRUE.equals(snapshot1.child("isActive").getValue(Boolean.class));
+                            }
                             if (isActive) {
                                 m.add(snapshot1.getValue(UserModel.class));
                             }

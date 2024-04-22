@@ -84,7 +84,7 @@ public class UserSettingsActivity extends AppCompatActivity {
         binding.signOut.setOnClickListener(v -> showSignOutDialog());
 
         String s = new SharedPreference(this).getUserTypeInPref();
-        Toast.makeText(this, "---"+s, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "---"+s, Toast.LENGTH_SHORT).show();
         boolean isDisp = Objects.equals("user",s) || Objects.equals("parent",s);
         if (s!=null){
             if (!isDisp){

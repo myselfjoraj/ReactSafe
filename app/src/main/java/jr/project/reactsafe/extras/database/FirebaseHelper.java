@@ -45,7 +45,7 @@ public class FirebaseHelper {
     public static void InsertAlert(String ts,String lat,String lng){
 
         DatabaseReference ref =  dbRef.child("alert").child(mUid);
-        DatabaseReference ref2 =  dbRef.child("users").child(mUid).child("alerts").child(ts);
+        DatabaseReference ref2 =  dbRef.child("users").child(mUid).child("alerts");
 
         ref.child("uid").setValue(mUid);
         ref.child("lat").setValue(lat);
@@ -54,6 +54,7 @@ public class FirebaseHelper {
 
         ref2.child("lat").setValue(lat);
         ref2.child("lng").setValue(lng);
+        ref2.child("uid").setValue(mUid);
         ref2.child("timestamp").setValue(ts);
         ref2.child("status").setValue("1");
     }
@@ -87,17 +88,28 @@ public class FirebaseHelper {
 
     public static void InsertAlertOnPoliceId(String police, LocationModel model){
         DatabaseReference ref =  dbRef.child("police").child(police);
-        ref.child("alert").child(model.getTimestamp()+"").setValue(model);
+        //ref.child("alert").child(model.getTimestamp()+"").setValue(model);
+        ref.child("alert").child(model.getUid()+"").setValue(model);
+        dbRef.child("users").child(mUid).child("alerts").child("police").setValue(police);
     }
 
     public static void InsertAlertOnAmbulanceId(String ambulance,LocationModel model){
         DatabaseReference ref =  dbRef.child("ambulance").child(ambulance);
-        ref.child("alert").child(model.getTimestamp()+"").setValue(model);
+        //ref.child("alert").child(model.getTimestamp()+"").setValue(model);
+        ref.child("alert").child(model.getUid()+"").setValue(model);
+        dbRef.child("users").child(mUid).child("alerts").child("ambulance").setValue(ambulance);
     }
 
     public static void InsertAlertOnHospitalId(String hospital,LocationModel model){
         DatabaseReference ref =  dbRef.child("hospital").child(hospital);
-        ref.child("alert").child(model.getTimestamp()+"").setValue(model);
+        //ref.child("alert").child(model.getTimestamp()+"").setValue(model);
+        ref.child("alert").child(model.getUid()+"").setValue(model);
+        dbRef.child("users").child(mUid).child("alerts").child("hospital").setValue(hospital);
+    }
+    public static void InsertAlertOnParentId(String parent,LocationModel model){
+        DatabaseReference ref =  dbRef.child("users").child(parent);
+        //ref.child("alert").child(model.getTimestamp()+"").setValue(model);
+        ref.child("alert").setValue(model);
     }
 
     public static void RemoveAlert(String uid){

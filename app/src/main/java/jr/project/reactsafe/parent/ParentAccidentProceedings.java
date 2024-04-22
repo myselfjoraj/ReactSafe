@@ -1,6 +1,7 @@
 package jr.project.reactsafe.parent;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
@@ -13,6 +14,7 @@ import android.view.View;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -79,6 +81,7 @@ public class ParentAccidentProceedings extends AppCompatActivity implements OnMa
 
         if (id == null){
             finish();
+
         }
 
         setUi(null,null);
@@ -89,7 +92,7 @@ public class ParentAccidentProceedings extends AppCompatActivity implements OnMa
 
         FirebaseDatabase.getInstance().getReference().child("users")
                 .child(mPref.getPairedDeviceDetails().get(0).getUid()).child("alerts")
-                .child(id).addValueEventListener(new ValueEventListener() {
+                .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (snapshot.exists()){
@@ -146,9 +149,7 @@ public class ParentAccidentProceedings extends AppCompatActivity implements OnMa
                     binding.hospitalCall.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            Intent phone_intent = new Intent(Intent.ACTION_CALL);
-                            phone_intent.setData(Uri.parse("tel:" + model.getPhone()));
-                            startActivity(phone_intent);
+                            callTelephone(model.getPhone());
                         }
                     });
                     if (model.getProfileImage()!=null)
@@ -174,9 +175,7 @@ public class ParentAccidentProceedings extends AppCompatActivity implements OnMa
                     binding.ambulanceCall.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            Intent phone_intent = new Intent(Intent.ACTION_CALL);
-                            phone_intent.setData(Uri.parse("tel:" + model.getPhone()));
-                            startActivity(phone_intent);
+                            callTelephone(model.getPhone());
                         }
                     });
                     if (model.getProfileImage()!=null)
@@ -202,9 +201,7 @@ public class ParentAccidentProceedings extends AppCompatActivity implements OnMa
                     binding.policeCall.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            Intent phone_intent = new Intent(Intent.ACTION_CALL);
-                            phone_intent.setData(Uri.parse("tel:" + model.getPhone()));
-                            startActivity(phone_intent);
+                            callTelephone(model.getPhone());
                         }
                     });
                     if (model.getProfileImage()!=null)
@@ -219,6 +216,25 @@ public class ParentAccidentProceedings extends AppCompatActivity implements OnMa
             binding.policeLay.setVisibility(View.GONE);
         }
 
+    }
+
+    void callTelephone(String phone){
+        String number = ("tel:" + phone);
+        Intent mIntent = new Intent(Intent.ACTION_CALL);
+        mIntent.setData(Uri.parse(number));
+        if (ContextCompat.checkSelfPermission(ParentAccidentProceedings.this,
+                android.Manifest.permission.CALL_PHONE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(ParentAccidentProceedings.this,
+                    new String[]{android.Manifest.permission.CALL_PHONE},
+                    124);
+        } else {
+            try {
+                startActivity(mIntent);
+            } catch(SecurityException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void setPolyLineInMap(String lat, String lng, String hLat, String hLng) {

@@ -4,6 +4,10 @@ public class LocationModel {
 
     String lat,lng,uid,timestamp;
 
+    public LocationModel(){
+
+    }
+
     public LocationModel(String lat,String lng,String uid,String timestamp){
         this.lat = lat;
         this.lng = lng;

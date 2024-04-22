@@ -137,7 +137,7 @@
                                     android:layout_gravity="center_vertical"
                                     android:layout_marginEnd="10dp"
                                     android:fontFamily="@font/poppins_medium"
-                                    android:text="Joraj J R's Device"
+                                    android:text="Abhirami's Device"
                                     android:textAlignment="center"
                                     android:textColor="@color/black"
                                     android:textStyle="bold" />

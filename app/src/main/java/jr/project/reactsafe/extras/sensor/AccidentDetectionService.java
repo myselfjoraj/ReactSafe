@@ -244,10 +244,10 @@ public class AccidentDetectionService extends Service implements SensorEventList
         sendBroadcast(broadcastIntent);
 
         Intent contentIntent = new Intent(this, AccidentAlertActivity.class);
-        PendingIntent contentPendingIntent = PendingIntent.getActivity(this, 0, contentIntent, 0);
+        PendingIntent contentPendingIntent = PendingIntent.getActivity(this, 0, contentIntent, PendingIntent.FLAG_IMMUTABLE);
 
         Intent fullScreenIntent = new Intent(this, AccidentAlertActivity.class);
-        PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(this, 0, fullScreenIntent, 0);
+        PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(this, 0, fullScreenIntent, PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "lockChannel")
                 .setSmallIcon(R.drawable.avatar)
@@ -288,15 +288,71 @@ public class AccidentDetectionService extends Service implements SensorEventList
         //audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
         mp.start();
 
-        insertFallInDb();
+        //insertFallInDb();
+        mPref.putBoolean("isAlertDismissed",false);
+        fetchDetails();
 
-        new SharedPreference(this).putLong("startedAlertOn", Calendar.getInstance().getTimeInMillis() + 30000);
+        new SharedPreference(this).putLong("startedAlertOn", Calendar.getInstance().getTimeInMillis() + 60000);
     }
 
     Runnable timerRunnable;
     Runnable timerRunnable2;
     int sec = 0;
-    int snd = 90;
+    int snd = 60;
+    //
+    String policeId = null;
+    String ambulanceId = null;
+    String hospitalId = null;
+
+
+    void fetchDetails(){
+        ArrayList<Double> db = loc();
+        String id = Extras.getTimestamp()+"";
+        mDatabaseHelper.insertFall(id, getLocationString(), db.get(0)+"",db.get(1)+"","1");
+        FirebaseHelper.InsertAlert(id,db.get(0)+"", db.get(1)+"");
+
+        NearestSafe.getNearestHospital(db.get(0) + "", db.get(1) + "", model -> {
+            if(model!=null && model.getUid() != null && !model.getUid().isEmpty()) {
+                hospitalId = model.getUid();
+                new SharedPreference(this).putString("nearHospital",hospitalId);
+            }
+            Log.e("AccidentDetectionService","hospital -- "+model.getUid());
+        });
+
+        NearestSafe.getNearestAmbulance(db.get(0) + "", db.get(1) + "", model -> {
+            if(model!=null && model.getUid() != null && !model.getUid().isEmpty()) {
+                ambulanceId = model.getUid();
+                new SharedPreference(this).putString("nearAmbulance",ambulanceId);
+            }
+            Log.e("AccidentDetectionService","ambulance -- "+model.getUid());
+        });
+
+        NearestSafe.getNearestPolice(db.get(0) + "", db.get(1) + "", model -> {
+            if(model!=null && model.getUid() != null && !model.getUid().isEmpty()) {
+                policeId = model.getUid();
+                new SharedPreference(this).putString("nearPolice",policeId);
+            }
+            Log.e("AccidentDetectionService","police -- "+model.getUid());
+        });
+
+        CountDownTimer timer = new CountDownTimer(60* 1000L, 1000){
+            public void onTick(long millisUntilFinished){
+                Log.e("AccidentDetectionService","forcefully inserting nodes in "+(millisUntilFinished/1000));
+            }
+            public  void onFinish(){
+                //forceInsertAlertInNodes();
+                boolean isDismissed = mPref.getBoolean("isAlertDismissed",false);
+                if (!isDismissed) {
+                    InsertAlertInNodesModified();
+                }
+            }
+        };
+
+        timer.start();
+
+    }
+
+
     void insertFallInDb() {
         long defaultSec = Extras.getTimestamp() + 30000;
         SharedPreference mPref = new SharedPreference(this);
@@ -310,6 +366,7 @@ public class AccidentDetectionService extends Service implements SensorEventList
         NearestSafe.getNearestHospital(db.get(0) + "", db.get(1) + "", model -> {
             if(model!=null && model.getUid() != null && !model.getUid().isEmpty()) {
                 FirebaseHelper.InsertAlertHospital(id,model.getUid());
+                hospitalId = model.getUid();
             }
             Log.e("AccidentDetectionService","hospital -- "+model.getUid());
         });
@@ -317,6 +374,7 @@ public class AccidentDetectionService extends Service implements SensorEventList
         NearestSafe.getNearestAmbulance(db.get(0) + "", db.get(1) + "", model -> {
             if(model!=null && model.getUid() != null && !model.getUid().isEmpty()) {
                 FirebaseHelper.InsertAlertAmbulance(id,model.getUid());
+                ambulanceId = model.getUid();
             }
             Log.e("AccidentDetectionService","ambulance -- "+model.getUid());
         });
@@ -324,6 +382,7 @@ public class AccidentDetectionService extends Service implements SensorEventList
         NearestSafe.getNearestPolice(db.get(0) + "", db.get(1) + "", model -> {
             if(model!=null && model.getUid() != null && !model.getUid().isEmpty()) {
                 FirebaseHelper.InsertAlertPolice(id,model.getUid());
+                policeId = model.getUid();
             }
             Log.e("AccidentDetectionService","police -- "+model.getUid());
         });
@@ -342,12 +401,16 @@ public class AccidentDetectionService extends Service implements SensorEventList
 //        };
 //        timerHandler2.post(timerRunnable2);
 
-        CountDownTimer timer = new CountDownTimer(90* 1000L, 1000){
+        CountDownTimer timer = new CountDownTimer(60* 1000L, 1000){
             public void onTick(long millisUntilFinished){
                 Log.e("AccidentDetectionService","forcefully inserting nodes in "+(millisUntilFinished/1000));
             }
             public  void onFinish(){
-                forceInsertAlertInNodes();
+                //forceInsertAlertInNodes();
+                boolean isDismissed = mPref.getBoolean("isAlertDismissed",false);
+                if (!isDismissed) {
+                    InsertAlertInNodesModified();
+                }
             }
         };
 
@@ -355,50 +418,72 @@ public class AccidentDetectionService extends Service implements SensorEventList
 
     }
 
-    void forceInsertAlertInNodes(){
-        FirebaseDatabase.getInstance().getReference().child("alert")
-                .child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getUid()))
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot1) {
-                if (!snapshot1.exists()){
-                    return;
-                }
-                long p = mPref.getLong("startedAlertOn", Extras.getTimestamp());
-                String ts = snapshot1.child("timestamp").getValue(String.class);
-                if (ts == null){
-                    ts = p+"";
-                }
-                showAsMessageToParent(ts);
-                LocationModel l = new LocationModel(loc().get(0)+"",loc().get(1)+"",
+    void InsertAlertInNodesModified(){
+        String ts = mPref.getLong("startedAlertOn", (Extras.getTimestamp())) + "";
+        LocationModel locationModel = new LocationModel(loc().get(0)+"",loc().get(1)+"",
                         FirebaseAuth.getInstance().getUid(),ts);
-                String police    = snapshot1.child("police").getValue(String.class);
-                String ambulance = snapshot1.child("ambulance").getValue(String.class);
-                String hospital  = snapshot1.child("hospital").getValue(String.class);
-                if (police!=null) {
-                    FirebaseHelper.InsertAlertOnPoliceId(police, l);
-                }else {
-                    Log.e(logName,"null police id");
-                }
-                if (ambulance!=null) {
-                    FirebaseHelper.InsertAlertOnAmbulanceId(ambulance, l);
-                }else {
-                    Log.e(logName,"null ambulance id");
-                }
-                if (hospital!=null) {
-                    FirebaseHelper.InsertAlertOnHospitalId(hospital, l);
-                }else {
-                    Log.e(logName,"null hospital id");
-                }
-                FirebaseHelper.RemoveAlert(FirebaseAuth.getInstance().getCurrentUser().getUid());
-            }
+        String parentId = new UserPreferenceHelper(this).getPairedDeviceDetails().get(0).getUid();
+        if (policeId!=null){
+            FirebaseHelper.InsertAlertOnPoliceId(policeId,locationModel);
+        }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+        if (ambulanceId!=null){
+            FirebaseHelper.InsertAlertOnAmbulanceId(ambulanceId,locationModel);
+        }
 
-            }
-        });
+        if (hospitalId!=null){
+            FirebaseHelper.InsertAlertOnHospitalId(hospitalId,locationModel);
+        }
+
+        if (parentId!=null){
+            FirebaseHelper.InsertAlertOnParentId(parentId,locationModel);
+        }
     }
+
+//    void forceInsertAlertInNodes(){
+//        FirebaseDatabase.getInstance().getReference().child("alert")
+//                .child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getUid()))
+//                .addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot1) {
+//                if (!snapshot1.exists()){
+//                    return;
+//                }
+//                long p = mPref.getLong("startedAlertOn", Extras.getTimestamp());
+//                String ts = snapshot1.child("timestamp").getValue(String.class);
+//                if (ts == null){
+//                    ts = p+"";
+//                }
+//                showAsMessageToParent(ts);
+//                LocationModel l = new LocationModel(loc().get(0)+"",loc().get(1)+"",
+//                        FirebaseAuth.getInstance().getUid(),ts);
+//                String police    = snapshot1.child("police").getValue(String.class);
+//                String ambulance = snapshot1.child("ambulance").getValue(String.class);
+//                String hospital  = snapshot1.child("hospital").getValue(String.class);
+//                if (police!=null) {
+//                    FirebaseHelper.InsertAlertOnPoliceId(police, l);
+//                }else {
+//                    Log.e(logName,"null police id");
+//                }
+//                if (ambulance!=null) {
+//                    FirebaseHelper.InsertAlertOnAmbulanceId(ambulance, l);
+//                }else {
+//                    Log.e(logName,"null ambulance id");
+//                }
+//                if (hospital!=null) {
+//                    FirebaseHelper.InsertAlertOnHospitalId(hospital, l);
+//                }else {
+//                    Log.e(logName,"null hospital id");
+//                }
+//                FirebaseHelper.RemoveAlert(FirebaseAuth.getInstance().getCurrentUser().getUid());
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
+//    }
 
     void showAsMessageToParent(String ts){
         try {

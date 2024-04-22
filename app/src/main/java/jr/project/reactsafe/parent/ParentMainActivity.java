@@ -146,7 +146,7 @@ public class ParentMainActivity extends AppCompatActivity implements OnMapReadyC
         }
 
         model = mPref.getPairedDeviceDetails();
-
+        binding.pairedDeviceUserName.setText(model.get(0).getName());
         binding.pairedOn.setText("connected on "+Extras.getStandardFormDateFromTimeStamp(model.get(0).getPairedOn()));
 
 
@@ -237,6 +237,9 @@ public class ParentMainActivity extends AppCompatActivity implements OnMapReadyC
                         .placeholder(R.drawable.avatar)
                         .diskCacheStrategy(DiskCacheStrategy.DATA)
                         .into(binding.myProfImg);
+                if (mPref!=null && mPref.getIsOnAccident()!=null){
+                    startActivity(new Intent(this,ParentAccidentProceedings.class));
+                }
             }catch (Exception e){
                 e.printStackTrace();
             }

@@ -5,6 +5,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -33,6 +34,7 @@ import jr.project.reactsafe.R;
 import jr.project.reactsafe.databinding.ActivityAccidentAlertBinding;
 import jr.project.reactsafe.extras.database.DatabaseHelper;
 import jr.project.reactsafe.extras.database.FirebaseHelper;
+import jr.project.reactsafe.extras.misc.NearestSafe;
 import jr.project.reactsafe.extras.misc.SharedPreference;
 import jr.project.reactsafe.extras.model.LocationModel;
 import jr.project.reactsafe.extras.util.Extras;
@@ -43,7 +45,7 @@ import jr.project.reactsafe.parent.ParentSnoozeActivity;
 public class AccidentAlertActivity extends AppCompatActivity {
 
     ActivityAccidentAlertBinding binding;
-    int sec = 30;
+    int sec = 60;
     boolean isT = false;
     boolean isParent = false;
     boolean isToClose = false;
@@ -68,7 +70,7 @@ public class AccidentAlertActivity extends AppCompatActivity {
 
         binding.progress.setMax(30);
 
-        long defaultSec = Extras.getTimestamp() + 30000;
+        long defaultSec = Extras.getTimestamp() + 60000;
         sec = (int) ((mPref.getLong("startedAlertOn",defaultSec)/1000) - (Extras.getTimestamp()/1000));
 
 //        Handler timerHandler = new Handler();
@@ -113,7 +115,7 @@ public class AccidentAlertActivity extends AppCompatActivity {
             public  void onFinish(){
                 if (!isT) {
                     isToClose = true;
-                    forceInsertAlertInNodes();
+                    //forceInsertAlertInNodes();
                     startActivity();
                 }
             }
@@ -132,7 +134,8 @@ public class AccidentAlertActivity extends AppCompatActivity {
         binding.swipeBtn.setOnStateChangeListener(active -> {
             if (active){
                 if (!isT) {
-                    removeAlerts(false);
+                    //removeAlerts(false);
+                    mPref.putBoolean("isAlertDismissed",true);
                     isT = true;
                     ApplicationController.releaseMediaPlayer();
                     Intent i = new Intent();
@@ -171,7 +174,9 @@ public class AccidentAlertActivity extends AppCompatActivity {
         binding.call.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                forceInsertAlertInNodes();
+                //forceInsertAlertInNodes();
+                InsertAlertInNodesModified();
+
                 ApplicationController.releaseMediaPlayer();
                 Intent i = new Intent();
                 if (isParent){
@@ -189,28 +194,28 @@ public class AccidentAlertActivity extends AppCompatActivity {
 
     }
 
-    void removeAlerts(boolean i){
-        String uid;
-        if (isParent){
-            uid = new ParentPreferenceHelper(this).getPairedDeviceDetails().get(0).getUid();
-        }else {
-            uid = FirebaseAuth.getInstance().getUid();
-        }
-        long ts = mPref.getLong("startedAlertOn");
-        FirebaseHelper.RemoveAlert(uid);
-        if (!i){
-            if (isParent) {
-                String t = new SharedPreference(AccidentAlertActivity.this).getString("capturedTime",ts+"");
-                FirebaseDatabase.getInstance().getReference().child("users").child(uid).child("alerts")
-                        .child("status").setValue("3");
-                new DatabaseHelper(this).updateAlert(t + "", "3");
-            }else {
-                FirebaseDatabase.getInstance().getReference().child("users").child(uid).child("alerts")
-                        .child("status").setValue("2");
-                new DatabaseHelper(this).updateAlert(ts + "", "2");
-            }
-        }
-    }
+//    void removeAlerts(boolean i){
+//        String uid;
+//        if (isParent){
+//            uid = new ParentPreferenceHelper(this).getPairedDeviceDetails().get(0).getUid();
+//        }else {
+//            uid = FirebaseAuth.getInstance().getUid();
+//        }
+//        long ts = mPref.getLong("startedAlertOn");
+//        FirebaseHelper.RemoveAlert(uid);
+//        if (!i){
+//            if (isParent) {
+//                String t = new SharedPreference(AccidentAlertActivity.this).getString("capturedTime",ts+"");
+//                FirebaseDatabase.getInstance().getReference().child("users").child(uid).child("alerts")
+//                        .child("status").setValue("3");
+//                new DatabaseHelper(this).updateAlert(t + "", "3");
+//            }else {
+//                FirebaseDatabase.getInstance().getReference().child("users").child(uid).child("alerts")
+//                        .child("status").setValue("2");
+//                new DatabaseHelper(this).updateAlert(ts + "", "2");
+//            }
+//        }
+//    }
 
     void startActivity(){
         if (!isT) {
@@ -265,7 +270,7 @@ public class AccidentAlertActivity extends AppCompatActivity {
                             FirebaseHelper.InsertAlertOnHospitalId(hospital, l);
                         }
                         if (isParent){
-                            removeAlerts(true);
+                            //removeAlerts(true);
                         }
                     }
 
@@ -292,4 +297,39 @@ public class AccidentAlertActivity extends AppCompatActivity {
 
         return loc;
     }
+
+
+
+
+    String policeId = null;
+    String ambulanceId = null;
+    String hospitalId = null;
+
+    void InsertAlertInNodesModified(){
+        mPref.putBoolean("isAlertDismissed",true);
+        policeId = mPref.getString("nearPolice");
+        ambulanceId = mPref.getString("nearAmbulance");
+        hospitalId = mPref.getString("nearHospital");
+        String parentId = new UserPreferenceHelper(this).getPairedDeviceDetails().get(0).getUid();
+
+        String ts = mPref.getLong("startedAlertOn", (Extras.getTimestamp())) + "";
+        LocationModel locationModel = new LocationModel(loc().get(0)+"",loc().get(1)+"",
+                FirebaseAuth.getInstance().getUid(),ts);
+        if (policeId!=null){
+            FirebaseHelper.InsertAlertOnPoliceId(policeId,locationModel);
+        }
+
+        if (ambulanceId!=null){
+            FirebaseHelper.InsertAlertOnAmbulanceId(ambulanceId,locationModel);
+        }
+
+        if (hospitalId!=null){
+            FirebaseHelper.InsertAlertOnHospitalId(hospitalId,locationModel);
+        }
+
+        if (parentId!=null){
+            FirebaseHelper.InsertAlertOnParentId(parentId,locationModel);
+        }
+    }
+
 }
