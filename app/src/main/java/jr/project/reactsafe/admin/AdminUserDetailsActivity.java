@@ -79,6 +79,13 @@ public class AdminUserDetailsActivity extends AppCompatActivity {
         binding.emailField.setText(model.getEmail());
         binding.numberField.setText(model.getPhone());
 
+        binding.emailField.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(AdminUserDetailsActivity.this, "Email id cannot be edited!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         if (model.getTitle().equals("user") || model.getTitle().equals("parent")){
             isUser = true;
         }

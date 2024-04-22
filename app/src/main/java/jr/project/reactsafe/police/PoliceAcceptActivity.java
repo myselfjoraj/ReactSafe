@@ -108,7 +108,7 @@ public class PoliceAcceptActivity extends AppCompatActivity implements OnMapRead
                 .getLong("startedAlertOn",defaultSec)/1000) - (Extras.getTimestamp()/1000));
 
 
-        dbRef.child("users").child(uid).child("alerts").child(id)
+        dbRef.child("users").child(uid).child("alerts")
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -133,7 +133,7 @@ public class PoliceAcceptActivity extends AppCompatActivity implements OnMapRead
         binding.accept.setOnClickListener(v -> {
             didAccept = true;
             dbRef.child("police").child(FirebaseAuth.getInstance().getUid()).child("alert")
-                    .child(id).child("isAccepted").setValue("true");
+                    .child(patientModel.getUid()).removeValue();
             try (DatabaseHelper db = new DatabaseHelper(PoliceAcceptActivity.this)){
                 db.insertPoliceAccepts(id,alertModel.getLat(),alertModel.getLng(),"1",
                         patientModel,parentModel,hospitalModel,ambulanceModel);
@@ -168,16 +168,21 @@ public class PoliceAcceptActivity extends AppCompatActivity implements OnMapRead
                     Intent intent = result.getData();
                     UserModel model = new Gson().fromJson(intent.getStringExtra("result"),UserModel.class);
 
-                    FirebaseHelper.InsertAlertOnPoliceId(model.getUid(),new LocationModel(
+                    new LocationModel(
                             alertModel.getLat(),
                             alertModel.getLng(),
                             alertModel.getUid(),
                             alertModel.getTimestamp()
-                    ));
-                    FirebaseHelper.InsertAlertPolice(alertModel.getUid(),alertModel.getTimestamp(),model.getUid());
+                    );
+
+                    DatabaseReference ref =  dbRef.child("police").child(model.getUid());
+                    //ref.child("alert").child(model.getTimestamp()+"").setValue(model);
+                    ref.child("alert").child(alertModel.getUid()+"").setValue(model);
+                    dbRef.child("users").child(alertModel.getUid()).child("alerts").child("police").setValue(model.getUid());
+                   // FirebaseHelper.InsertAlertPolice(alertModel.getUid(),alertModel.getTimestamp(),model.getUid());
 
                     dbRef.child("police").child(FirebaseAuth.getInstance().getUid()).child("alert")
-                            .child(id).removeValue();
+                            .child(patientModel.getUid()).removeValue();
 
                     try (DatabaseHelper db = new DatabaseHelper(PoliceAcceptActivity.this)){
                         db.insertPoliceAccepts(alertModel.getTimestamp(),alertModel.getLat(),alertModel.getLng(),"4",

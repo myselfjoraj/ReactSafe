@@ -619,8 +619,14 @@ public class UserMainActivity extends AppCompatActivity implements OnMapReadyCal
 
             RecentModel model = models.get(position);
 
-
+            holder.title.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //Toast.makeText(UserMainActivity.this, ""+model.getTimestamp(), Toast.LENGTH_SHORT).show();
+                }
+            });
             holder.title.setText(model.getLocation());
+
 
             String text = null;
             if (Objects.equals(model.getStatus(),"1")){

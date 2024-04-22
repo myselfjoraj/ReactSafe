@@ -112,7 +112,7 @@ public class HospitalAcceptActivity extends AppCompatActivity implements OnMapRe
         timer.start();
 
 
-        dbRef.child("users").child(uid).child("alerts").child(id)
+        dbRef.child("users").child(uid).child("alerts")
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -137,7 +137,7 @@ public class HospitalAcceptActivity extends AppCompatActivity implements OnMapRe
             didAccept = true;
             timer.cancel();
             dbRef.child("hospital").child(FirebaseAuth.getInstance().getUid()).child("alert")
-                    .child(id).child("isAccepted").setValue("true");
+                    .child(uid).removeValue();
             try (DatabaseHelper db = new DatabaseHelper(HospitalAcceptActivity.this)){
                 db.insertHospitalAccepts(id,alertModel.getLat(),alertModel.getLng(),"1",
                         patientModel,parentModel,ambulanceModel,policeModel);
@@ -193,11 +193,12 @@ public class HospitalAcceptActivity extends AppCompatActivity implements OnMapRe
             }
             String uid = model.getUid();
             // set in user
-            dbRef.child("users").child(hisUid).child("alerts")
-                    .child(id).child("hospital").setValue(uid);
+            dbRef.child("users").child(hisUid).child("alerts").child("hospital").setValue(uid);
             //set in other ambulance
             dbRef.child("hospital").child(uid).child("alert")
-                    .child(id).setValue(alertModel);
+                    .child(hisUid).setValue(alertModel);
+            dbRef.child("hospital").child(FirebaseAuth.getInstance().getUid()).child("alert")
+                    .child(hisUid).removeValue();
             dismissPleaseWaitDialog();
             finish();
         });

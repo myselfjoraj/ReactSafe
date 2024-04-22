@@ -56,11 +56,16 @@ public class UsersListAdapter extends RecyclerView.Adapter<UsersListAdapter.MyVi
 
         UserModel model = models.get(position);
 
-        if (model.getProfileImage() != null)
+        if (model.getProfileImage() != null) {
             Glide.with(context)
                     .load(model.getProfileImage())
                     .placeholder(R.drawable.avatar)
                     .into(holder.iv);
+        }else {
+            Glide.with(context)
+                    .load(R.drawable.avatar)
+                    .into(holder.iv);
+        }
 
         holder.title.setText(model.getName());
         holder.desc.setText(model.getEmail());

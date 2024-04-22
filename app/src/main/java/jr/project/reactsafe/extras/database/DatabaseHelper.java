@@ -69,19 +69,36 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // USER AND PARENT { FALL_DETECTS }
     public String insertFall(String timestamp,String location,String lat,String lng,String status){
-        SQLiteDatabase database=this.getWritableDatabase();
-        ContentValues cv=new ContentValues();
-        cv.put("TIMESTAMP",timestamp);
-        cv.put("LOCATION",location);
-        cv.put("LATITUDE",lat);
-        cv.put("LONGITUDE",lng);
-        cv.put("STATUS",status);
-        float r=database.insert("FALL_DETECTS",null,cv);
-        if (r==-1){
-            return "failed";
+        if (!CheckIsDataAlreadyInDBorNot("FALL_DETECTS","TIMESTAMP",timestamp)) {
+            SQLiteDatabase database = this.getWritableDatabase();
+            ContentValues cv = new ContentValues();
+            cv.put("TIMESTAMP", timestamp);
+            cv.put("LOCATION", location);
+            cv.put("LATITUDE", lat);
+            cv.put("LONGITUDE", lng);
+            cv.put("STATUS", status);
+            float r = database.insert("FALL_DETECTS", null, cv);
+            if (r == -1) {
+                return "failed";
+            } else {
+                return "success";
+            }
         }else {
             return "success";
         }
+    }
+
+    public boolean CheckIsDataAlreadyInDBorNot(String TableName,
+                                                      String dbfield, String fieldValue) {
+        SQLiteDatabase sqldb = this.getWritableDatabase();
+        String Query = "Select * from " + TableName + " where " + dbfield + " = " + fieldValue;
+        Cursor cursor = sqldb.rawQuery(Query, null);
+        if(cursor.getCount() <= 0){
+            cursor.close();
+            return false;
+        }
+        cursor.close();
+        return true;
     }
 
     /**

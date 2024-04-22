@@ -276,6 +276,7 @@ public class AmbulanceMainActivity extends AppCompatActivity {
             holder.btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Toast.makeText(AmbulanceMainActivity.this, "Please wait ...", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(AmbulanceMainActivity.this,AmbulanceAcceptActivity.class);
                     intent.putExtra("id",model.getTimestamp());
                     intent.putExtra("uid",model.getUid());
@@ -286,6 +287,7 @@ public class AmbulanceMainActivity extends AppCompatActivity {
             holder.iv.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Toast.makeText(AmbulanceMainActivity.this, "Please wait ...", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(AmbulanceMainActivity.this,AmbulanceAcceptActivity.class);
                     intent.putExtra("id",model.getTimestamp());
                     intent.putExtra("uid",model.getUid());

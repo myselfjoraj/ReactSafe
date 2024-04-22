@@ -113,7 +113,7 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
         timer.start();
 
 
-        dbRef.child("users").child(uid).child("alerts").child(id)
+        dbRef.child("users").child(uid).child("alerts")
                 .addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -138,7 +138,7 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
             didAccept = true;
             timer.cancel();
             dbRef.child("ambulance").child(FirebaseAuth.getInstance().getUid()).child("alert")
-                    .child(id).child("isAccepted").setValue("true");
+                    .child(patientModel.getUid()).removeValue();
             try (DatabaseHelper db = new DatabaseHelper(AmbulanceAcceptActivity.this)){
                 db.insertAmbulanceAccepts(id,alertModel.getLat(),alertModel.getLng(),"1",
                         patientModel,parentModel,hospitalModel,policeModel);
@@ -169,10 +169,11 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
     }
 
     void changeAmbulance(boolean isExpired,String lat, String lng,String id,String hisUid,AlertModel alertModel){
-        showPleaseWaitDialog("Please wait ...");
         String stat = "2";
         if (isExpired){
             stat = "4";
+        }else {
+            showPleaseWaitDialog("Please wait ...");
         }
         try (DatabaseHelper db = new DatabaseHelper(AmbulanceAcceptActivity.this)){
             db.insertAmbulanceAccepts(id,alertModel.getLat(),alertModel.getLng(),stat,
@@ -188,13 +189,13 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
             String uid = model.getUid();
             // remove from my node
             dbRef.child("ambulance").child(FirebaseAuth.getInstance().getUid())
-                    .child("alert").child(id).removeValue();
+                    .child("alert").child(hisUid).removeValue();
             // set in user
             dbRef.child("users").child(hisUid).child("alerts")
-                    .child(id).child("ambulance").setValue(uid);
+                    .child("ambulance").setValue(uid);
             //set in other ambulance
             dbRef.child("ambulance").child(uid).child("alert")
-                    .child(id).setValue(alertModel);
+                    .child(hisUid).setValue(alertModel);
             dismissPleaseWaitDialog();
             finish();
         });
