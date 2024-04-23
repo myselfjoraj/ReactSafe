@@ -171,7 +171,7 @@ public class PoliceAcceptActivity extends AppCompatActivity implements OnMapRead
                     Intent intent = result.getData();
                     UserModel model = new Gson().fromJson(intent.getStringExtra("result"),UserModel.class);
 
-                    new LocationModel(
+                    LocationModel locationModel = new LocationModel(
                             alertModel.getLat(),
                             alertModel.getLng(),
                             alertModel.getUid(),
@@ -180,7 +180,7 @@ public class PoliceAcceptActivity extends AppCompatActivity implements OnMapRead
 
                     DatabaseReference ref =  dbRef.child("police").child(model.getUid());
                     //ref.child("alert").child(model.getTimestamp()+"").setValue(model);
-                    ref.child("alert").child(patientModel.getUid()+"").setValue(model);
+                    ref.child("alert").child(patientModel.getUid()+"").setValue(locationModel);
                     dbRef.child("users").child(patientModel.getUid()).child("alerts").child("police").setValue(model.getUid());
                    // FirebaseHelper.InsertAlertPolice(alertModel.getUid(),alertModel.getTimestamp(),model.getUid());
 

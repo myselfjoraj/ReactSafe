@@ -1,7 +1,12 @@
 package jr.project.reactsafe.parent;
 
+import android.app.AlertDialog;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -23,11 +28,17 @@ import java.util.Objects;
 import java.util.Random;
 
 import jr.project.reactsafe.R;
+import jr.project.reactsafe.SplashScreenActivity;
+import jr.project.reactsafe.ambulance.AmbulanceForegroundService;
 import jr.project.reactsafe.databinding.ActivityPairUserDeviceBinding;
 import jr.project.reactsafe.extras.database.FirebaseHelper;
 import jr.project.reactsafe.extras.model.UserModel;
+import jr.project.reactsafe.extras.sensor.AccidentDetectionService;
 import jr.project.reactsafe.extras.util.Extras;
+import jr.project.reactsafe.hospital.HospitalForegroundService;
+import jr.project.reactsafe.police.PoliceForegroundService;
 import jr.project.reactsafe.user.PairParentActivity;
+import jr.project.reactsafe.user.UserSettingsActivity;
 
 public class PairUserDeviceActivity extends AppCompatActivity {
 
@@ -80,6 +91,13 @@ public class PairUserDeviceActivity extends AppCompatActivity {
             }
         });
 
+        binding.signOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showSignOutDialog();
+            }
+        });
+
     }
 
     @Override
@@ -89,5 +107,81 @@ public class PairUserDeviceActivity extends AppCompatActivity {
             FirebaseDatabase.getInstance().getReference()
                 .child("users").child("pairCode").child(String.valueOf(newCode)).removeValue();
 
+    }
+
+
+    public void showSignOutDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(PairUserDeviceActivity.this);
+        builder.setTitle("Sign Out?")
+                .setMessage("Are you sure you want to sign out of React Safe?")
+                .setPositiveButton("NO", (dialog, which) -> { })
+                .setNegativeButton("YES", (dialog, which) -> {
+                    FirebaseAuth.getInstance().signOut();
+                    cancelNotification();
+                    clearData();
+                    clearServices();
+                    startActivity(new Intent(PairUserDeviceActivity.this, SplashScreenActivity.class));
+                    finishAffinity();
+                });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    void clearData(){
+        String packageName = getPackageName();
+        SharedPreferences preferences = getSharedPreferences(packageName + "_preferences", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear();
+        editor.apply();
+        deleteDatabase("ReactSafeDb");
+    }
+
+    void clearServices(){
+        try {
+            stopService(new Intent(this, PoliceForegroundService.class));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        try {
+            stopService(new Intent(this, ParentForegroundService.class));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        try {
+            stopService(new Intent(this, HospitalForegroundService.class));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        try {
+            stopService(new Intent(this, AccidentDetectionService.class));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        try {
+            stopService(new Intent(this, PoliceForegroundService.class));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        try {
+            stopService(new Intent(this, AmbulanceForegroundService.class));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void cancelNotification() {
+        try {
+            String ns = Context.NOTIFICATION_SERVICE;
+            NotificationManager nMgr = (NotificationManager) getSystemService(ns);
+            nMgr.cancelAll();
+        }catch (Exception e){
+            e.printStackTrace();
+
+        }
     }
 }
