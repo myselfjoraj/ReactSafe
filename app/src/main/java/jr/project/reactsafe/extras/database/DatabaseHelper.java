@@ -20,6 +20,7 @@ import jr.project.reactsafe.extras.model.AcceptModel;
 import jr.project.reactsafe.extras.model.AlertModel;
 import jr.project.reactsafe.extras.model.RecentModel;
 import jr.project.reactsafe.extras.model.UserModel;
+import jr.project.reactsafe.extras.util.Extras;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -50,7 +51,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
-        db.execSQL("CREATE TABLE FALL_DETECTS(ID INTEGER PRIMARY KEY AUTOINCREMENT,TIMESTAMP VARCHAR,LOCATION VARCHAR,LATITUDE VARCHAR,LONGITUDE VARCHAR,STATUS VARCHAR)");
+        db.execSQL("CREATE TABLE FALL_DETECTS(ID INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "TIMESTAMP VARCHAR,LOCATION VARCHAR,LATITUDE VARCHAR,LONGITUDE VARCHAR,STATUS VARCHAR)");
 
         db.execSQL("CREATE TABLE AMBULANCE_ACCEPTS(ID INTEGER PRIMARY KEY AUTOINCREMENT,TIMESTAMP VARCHAR,LATITUDE VARCHAR,LONGITUDE VARCHAR,STATUS VARCHAR," +
                 "PATIENT VARCHAR,PARENT VARCHAR,HOSPITAL VARCHAR,POLICE VARCHAR)");
@@ -120,7 +122,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public ArrayList<RecentModel> readRecentFalls(){
+
         ArrayList<RecentModel> rec = new ArrayList<>();
+        ArrayList<String> ts = new ArrayList<>();
+
         SQLiteDatabase database=this.getWritableDatabase();
         String qry="SELECT * FROM FALL_DETECTS ORDER BY ID DESC";
         Cursor cursor=database.rawQuery(qry,null);
@@ -132,7 +137,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     cursor.getString(4),
                     cursor.getString(5)
             );
-            rec.add(model);
+            String t = Extras.getStandardFormDateFromTimeStamp(model.getTimestamp())+" "
+                    +Extras.getTimeFromTimeStamp(model.getTimestamp());
+            if (ts.isEmpty()){
+                ts.add(t);
+                rec.add(model);
+            }else if (!ts.contains(t)){
+                rec.add(model);
+                ts.add(t);
+            }
+
         }
         return rec;
     }

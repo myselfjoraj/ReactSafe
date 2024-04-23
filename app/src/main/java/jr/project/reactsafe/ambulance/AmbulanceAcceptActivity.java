@@ -3,6 +3,7 @@ package jr.project.reactsafe.ambulance;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -189,13 +191,13 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
             String uid = model.getUid();
             // remove from my node
             dbRef.child("ambulance").child(FirebaseAuth.getInstance().getUid())
-                    .child("alert").child(hisUid).removeValue();
+                    .child("alert").child(patientModel.getUid()).removeValue();
             // set in user
-            dbRef.child("users").child(hisUid).child("alerts")
+            dbRef.child("users").child(patientModel.getUid()).child("alerts")
                     .child("ambulance").setValue(uid);
             //set in other ambulance
             dbRef.child("ambulance").child(uid).child("alert")
-                    .child(hisUid).setValue(alertModel);
+                    .child(patientModel.getUid()).setValue(alertModel);
             dismissPleaseWaitDialog();
             finish();
         });
@@ -206,10 +208,12 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
             patientModel = model;
             binding.patientName.setText(model.getName());
             if (model.getProfileImage()!=null)
-                Glide.with(AmbulanceAcceptActivity.this)
-                        .load(model.getProfileImage())
-                        .placeholder(R.drawable.avatar)
-                        .into(binding.patientIv);
+                try {
+                    Glide.with(AmbulanceAcceptActivity.this)
+                            .load(model.getProfileImage())
+                            .placeholder(R.drawable.avatar)
+                            .into(binding.patientIv);
+                }catch (Exception e){e.printStackTrace();}
             binding.patientCall.setOnClickListener(v -> callPhone(model.getPhone()));
             getParent(model.getPairedBy());
         });
@@ -220,10 +224,12 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
             parentModel = model;
             binding.parentName.setText(model.getName());
             if (model.getProfileImage()!=null)
+                try{
                 Glide.with(AmbulanceAcceptActivity.this)
                         .load(model.getProfileImage())
                         .placeholder(R.drawable.avatar)
                         .into(binding.parentIv);
+                }catch (Exception e){e.printStackTrace();}
             binding.parentCall.setOnClickListener(v -> callPhone(model.getPhone()));
         });
     }
@@ -233,10 +239,12 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
             policeModel = model;
             binding.policeName.setText(model.getName());
             if (model.getProfileImage()!=null)
+                try{
                 Glide.with(AmbulanceAcceptActivity.this)
                         .load(model.getProfileImage())
                         .placeholder(R.drawable.avatar)
                         .into(binding.policeIv);
+                }catch (Exception e){e.printStackTrace();}
             binding.policeCall.setOnClickListener(v -> callPhone(model.getPhone()));
             binding.policeAddress.setText(Extras.getLocationString(AmbulanceAcceptActivity.this,model.getLat(),model.getLng()));
         });
@@ -247,10 +255,12 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
             hospitalModel = model;
             binding.hospitalName.setText(model.getName());
             if (model.getProfileImage()!=null)
+                try{
                 Glide.with(AmbulanceAcceptActivity.this)
                         .load(model.getProfileImage())
                         .placeholder(R.drawable.avatar)
                         .into(binding.hospitalIv);
+                }catch (Exception e){e.printStackTrace();}
             binding.hospitalCall.setOnClickListener(v -> callPhone(model.getPhone()));
             String loc = Extras.getLocationString(AmbulanceAcceptActivity.this,model.getLat(),model.getLng());
             binding.hospitalAddress.setText(loc);
@@ -261,9 +271,26 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
     }
 
     void callPhone(String phone){
-        Intent phone_intent = new Intent(Intent.ACTION_CALL);
-        phone_intent.setData(Uri.parse("tel:" + phone));
-        startActivity(phone_intent);
+        if (phone == null || phone.isEmpty()){
+            Toast.makeText(this, "Phone Number Not Provided!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String number = ("tel:" + phone);
+        Intent mIntent = new Intent(Intent.ACTION_CALL);
+        mIntent.setData(Uri.parse(number));
+        if (ContextCompat.checkSelfPermission(AmbulanceAcceptActivity.this,
+                android.Manifest.permission.CALL_PHONE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(AmbulanceAcceptActivity.this,
+                    new String[]{android.Manifest.permission.CALL_PHONE},
+                    124);
+        } else {
+            try {
+                startActivity(mIntent);
+            } catch(SecurityException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 

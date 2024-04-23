@@ -74,10 +74,14 @@ public class AmbulanceMainActivity extends AppCompatActivity {
         String name = new UserPreferenceHelper(this).getProfileName();
         String image = new UserPreferenceHelper(this).getProfileImage();
         if (image!=null)
+            try{
             Glide.with(this)
                     .load(image)
                     .placeholder(R.drawable.avatar)
                     .into(binding.myProfImg);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
 
         if (name!=null){
             binding.welcomeName.setText("Welcome "+name+",");
@@ -341,10 +345,14 @@ public class AmbulanceMainActivity extends AppCompatActivity {
             String ts = models.get(position).getTIMESTAMP();
 
             if (model.getProfileImage()!=null)
+                try{
                 Glide.with(AmbulanceMainActivity.this)
                         .load(model.getProfileImage())
                         .placeholder(R.drawable.avatar)
                         .into(holder.iv);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
 
             holder.title.setText(model.getName());
             String d = "Accident detected on "+Extras.getStandardFormDateFromTimeStamp(ts)

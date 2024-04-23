@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -65,7 +66,9 @@ public class PairParentActivity extends AppCompatActivity {
     void validatePairCode(){
         String code = binding.editTextText.getText().toString();
         if (!code.isEmpty()){
+            Toast.makeText(this, "Started pairing ...", Toast.LENGTH_SHORT).show();
             FirebaseHelper.GetPairingUser(code, model -> {
+                Log.e("FirebaseHelper", "scode -> "+code+" new found "+new Gson().toJson(model));
                 if (model == null){
                     Toast.makeText(PairParentActivity.this, "No Pair Devices Found!", Toast.LENGTH_SHORT).show();
                     return;

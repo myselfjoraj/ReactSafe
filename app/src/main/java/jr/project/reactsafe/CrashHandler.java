@@ -20,7 +20,7 @@ public class CrashHandler implements
         StringWriter stackTrace = new StringWriter();
         exception.printStackTrace(new PrintWriter(stackTrace));
         StringBuilder errorReport = new StringBuilder();
-        errorReport.append("Cloud Box By Joraj J R\n\n");
+        errorReport.append("React Safe\n\n");
         errorReport.append("************ CAUSE OF ERROR ************\n\n");
         errorReport.append(stackTrace.toString());
 

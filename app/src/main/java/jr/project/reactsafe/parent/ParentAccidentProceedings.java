@@ -5,11 +5,13 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -47,6 +49,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
+import jr.project.reactsafe.ApplicationController;
 import jr.project.reactsafe.R;
 import jr.project.reactsafe.databinding.ActivityParentAccidentProceedingsBinding;
 import jr.project.reactsafe.extras.database.FirebaseHelper;
@@ -82,6 +85,16 @@ public class ParentAccidentProceedings extends AppCompatActivity implements OnMa
         if (id == null){
             finish();
 
+        }
+
+        try {
+            ApplicationController.releaseMediaPlayer();
+            MediaPlayer player = ApplicationController.getMediaPlayer();
+            if (player.isPlaying()) {
+                player.stop();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
         setUi(null,null);
@@ -131,6 +144,10 @@ public class ParentAccidentProceedings extends AppCompatActivity implements OnMa
 
     void setUi(String lat,String lng){
 
+        if (id == null){
+            finish();
+        }
+
         binding.time.setText("Accident Detected On "+Extras.getTimeFromTimeStamp(id));
         if (lat!=null && lng!=null){
             binding.childAddress.setText(lat+" Lat, "+lng+" Lng");
@@ -153,10 +170,14 @@ public class ParentAccidentProceedings extends AppCompatActivity implements OnMa
                         }
                     });
                     if (model.getProfileImage()!=null)
+                        try{
                         Glide.with(ParentAccidentProceedings.this)
                                 .load(model.getProfileImage())
                                 .placeholder(R.drawable.avatar)
                                 .into(binding.hospitalIv);
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
                 }
             });
         }else {
@@ -179,10 +200,14 @@ public class ParentAccidentProceedings extends AppCompatActivity implements OnMa
                         }
                     });
                     if (model.getProfileImage()!=null)
+                        try{
                         Glide.with(ParentAccidentProceedings.this)
                                 .load(model.getProfileImage())
                                 .placeholder(R.drawable.avatar)
                                 .into(binding.ambulanceIv);
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
                 }
             });
         }else {
@@ -205,10 +230,14 @@ public class ParentAccidentProceedings extends AppCompatActivity implements OnMa
                         }
                     });
                     if (model.getProfileImage()!=null)
+                        try{
                         Glide.with(ParentAccidentProceedings.this)
                                 .load(model.getProfileImage())
                                 .placeholder(R.drawable.avatar)
                                 .into(binding.policeIv);
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
                 }
             });
         }else {
@@ -219,6 +248,10 @@ public class ParentAccidentProceedings extends AppCompatActivity implements OnMa
     }
 
     void callTelephone(String phone){
+        if (phone == null || phone.isEmpty()){
+            Toast.makeText(this, "Phone Number Not Provided!", Toast.LENGTH_SHORT).show();
+            return;
+        }
         String number = ("tel:" + phone);
         Intent mIntent = new Intent(Intent.ACTION_CALL);
         mIntent.setData(Uri.parse(number));

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.view.LayoutInflater;
@@ -44,6 +45,7 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import jr.project.reactsafe.ApplicationController;
 import jr.project.reactsafe.R;
 import jr.project.reactsafe.SplashScreenActivity;
 import jr.project.reactsafe.databinding.ActivityParentMainBinding;
@@ -68,6 +70,7 @@ public class ParentMainActivity extends AppCompatActivity implements OnMapReadyC
     public ArrayList<UserModel> model;
 
     long updatedTs;
+    SupportMapFragment mapFragment;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -81,9 +84,20 @@ public class ParentMainActivity extends AppCompatActivity implements OnMapReadyC
         mPref = new ParentPreferenceHelper(ParentMainActivity.this);
         intent = new Intent(ParentMainActivity.this, ParentForegroundService.class);
 
+        try {
+            ApplicationController.releaseMediaPlayer();
+            MediaPlayer player = ApplicationController.getMediaPlayer();
+            if (player.isPlaying()) {
+                player.stop();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
         if (mPref.getIsOnAccident()!=null){
             startActivity(new Intent(this,ParentAccidentProceedings.class));
         }
+
 
         fetchOfflineAccident();
 
@@ -106,12 +120,15 @@ public class ParentMainActivity extends AppCompatActivity implements OnMapReadyC
             }
         });
 
-
-        Glide.with(ParentMainActivity.this)
-                .load(new UserPreferenceHelper(this).getProfileImage())
-                .placeholder(R.drawable.avatar)
-                .diskCacheStrategy(DiskCacheStrategy.DATA)
-                .into(binding.myProfImg);
+        try {
+            Glide.with(ParentMainActivity.this)
+                    .load(new UserPreferenceHelper(this).getProfileImage())
+                    .placeholder(R.drawable.avatar)
+                    .diskCacheStrategy(DiskCacheStrategy.DATA)
+                    .into(binding.myProfImg);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         binding.myProfImg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -135,7 +152,7 @@ public class ParentMainActivity extends AppCompatActivity implements OnMapReadyC
         binding.start.setChecked(isMyServiceRunning(ParentForegroundService.class));
 
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapView);
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapView);
         if (mapFragment != null)
             mapFragment.getMapAsync(this);
 
@@ -148,7 +165,6 @@ public class ParentMainActivity extends AppCompatActivity implements OnMapReadyC
         model = mPref.getPairedDeviceDetails();
         binding.pairedDeviceUserName.setText(model.get(0).getName());
         binding.pairedOn.setText("connected on "+Extras.getStandardFormDateFromTimeStamp(model.get(0).getPairedOn()));
-
 
 
 
@@ -230,6 +246,9 @@ public class ParentMainActivity extends AppCompatActivity implements OnMapReadyC
     @Override
     protected void onResume() {
         super.onResume();
+        if (mapFragment!=null){
+            mapFragment.onResume();
+        }
         if (binding != null){
             try {
                 Glide.with(ParentMainActivity.this)
@@ -240,9 +259,47 @@ public class ParentMainActivity extends AppCompatActivity implements OnMapReadyC
                 if (mPref!=null && mPref.getIsOnAccident()!=null){
                     startActivity(new Intent(this,ParentAccidentProceedings.class));
                 }
+                try (DatabaseHelper db = new DatabaseHelper(this)){
+                    ArrayList<RecentModel> models = db.readRecentFalls();
+                    RecentRecyclerView adapter = new RecentRecyclerView(models);
+                    binding.rv.setLayoutManager(new LinearLayoutManager(this));
+                    binding.rv.setAdapter(adapter);
+
+                    if (!models.isEmpty()){
+                        binding.emptyRv.setVisibility(View.GONE);
+                        binding.rv.setVisibility(View.VISIBLE);
+                    }else {
+                        binding.emptyRv.setVisibility(View.VISIBLE);
+                        binding.rv.setVisibility(View.GONE);
+                    }
+                }
             }catch (Exception e){
                 e.printStackTrace();
             }
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mapFragment!=null){
+            mapFragment.onPause();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mapFragment!=null){
+            mapFragment.onDestroy();
+        }
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        if (mapFragment!=null){
+            mapFragment.onLowMemory();
         }
     }
 

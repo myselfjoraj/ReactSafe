@@ -2,6 +2,7 @@ package jr.project.reactsafe.police;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -55,6 +57,8 @@ import jr.project.reactsafe.extras.model.AcceptModel;
 import jr.project.reactsafe.extras.model.AlertModel;
 import jr.project.reactsafe.extras.model.UserModel;
 import jr.project.reactsafe.extras.util.Extras;
+import jr.project.reactsafe.hospital.HospitalDetailsActivity;
+import jr.project.reactsafe.parent.ParentAccidentProceedings;
 
 public class PoliceDetailsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -149,6 +153,13 @@ public class PoliceDetailsActivity extends AppCompatActivity implements OnMapRea
             }
             binding.completedTV.setText(status);
 
+            binding.complete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    helper.updateAlertOnPolice(id,"3");
+                }
+            });
+
 
         }
     }
@@ -167,7 +178,7 @@ public class PoliceDetailsActivity extends AppCompatActivity implements OnMapRea
                 .getLong("startedAlertOn",defaultSec)/1000) - (Extras.getTimestamp()/1000));
 
 
-        dbRef.child("users").child(uid).child("alerts").child(id)
+        dbRef.child("users").child(uid).child("alerts")
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -217,10 +228,14 @@ public class PoliceDetailsActivity extends AppCompatActivity implements OnMapRea
         patientModel = model;
         binding.patientName.setText(model.getName());
         if (model.getProfileImage()!=null)
+            try{
             Glide.with(PoliceDetailsActivity.this)
                     .load(model.getProfileImage())
                     .placeholder(R.drawable.avatar)
                     .into(binding.patientIv);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         binding.patientCall.setOnClickListener(v -> callPhone(model.getPhone()));
     }
 
@@ -232,10 +247,14 @@ public class PoliceDetailsActivity extends AppCompatActivity implements OnMapRea
         parentModel = model;
         binding.parentName.setText(model.getName());
         if (model.getProfileImage()!=null)
+            try{
             Glide.with(PoliceDetailsActivity.this)
                     .load(model.getProfileImage())
                     .placeholder(R.drawable.avatar)
                     .into(binding.parentIv);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         binding.parentCall.setOnClickListener(v -> callPhone(model.getPhone()));
     }
 
@@ -247,10 +266,14 @@ public class PoliceDetailsActivity extends AppCompatActivity implements OnMapRea
         ambulanceModel = model;
         binding.ambulanceName.setText(model.getName());
         if (model.getProfileImage()!=null)
+            try{
             Glide.with(PoliceDetailsActivity.this)
                     .load(model.getProfileImage())
                     .placeholder(R.drawable.avatar)
                     .into(binding.ambulanceIv);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         binding.ambulanceCall.setOnClickListener(v -> callPhone(model.getPhone()));
         binding.ambulanceAddress.setText(Extras.getLocationString(PoliceDetailsActivity.this,model.getLat(),model.getLng()));
     }
@@ -263,10 +286,14 @@ public class PoliceDetailsActivity extends AppCompatActivity implements OnMapRea
         hospitalModel = model;
         binding.hospitalName.setText(model.getName());
         if (model.getProfileImage()!=null)
+            try{
             Glide.with(PoliceDetailsActivity.this)
                     .load(model.getProfileImage())
                     .placeholder(R.drawable.avatar)
                     .into(binding.hospitalIv);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         binding.hospitalCall.setOnClickListener(v -> callPhone(model.getPhone()));
         String loc = Extras.getLocationString(PoliceDetailsActivity.this,model.getLat(),model.getLng());
         binding.hospitalAddress.setText(loc);
@@ -276,11 +303,25 @@ public class PoliceDetailsActivity extends AppCompatActivity implements OnMapRea
 
     void callPhone(String phone){
         if (phone == null || phone.isEmpty()){
-            Toast.makeText(this, "Phone number is not provided!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Phone Number Not Provided!", Toast.LENGTH_SHORT).show();
+            return;
         }
-        Intent phone_intent = new Intent(Intent.ACTION_DIAL);
-        phone_intent.setData(Uri.parse("tel:" + phone));
-        startActivity(phone_intent);
+        String number = ("tel:" + phone);
+        Intent mIntent = new Intent(Intent.ACTION_CALL);
+        mIntent.setData(Uri.parse(number));
+        if (ContextCompat.checkSelfPermission(PoliceDetailsActivity.this,
+                android.Manifest.permission.CALL_PHONE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(PoliceDetailsActivity.this,
+                    new String[]{android.Manifest.permission.CALL_PHONE},
+                    124);
+        } else {
+            try {
+                startActivity(mIntent);
+            } catch(SecurityException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 

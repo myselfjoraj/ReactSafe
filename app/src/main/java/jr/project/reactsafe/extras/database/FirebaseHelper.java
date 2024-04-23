@@ -1,5 +1,7 @@
 package jr.project.reactsafe.extras.database;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -8,6 +10,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 
 import java.util.Objects;
 
@@ -171,6 +174,7 @@ public class FirebaseHelper {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (snapshot.exists()){
+                            Log.e("FirebaseHelper", "snap shot found -> "+snapshot.getValue(String.class));
                             String uidOfPairUser = snapshot.getValue(String.class);
                             getUser(uidOfPairUser, listener);
                         }else {
@@ -228,6 +232,7 @@ public class FirebaseHelper {
                 if (snapshot.exists()) {
                     UserModel model = snapshot.getValue(UserModel.class);
                     listener.getReceiver(model);
+                    Log.e("FirebaseHelper", "snap shot found -> "+new Gson().toJson(model));
                 }else {
                     listener.getReceiver(null);
                 }

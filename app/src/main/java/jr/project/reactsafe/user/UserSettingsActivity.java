@@ -32,17 +32,22 @@ import java.util.Objects;
 
 import jr.project.reactsafe.R;
 import jr.project.reactsafe.SplashScreenActivity;
+import jr.project.reactsafe.ambulance.AmbulanceForegroundService;
 import jr.project.reactsafe.ambulance.AmbulanceMainActivity;
 import jr.project.reactsafe.databinding.ActivityUserSettingsBinding;
 import jr.project.reactsafe.extras.auth.LoginActivity;
 import jr.project.reactsafe.extras.database.DatabaseHelper;
 import jr.project.reactsafe.extras.misc.SharedPreference;
 import jr.project.reactsafe.extras.model.RecentModel;
+import jr.project.reactsafe.extras.sensor.AccidentDetectionService;
 import jr.project.reactsafe.extras.util.CircleImageView;
+import jr.project.reactsafe.hospital.HospitalForegroundService;
 import jr.project.reactsafe.hospital.HospitalMainActivity;
 import jr.project.reactsafe.parent.PairUserDeviceActivity;
+import jr.project.reactsafe.parent.ParentForegroundService;
 import jr.project.reactsafe.parent.ParentMainActivity;
 import jr.project.reactsafe.parent.ParentPreferenceHelper;
+import jr.project.reactsafe.police.PoliceForegroundService;
 import jr.project.reactsafe.police.PoliceMainActivity;
 
 public class UserSettingsActivity extends AppCompatActivity {
@@ -65,11 +70,15 @@ public class UserSettingsActivity extends AppCompatActivity {
 
         mPref = new UserPreferenceHelper(this);
 
+        try{
         Glide.with(UserSettingsActivity.this)
                 .load(mPref.getProfileImage())
                 .placeholder(R.drawable.avatar)
                 .diskCacheStrategy(DiskCacheStrategy.DATA)
                 .into(binding.circleImageView);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         binding.name.setText(mPref.getProfileName());
         binding.email.setText(mPref.getProfileEmail());
@@ -236,9 +245,13 @@ public class UserSettingsActivity extends AppCompatActivity {
             //re setting views
             binding.name.setText(mPref.getProfileName());
             if (profileUri!=null)
+                try{
                 Glide.with(UserSettingsActivity.this)
                     .load(profileUri)
                     .into(binding.circleImageView);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
 
             bottomSheetDialog.dismiss();
         });
@@ -299,13 +312,14 @@ public class UserSettingsActivity extends AppCompatActivity {
     public void showSignOutDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(UserSettingsActivity.this);
         builder.setTitle("Sign Out?")
-                .setMessage("Are you sure you want to sign out of Cloud Box?")
+                .setMessage("Are you sure you want to sign out of React Safe?")
                 .setPositiveButton("NO", (dialog, which) -> { })
                 .setNegativeButton("YES", (dialog, which) -> {
                     FirebaseAuth.getInstance().signOut();
                     mPref.setIAmAdmin(false);
                     cancelNotification();
                     clearData();
+                    clearServices();
                     startActivity(new Intent(UserSettingsActivity.this, SplashScreenActivity.class));
                     finishAffinity();
                 });
@@ -320,6 +334,44 @@ public class UserSettingsActivity extends AppCompatActivity {
         editor.clear();
         editor.apply();
         deleteDatabase("ReactSafeDb");
+    }
+
+    void clearServices(){
+        try {
+            stopService(new Intent(this, PoliceForegroundService.class));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        try {
+            stopService(new Intent(this, ParentForegroundService.class));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        try {
+            stopService(new Intent(this, HospitalForegroundService.class));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        try {
+            stopService(new Intent(this, AccidentDetectionService.class));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        try {
+            stopService(new Intent(this, PoliceForegroundService.class));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        try {
+            stopService(new Intent(this, AmbulanceForegroundService.class));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public void cancelNotification() {

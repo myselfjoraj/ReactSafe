@@ -66,10 +66,14 @@ public class AdminUserDetailsActivity extends AppCompatActivity {
         model = new Gson().fromJson(m, UserModel.class);
 
         if (model.getProfileImage()!=null){
+            try{
             Glide.with(AdminUserDetailsActivity.this)
                     .load(model.getProfileImage())
                     .placeholder(R.drawable.avatar)
                     .into(binding.profileImage);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
 
         binding.title.setText(model.getTitle().toUpperCase(Locale.ROOT)+" DEVICE");

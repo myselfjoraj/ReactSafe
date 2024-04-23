@@ -47,10 +47,14 @@ public class PairedDevicesActivity extends AppCompatActivity {
             binding.linkedDeviceHolder.setVisibility(View.VISIBLE);
             binding.pairBtn.setText("Remove and Pair Another Device");
 
+            try{
             Glide.with(PairedDevicesActivity.this)
                     .load(model.getProfileImage())
                     .placeholder(R.drawable.avatar)
                     .into(binding.conIv);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
 
             binding.conName.setText(model.getName());
             binding.conDate.setText("connected on "+ Extras.getStandardFormDateFromTimeStamp(model.getPairedOn()));

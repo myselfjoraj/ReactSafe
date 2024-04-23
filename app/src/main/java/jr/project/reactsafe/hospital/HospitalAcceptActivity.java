@@ -2,16 +2,19 @@ package jr.project.reactsafe.hospital;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -56,6 +59,7 @@ import jr.project.reactsafe.extras.misc.SharedPreference;
 import jr.project.reactsafe.extras.model.AlertModel;
 import jr.project.reactsafe.extras.model.UserModel;
 import jr.project.reactsafe.extras.util.Extras;
+import jr.project.reactsafe.parent.ParentAccidentProceedings;
 
 public class HospitalAcceptActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -137,7 +141,7 @@ public class HospitalAcceptActivity extends AppCompatActivity implements OnMapRe
             didAccept = true;
             timer.cancel();
             dbRef.child("hospital").child(FirebaseAuth.getInstance().getUid()).child("alert")
-                    .child(uid).removeValue();
+                    .child(patientModel.getUid()).removeValue();
             try (DatabaseHelper db = new DatabaseHelper(HospitalAcceptActivity.this)){
                 db.insertHospitalAccepts(id,alertModel.getLat(),alertModel.getLng(),"1",
                         patientModel,parentModel,ambulanceModel,policeModel);
@@ -193,12 +197,12 @@ public class HospitalAcceptActivity extends AppCompatActivity implements OnMapRe
             }
             String uid = model.getUid();
             // set in user
-            dbRef.child("users").child(hisUid).child("alerts").child("hospital").setValue(uid);
-            //set in other ambulance
+            dbRef.child("users").child(patientModel.getUid()).child("alerts").child("hospital").setValue(uid);
+            //set in other hospital
             dbRef.child("hospital").child(uid).child("alert")
-                    .child(hisUid).setValue(alertModel);
+                    .child(patientModel.getUid()).setValue(alertModel);
             dbRef.child("hospital").child(FirebaseAuth.getInstance().getUid()).child("alert")
-                    .child(hisUid).removeValue();
+                    .child(patientModel.getUid()).removeValue();
             dismissPleaseWaitDialog();
             finish();
         });
@@ -209,10 +213,14 @@ public class HospitalAcceptActivity extends AppCompatActivity implements OnMapRe
             patientModel = model;
             binding.patientName.setText(model.getName());
             if (model.getProfileImage()!=null)
+                try{
                 Glide.with(HospitalAcceptActivity.this)
                         .load(model.getProfileImage())
                         .placeholder(R.drawable.avatar)
                         .into(binding.patientIv);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             binding.patientCall.setOnClickListener(v -> callPhone(model.getPhone()));
             getParent(model.getPairedBy());
         });
@@ -223,10 +231,14 @@ public class HospitalAcceptActivity extends AppCompatActivity implements OnMapRe
             parentModel = model;
             binding.parentName.setText(model.getName());
             if (model.getProfileImage()!=null)
+                try{
                 Glide.with(HospitalAcceptActivity.this)
                         .load(model.getProfileImage())
                         .placeholder(R.drawable.avatar)
                         .into(binding.parentIv);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             binding.parentCall.setOnClickListener(v -> callPhone(model.getPhone()));
         });
     }
@@ -236,10 +248,14 @@ public class HospitalAcceptActivity extends AppCompatActivity implements OnMapRe
             policeModel = model;
             binding.policeName.setText(model.getName());
             if (model.getProfileImage()!=null)
+                try{
                 Glide.with(HospitalAcceptActivity.this)
                         .load(model.getProfileImage())
                         .placeholder(R.drawable.avatar)
                         .into(binding.policeIv);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             binding.policeCall.setOnClickListener(v -> callPhone(model.getPhone()));
             binding.policeAddress.setText(Extras.getLocationString(HospitalAcceptActivity.this,model.getLat(),model.getLng()));
         });
@@ -250,10 +266,14 @@ public class HospitalAcceptActivity extends AppCompatActivity implements OnMapRe
             ambulanceModel = model;
             binding.ambulanceName.setText(model.getName());
             if (model.getProfileImage()!=null)
+                try{
                 Glide.with(HospitalAcceptActivity.this)
                         .load(model.getProfileImage())
                         .placeholder(R.drawable.avatar)
                         .into(binding.ambulanceIv);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             binding.ambulanceCall.setOnClickListener(v -> callPhone(model.getPhone()));
             String loc = Extras.getLocationString(HospitalAcceptActivity.this,model.getLat(),model.getLng());
             binding.ambulanceAddress.setText(loc);
@@ -264,9 +284,26 @@ public class HospitalAcceptActivity extends AppCompatActivity implements OnMapRe
     }
 
     void callPhone(String phone){
-        Intent phone_intent = new Intent(Intent.ACTION_CALL);
-        phone_intent.setData(Uri.parse("tel:" + phone));
-        startActivity(phone_intent);
+        if (phone == null || phone.isEmpty()){
+            Toast.makeText(this, "Phone Number Not Provided!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String number = ("tel:" + phone);
+        Intent mIntent = new Intent(Intent.ACTION_CALL);
+        mIntent.setData(Uri.parse(number));
+        if (ContextCompat.checkSelfPermission(HospitalAcceptActivity.this,
+                android.Manifest.permission.CALL_PHONE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(HospitalAcceptActivity.this,
+                    new String[]{android.Manifest.permission.CALL_PHONE},
+                    124);
+        } else {
+            try {
+                startActivity(mIntent);
+            } catch(SecurityException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 

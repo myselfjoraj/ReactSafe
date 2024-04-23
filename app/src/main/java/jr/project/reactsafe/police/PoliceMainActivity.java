@@ -258,10 +258,14 @@ public class PoliceMainActivity extends AppCompatActivity {
             UserModel model = models.get(position);
 
             if (model.getProfileImage()!=null)
+                try{
                 Glide.with(PoliceMainActivity.this)
                         .load(model.getProfileImage())
                         .placeholder(R.drawable.avatar)
                         .into(holder.iv);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
 
             holder.title.setText(model.getName());
             String d = "Accident detected on "+ Extras.getStandardFormDateFromTimeStamp(model.getTimestamp())
@@ -334,10 +338,14 @@ public class PoliceMainActivity extends AppCompatActivity {
             String ts = models.get(position).getTIMESTAMP();
 
             if (model.getProfileImage()!=null)
+                try{
                 Glide.with(PoliceMainActivity.this)
                         .load(model.getProfileImage())
                         .placeholder(R.drawable.avatar)
                         .into(holder.iv);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
 
             holder.title.setText(model.getName());
             String d = "Accident detected on "+Extras.getStandardFormDateFromTimeStamp(ts)

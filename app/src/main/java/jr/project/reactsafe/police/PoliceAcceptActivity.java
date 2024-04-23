@@ -3,6 +3,7 @@ package jr.project.reactsafe.police;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -66,6 +68,7 @@ import jr.project.reactsafe.extras.model.UserModel;
 import jr.project.reactsafe.extras.util.Extras;
 import jr.project.reactsafe.hospital.HospitalAcceptActivity;
 import jr.project.reactsafe.hospital.HospitalDetailsActivity;
+import jr.project.reactsafe.parent.ParentAccidentProceedings;
 
 public class PoliceAcceptActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -177,8 +180,8 @@ public class PoliceAcceptActivity extends AppCompatActivity implements OnMapRead
 
                     DatabaseReference ref =  dbRef.child("police").child(model.getUid());
                     //ref.child("alert").child(model.getTimestamp()+"").setValue(model);
-                    ref.child("alert").child(alertModel.getUid()+"").setValue(model);
-                    dbRef.child("users").child(alertModel.getUid()).child("alerts").child("police").setValue(model.getUid());
+                    ref.child("alert").child(patientModel.getUid()+"").setValue(model);
+                    dbRef.child("users").child(patientModel.getUid()).child("alerts").child("police").setValue(model.getUid());
                    // FirebaseHelper.InsertAlertPolice(alertModel.getUid(),alertModel.getTimestamp(),model.getUid());
 
                     dbRef.child("police").child(FirebaseAuth.getInstance().getUid()).child("alert")
@@ -209,10 +212,14 @@ public class PoliceAcceptActivity extends AppCompatActivity implements OnMapRead
             patientModel = model;
             binding.patientName.setText(model.getName());
             if (model.getProfileImage()!=null)
-                Glide.with(PoliceAcceptActivity.this)
-                        .load(model.getProfileImage())
-                        .placeholder(R.drawable.avatar)
-                        .into(binding.patientIv);
+                try {
+                    Glide.with(PoliceAcceptActivity.this)
+                            .load(model.getProfileImage())
+                            .placeholder(R.drawable.avatar)
+                            .into(binding.patientIv);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             binding.patientCall.setOnClickListener(v -> callPhone(model.getPhone()));
             getParent(model.getPairedBy());
         });
@@ -223,10 +230,14 @@ public class PoliceAcceptActivity extends AppCompatActivity implements OnMapRead
             parentModel = model;
             binding.parentName.setText(model.getName());
             if (model.getProfileImage()!=null)
+                try{
                 Glide.with(PoliceAcceptActivity.this)
                         .load(model.getProfileImage())
                         .placeholder(R.drawable.avatar)
                         .into(binding.parentIv);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             binding.parentCall.setOnClickListener(v -> callPhone(model.getPhone()));
         });
     }
@@ -236,10 +247,14 @@ public class PoliceAcceptActivity extends AppCompatActivity implements OnMapRead
             hospitalModel = model;
             binding.hospitalName.setText(model.getName());
             if (model.getProfileImage()!=null)
+                try{
                 Glide.with(PoliceAcceptActivity.this)
                         .load(model.getProfileImage())
                         .placeholder(R.drawable.avatar)
                         .into(binding.hospitalIv);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             binding.hospitalCall.setOnClickListener(v -> callPhone(model.getPhone()));
             String loc = Extras.getLocationString(PoliceAcceptActivity.this,model.getLat(),model.getLng());
             binding.hospitalAddress2.setText(loc);
@@ -253,10 +268,14 @@ public class PoliceAcceptActivity extends AppCompatActivity implements OnMapRead
             ambulanceModel = model;
             binding.ambulanceName.setText(model.getName());
             if (model.getProfileImage()!=null)
+                try{
                 Glide.with(PoliceAcceptActivity.this)
                         .load(model.getProfileImage())
                         .placeholder(R.drawable.avatar)
                         .into(binding.ambulanceIv);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             binding.ambulanceCall.setOnClickListener(v -> callPhone(model.getPhone()));
             String loc = Extras.getLocationString(PoliceAcceptActivity.this,model.getLat(),model.getLng());
             binding.ambulanceAddress.setText(loc);
@@ -264,9 +283,26 @@ public class PoliceAcceptActivity extends AppCompatActivity implements OnMapRead
     }
 
     void callPhone(String phone){
-        Intent phone_intent = new Intent(Intent.ACTION_CALL);
-        phone_intent.setData(Uri.parse("tel:" + phone));
-        startActivity(phone_intent);
+        if (phone == null || phone.isEmpty()){
+            Toast.makeText(this, "Phone Number Not Provided!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String number = ("tel:" + phone);
+        Intent mIntent = new Intent(Intent.ACTION_CALL);
+        mIntent.setData(Uri.parse(number));
+        if (ContextCompat.checkSelfPermission(PoliceAcceptActivity.this,
+                android.Manifest.permission.CALL_PHONE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(PoliceAcceptActivity.this,
+                    new String[]{android.Manifest.permission.CALL_PHONE},
+                    124);
+        } else {
+            try {
+                startActivity(mIntent);
+            } catch(SecurityException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 

@@ -129,10 +129,14 @@ public class PoliceTransferActivity extends AppCompatActivity {
             UserModel model = models.get(position);
 
             if (model.getProfileImage() != null)
+                try{
                 Glide.with(PoliceTransferActivity.this)
                         .load(model.getProfileImage())
                         .placeholder(R.drawable.avatar)
                         .into(holder.iv);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
 
             holder.title.setText(model.getName());
             String d = Extras.getLocationString(PoliceTransferActivity.this,model.getLat(),model.getLng());

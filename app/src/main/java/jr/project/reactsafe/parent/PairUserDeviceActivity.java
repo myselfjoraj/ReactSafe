@@ -59,21 +59,18 @@ public class PairUserDeviceActivity extends AppCompatActivity {
 
         binding.code.setText(newCode+"");
 
-
         DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference()
                 .child("users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
         dbRef.child("pairedBy").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){
-
                     FirebaseHelper.getUser(snapshot.getValue(String.class), (model) -> {
                         ArrayList<UserModel> m = new ArrayList<>();
                         m.add(model);
                         mPref.setPairedDevice(new Gson().toJson(m));
                         startActivity(new Intent(PairUserDeviceActivity.this, ParentMainActivity.class));
                     });
-
                 }
             }
 

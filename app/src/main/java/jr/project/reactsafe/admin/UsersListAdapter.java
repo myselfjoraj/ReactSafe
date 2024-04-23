@@ -57,14 +57,22 @@ public class UsersListAdapter extends RecyclerView.Adapter<UsersListAdapter.MyVi
         UserModel model = models.get(position);
 
         if (model.getProfileImage() != null) {
+            try{
             Glide.with(context)
                     .load(model.getProfileImage())
                     .placeholder(R.drawable.avatar)
                     .into(holder.iv);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }else {
+            try{
             Glide.with(context)
                     .load(R.drawable.avatar)
                     .into(holder.iv);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
 
         holder.title.setText(model.getName());

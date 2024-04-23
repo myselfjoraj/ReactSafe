@@ -122,11 +122,15 @@ public class UserMainActivity extends AppCompatActivity implements OnMapReadyCal
 
         binding.on.setOnClickListener(v -> setRunOrNot());
 
+        try{
         Glide.with(UserMainActivity.this)
                 .load(new UserPreferenceHelper(UserMainActivity.this))
                 .placeholder(R.drawable.avatar)
                 .diskCacheStrategy(DiskCacheStrategy.DATA)
                 .into(binding.myProfImg);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         binding.myProfImg.setOnClickListener(v -> startActivity(new Intent(UserMainActivity.this,UserSettingsActivity.class)));
 
@@ -303,11 +307,15 @@ public class UserMainActivity extends AppCompatActivity implements OnMapReadyCal
         super.onResume();
         setUi();
         if (binding!=null)
+            try{
             Glide.with(UserMainActivity.this)
                 .load(new UserPreferenceHelper(UserMainActivity.this).getProfileImage())
                 .placeholder(R.drawable.avatar)
                 .diskCacheStrategy(DiskCacheStrategy.DATA)
                 .into(binding.myProfImg);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
 
         //Toast.makeText(this, ""+isMyServiceRunning(AccidentDetectionService.class), Toast.LENGTH_SHORT).show();
     }
@@ -340,45 +348,52 @@ public class UserMainActivity extends AppCompatActivity implements OnMapReadyCal
 
     @SuppressLint("SetTextI18n")
     void setUi(){
-        if (binding == null){
-            return;
-        }
-        if (mPref ==null){
-            mPref = new SharedPreference(UserMainActivity.this);
-        }
-        boolean isRun = mPref.getBoolean("startedReactLooks",false);
-        int cardColor,visibility;
-        String proTxt;
+        try {
+            if (binding == null) {
+                return;
+            }
+            if (mPref == null) {
+                mPref = new SharedPreference(UserMainActivity.this);
+            }
+            boolean isRun = mPref.getBoolean("startedReactLooks", false);
+            int cardColor, visibility;
+            String proTxt;
 
-        if (!isRun){
-            cardColor  = ContextCompat.getColor(UserMainActivity.this,R.color.red_light);
-            visibility = View.VISIBLE;
-            proTxt     = "Un Protected";
-        }else {
-            startService(intent);
-            cardColor  = ContextCompat.getColor(UserMainActivity.this,R.color.green_light);
-            visibility = View.GONE;
-            proTxt     = "Protected";
-        }
+            if (!isRun) {
+                cardColor = ContextCompat.getColor(UserMainActivity.this, R.color.red_light);
+                visibility = View.VISIBLE;
+                proTxt = "Un Protected";
+            } else {
+                startService(intent);
+                cardColor = ContextCompat.getColor(UserMainActivity.this, R.color.green_light);
+                visibility = View.GONE;
+                proTxt = "Protected";
+            }
 
-        binding.alertSymbol.setVisibility(visibility);
-        binding.onCard.setCardBackgroundColor(cardColor);
-        binding.protTxt.setText(proTxt);
+            binding.alertSymbol.setVisibility(visibility);
+            binding.onCard.setCardBackgroundColor(cardColor);
+            binding.protTxt.setText(proTxt);
 
-        mo = new UserPreferenceHelper(UserMainActivity.this)
-                .getPairedDeviceDetails();
-        if (mo!=null && !mo.isEmpty()){
-            UserModel model = mo.get(0);
-            binding.pairBtn.setVisibility(View.GONE);
-            binding.linkedDeviceHolder.setVisibility(View.VISIBLE);
+            mo = new UserPreferenceHelper(UserMainActivity.this)
+                    .getPairedDeviceDetails();
+            if (mo != null && !mo.isEmpty()) {
+                UserModel model = mo.get(0);
+                binding.pairBtn.setVisibility(View.GONE);
+                binding.linkedDeviceHolder.setVisibility(View.VISIBLE);
+                try {
+                    Glide.with(UserMainActivity.this)
+                            .load(model.getProfileImage())
+                            .placeholder(R.drawable.avatar)
+                            .into(binding.conIv);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
 
-            Glide.with(UserMainActivity.this)
-                    .load(model.getProfileImage())
-                    .placeholder(R.drawable.avatar)
-                    .into(binding.conIv);
-
-            binding.conName.setText(model.getName());
-            binding.conDate.setText("connected on "+Extras.getStandardFormDateFromTimeStamp(model.getPairedOn()));
+                binding.conName.setText(model.getName());
+                binding.conDate.setText("connected on " + Extras.getStandardFormDateFromTimeStamp(model.getPairedOn()));
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
     }

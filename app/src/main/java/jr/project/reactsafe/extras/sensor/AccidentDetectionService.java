@@ -419,24 +419,27 @@ public class AccidentDetectionService extends Service implements SensorEventList
     }
 
     void InsertAlertInNodesModified(){
-        String ts = mPref.getLong("startedAlertOn", (Extras.getTimestamp())) + "";
-        LocationModel locationModel = new LocationModel(loc().get(0)+"",loc().get(1)+"",
-                        FirebaseAuth.getInstance().getUid(),ts);
-        String parentId = new UserPreferenceHelper(this).getPairedDeviceDetails().get(0).getUid();
-        if (policeId!=null){
-            FirebaseHelper.InsertAlertOnPoliceId(policeId,locationModel);
-        }
+        boolean isDismissed = mPref.getBoolean("isAlertDismissed",false);
+        if (!isDismissed) {
+            String ts = mPref.getLong("startedAlertOn", (Extras.getTimestamp())) + "";
+            LocationModel locationModel = new LocationModel(loc().get(0) + "", loc().get(1) + "",
+                    FirebaseAuth.getInstance().getUid(), ts);
+            String parentId = new UserPreferenceHelper(this).getPairedDeviceDetails().get(0).getUid();
+            if (policeId != null) {
+                FirebaseHelper.InsertAlertOnPoliceId(policeId, locationModel);
+            }
 
-        if (ambulanceId!=null){
-            FirebaseHelper.InsertAlertOnAmbulanceId(ambulanceId,locationModel);
-        }
+            if (ambulanceId != null) {
+                FirebaseHelper.InsertAlertOnAmbulanceId(ambulanceId, locationModel);
+            }
 
-        if (hospitalId!=null){
-            FirebaseHelper.InsertAlertOnHospitalId(hospitalId,locationModel);
-        }
+            if (hospitalId != null) {
+                FirebaseHelper.InsertAlertOnHospitalId(hospitalId, locationModel);
+            }
 
-        if (parentId!=null){
-            FirebaseHelper.InsertAlertOnParentId(parentId,locationModel);
+            if (parentId != null) {
+                FirebaseHelper.InsertAlertOnParentId(parentId, locationModel);
+            }
         }
     }
 

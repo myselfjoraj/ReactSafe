@@ -68,7 +68,7 @@ public class AccidentAlertActivity extends AppCompatActivity {
 
         mPref = new SharedPreference(AccidentAlertActivity.this);
 
-        binding.progress.setMax(30);
+        binding.progress.setMax(60);
 
         long defaultSec = Extras.getTimestamp() + 60000;
         sec = (int) ((mPref.getLong("startedAlertOn",defaultSec)/1000) - (Extras.getTimestamp()/1000));
@@ -116,6 +116,8 @@ public class AccidentAlertActivity extends AppCompatActivity {
                 if (!isT) {
                     isToClose = true;
                     //forceInsertAlertInNodes();
+                    InsertAlertInNodesModified();
+                    ApplicationController.releaseMediaPlayer();
                     startActivity();
                 }
             }
