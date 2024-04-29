@@ -11,4 +11,5 @@
     <color name="react_safe">#fc7414</color>
     <color name="red_light">#A8FF1100</color>
     <color name="green_light">#8B8BC34A</color>
+    <color name="eBoxBackground">#D3F8F4F4</color>
 </resources>
