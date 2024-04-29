@@ -20,6 +20,7 @@ public class SharedPreference {
     private boolean     boolDefaultVal      = false;
     private String      stringDefaultVal    = "";
     private Set<String> stringSetDefaultVal = null;
+    android.content.SharedPreferences.Editor editor;
     //endregion
 
     //region Getters and Setters for default Values
@@ -76,6 +77,7 @@ public class SharedPreference {
         String packageName = context.getPackageName();
         settings = context.getSharedPreferences(
                 packageName + "_preferences", Context.MODE_PRIVATE);
+        editor = settings.edit();
     }
 
     // creates a new preference file with specified name
@@ -189,6 +191,20 @@ public class SharedPreference {
 
     public void unregisterListener(SharedPreferences.OnSharedPreferenceChangeListener listener) {
         settings.unregisterOnSharedPreferenceChangeListener(listener);
+    }
+
+    public void setPasscodeForCB(String passcode){
+        editor.putString("passcodeForCB",passcode);
+        editor.apply();
+    }
+
+    public void removePasscodeForCB(){
+        editor.remove("passcodeForCB");
+        editor.apply();
+    }
+
+    public String getPasscodeForCB(){
+        return settings.getString("passcodeForCB",null);
     }
 
 

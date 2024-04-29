@@ -36,6 +36,7 @@ import jr.project.reactsafe.ambulance.AmbulanceForegroundService;
 import jr.project.reactsafe.ambulance.AmbulanceMainActivity;
 import jr.project.reactsafe.databinding.ActivityUserSettingsBinding;
 import jr.project.reactsafe.extras.auth.LoginActivity;
+import jr.project.reactsafe.extras.auth.PasscodeActivity;
 import jr.project.reactsafe.extras.database.DatabaseHelper;
 import jr.project.reactsafe.extras.misc.SharedPreference;
 import jr.project.reactsafe.extras.model.RecentModel;
@@ -91,6 +92,19 @@ public class UserSettingsActivity extends AppCompatActivity {
         binding.pairDevice.setOnClickListener(v -> startActivity(new Intent(UserSettingsActivity.this,PairedDevicesActivity.class)));
 
         binding.signOut.setOnClickListener(v -> showSignOutDialog());
+
+        binding.passcodeSetUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(UserSettingsActivity.this, PasscodeActivity.class);
+                if (new SharedPreference(UserSettingsActivity.this).getPasscodeForCB()!=null){
+                    intent.putExtra("value","exist");
+                }else {
+                    intent.putExtra("value","null");
+                }
+                startActivity(intent);
+            }
+        });
 
         String s = new SharedPreference(this).getUserTypeInPref();
         //Toast.makeText(this, "---"+s, Toast.LENGTH_SHORT).show();

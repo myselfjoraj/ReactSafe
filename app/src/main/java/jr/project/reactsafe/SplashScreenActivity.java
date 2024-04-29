@@ -4,6 +4,7 @@ import static java.lang.Thread.sleep;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -24,6 +25,7 @@ import com.google.firebase.database.ValueEventListener;
 import jr.project.reactsafe.admin.AdminMainActivity;
 import jr.project.reactsafe.ambulance.AmbulanceMainActivity;
 import jr.project.reactsafe.extras.auth.LoginActivity;
+import jr.project.reactsafe.extras.auth.PasscodeActivity;
 import jr.project.reactsafe.extras.misc.SharedPreference;
 import jr.project.reactsafe.hospital.HospitalMainActivity;
 import jr.project.reactsafe.parent.PairUserDeviceActivity;
@@ -59,10 +61,18 @@ public class SplashScreenActivity extends AppCompatActivity {
             try {
                 sleep(3000);
                 if (mAuth.getUid() != null){
-                    getActivity();
+                    if (new SharedPreference(SplashScreenActivity.this).getPasscodeForCB()!=null){
+                        startUnlockActivity();
+                    }else {
+                        getActivity();
+                    }
                 } else if (new UserPreferenceHelper(this).getIAmAdmin()) {
-                    startActivity(new Intent(this, AdminMainActivity.class));
-                    finishAffinity();
+                    if (new SharedPreference(SplashScreenActivity.this).getPasscodeForCB()!=null){
+                        startUnlockActivity();
+                    }else {
+                        startActivity(new Intent(this, AdminMainActivity.class));
+                        finishAffinity();
+                    }
                 } else {
                     startActivity(new Intent(this,LoginActivity.class));
                     finishAffinity();
@@ -117,6 +127,12 @@ public class SplashScreenActivity extends AppCompatActivity {
                 break;
 
         }
+    }
+
+    public void startUnlockActivity(){
+        Intent i=new Intent(SplashScreenActivity.this, PasscodeActivity.class);
+        i.putExtra("value","unlock");
+        startActivity(i);
     }
 
 }
