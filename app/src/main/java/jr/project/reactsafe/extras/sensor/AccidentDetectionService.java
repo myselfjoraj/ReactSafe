@@ -151,7 +151,7 @@ public class AccidentDetectionService extends Service implements SensorEventList
         return new NotificationCompat.Builder(this, "accident_channel")
                 .setContentTitle("React Safe")
                 .setContentText("Running for your safety")
-                .setSmallIcon(R.drawable.avatar)
+                .setSmallIcon(R.drawable.react_safe_logo)
                 .setContentIntent(pendingIntent)
                 .build();
     }

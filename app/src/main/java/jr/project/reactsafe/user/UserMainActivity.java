@@ -66,7 +66,6 @@ import java.util.TimerTask;
 
 import jr.project.reactsafe.ApplicationController;
 import jr.project.reactsafe.R;
-import jr.project.reactsafe.SplashScreenActivity;
 import jr.project.reactsafe.databinding.ActivityUserMainBinding;
 import jr.project.reactsafe.extras.database.DatabaseHelper;
 import jr.project.reactsafe.extras.database.FirebaseHelper;
@@ -75,7 +74,6 @@ import jr.project.reactsafe.extras.model.RecentModel;
 import jr.project.reactsafe.extras.model.UserModel;
 import jr.project.reactsafe.extras.sensor.AccidentDetectionService;
 import jr.project.reactsafe.extras.util.Extras;
-import jr.project.reactsafe.parent.ParentMainActivity;
 
 public class UserMainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -586,7 +584,7 @@ public class UserMainActivity extends AppCompatActivity implements OnMapReadyCal
         // Setting Alert Dialog Title
         alertDialogBuilder.setTitle("Enable Location!");
         // Icon Of Alert Dialog
-        alertDialogBuilder.setIcon(R.drawable.react_safe_logo);
+        alertDialogBuilder.setIcon(R.drawable.react_safe_l);
         // Setting Alert Dialog Message
         alertDialogBuilder.setMessage("Please enable location to continue using React Safe.");
         alertDialogBuilder.setCancelable(false);

@@ -214,7 +214,7 @@ public class ParentForegroundService extends Service {
         PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(this, 0, fullScreenIntent, PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "lockChannel")
-                .setSmallIcon(R.drawable.avatar)
+                .setSmallIcon(R.drawable.react_safe_logo)
                 .setContentTitle("Accident Detected")
                 .setContentText("Please check if your child device is okay.")
                 .setAutoCancel(true)
@@ -296,7 +296,7 @@ public class ParentForegroundService extends Service {
         return new NotificationCompat.Builder(this, "parent_channel")
                 .setContentTitle("React Safe")
                 .setContentText("Monitoring safety")
-                .setSmallIcon(R.drawable.avatar)
+                .setSmallIcon(R.drawable.react_safe_logo)
                 .setContentIntent(pendingIntent)
                 .build();
     }

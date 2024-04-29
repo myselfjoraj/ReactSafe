@@ -84,7 +84,7 @@ public class HospitalForegroundService extends Service {
         PendingIntent contentPendingIntent = PendingIntent.getActivity(this, 0, contentIntent, 0);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "lockChannel")
-                .setSmallIcon(R.drawable.avatar)
+                .setSmallIcon(R.drawable.react_safe_logo)
                 .setContentTitle("Accident Received")
                 .setContentText("Please accept a nearby accident.")
                 .setAutoCancel(true)
@@ -125,7 +125,7 @@ public class HospitalForegroundService extends Service {
         return new NotificationCompat.Builder(this, "hospital_channel")
                 .setContentTitle("React Safe")
                 .setContentText("Checking for casualties.")
-                .setSmallIcon(R.drawable.avatar)
+                .setSmallIcon(R.drawable.react_safe_logo)
                 .setContentIntent(pendingIntent)
                 .build();
     }

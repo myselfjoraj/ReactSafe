@@ -134,7 +134,7 @@
                             android:id="@+id/imageView15"
                             android:layout_width="20dp"
                             android:layout_height="25dp"
-                            app:srcCompat="@drawable/react_safe_logo" />
+                            app:srcCompat="@drawable/react_safe_l" />
 
                         <TextView
                             android:id="@+id/textView32"

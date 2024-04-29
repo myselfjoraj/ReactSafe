@@ -83,7 +83,7 @@ public class PoliceForegroundService extends Service {
         PendingIntent contentPendingIntent = PendingIntent.getActivity(this, 0, contentIntent, 0);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "lockChannel")
-                .setSmallIcon(R.drawable.avatar)
+                .setSmallIcon(R.drawable.react_safe_logo)
                 .setContentTitle("Accident Received")
                 .setContentText("An accident has occurred in your locality.")
                 .setAutoCancel(true)
@@ -124,7 +124,7 @@ public class PoliceForegroundService extends Service {
         return new NotificationCompat.Builder(this, "police_channel")
                 .setContentTitle("React Safe")
                 .setContentText("Looking for accidents.")
-                .setSmallIcon(R.drawable.avatar)
+                .setSmallIcon(R.drawable.react_safe_logo)
                 .setContentIntent(pendingIntent)
                 .build();
     }

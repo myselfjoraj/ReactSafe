@@ -1,10 +1,17 @@
 package jr.project.reactsafe;
 
+import android.app.Activity;
 import android.app.Application;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.media.MediaPlayer;
+import android.os.Build;
+import android.os.Bundle;
 import android.os.StrictMode;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
 
 public class ApplicationController extends Application {
 
