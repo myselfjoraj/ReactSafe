@@ -403,7 +403,7 @@ public class AccidentDetectionService extends Service implements SensorEventList
 
         CountDownTimer timer = new CountDownTimer(60* 1000L, 1000){
             public void onTick(long millisUntilFinished){
-                Log.e("AccidentDetectionService","forcefully inserting nodes in "+(millisUntilFinished/1000));
+                Log.e("AccidentDetectionService","forcefully inserting nodes from sensor in "+(millisUntilFinished/1000));
             }
             public  void onFinish(){
                 //forceInsertAlertInNodes();
@@ -421,6 +421,8 @@ public class AccidentDetectionService extends Service implements SensorEventList
     void InsertAlertInNodesModified(){
         boolean isDismissed = mPref.getBoolean("isAlertDismissed",false);
         if (!isDismissed) {
+            mPref.putBoolean("isAlertDismissed",true);
+            Log.e("AccidentSendAlert", "send alert from sensor activity");
             String ts = mPref.getLong("startedAlertOn", (Extras.getTimestamp())) + "";
             LocationModel locationModel = new LocationModel(loc().get(0) + "", loc().get(1) + "",
                     FirebaseAuth.getInstance().getUid(), ts);

@@ -44,6 +44,9 @@ public class Extras {
     }
 
     public static String getStandardFormDateFromTimeStamp(String timeStamp){
+        if (timeStamp == null || timeStamp.isEmpty()){
+            timeStamp = Extras.getTimestamp()+"";
+        }
         DateFormat formatter = new SimpleDateFormat("dd MMMM yyyy");
         long milliSeconds= Long.parseLong(timeStamp);
         Calendar calendar = Calendar.getInstance();
@@ -52,6 +55,9 @@ public class Extras {
     }
 
     public static String getTimeFromTimeStamp(String timeStamp){
+        if (timeStamp == null || timeStamp.isEmpty()){
+            timeStamp = Extras.getTimestamp()+"";
+        }
         DateFormat formatter = new SimpleDateFormat("hh:mm a");
         long milliSeconds= Long.parseLong(timeStamp);
         Calendar calendar = Calendar.getInstance();

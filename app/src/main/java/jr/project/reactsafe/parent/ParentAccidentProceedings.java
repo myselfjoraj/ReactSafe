@@ -1,10 +1,12 @@
 package jr.project.reactsafe.parent;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -77,14 +79,15 @@ public class ParentAccidentProceedings extends AppCompatActivity implements OnMa
         binding = ActivityParentAccidentProceedingsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+
         mPref = new ParentPreferenceHelper(this);
         id = mPref.getIsOnAccident();
 
-        binding.hospitalName.setText(id+"");
-
-        if (id == null){
-            finish();
-
+        try {
+            AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
         try {
@@ -95,6 +98,10 @@ public class ParentAccidentProceedings extends AppCompatActivity implements OnMa
             }
         }catch (Exception e){
             e.printStackTrace();
+        }
+
+        if (id == null){
+            finish();
         }
 
         setUi(null,null);

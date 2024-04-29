@@ -111,6 +111,7 @@ public class AccidentAlertActivity extends AppCompatActivity {
                     binding.count.setText(sec + "");
                     binding.progress.setProgress(sec);
                 });
+                Log.e("AccidentDetectionService","forcefully inserting nodes from alert in "+(millisUntilFinished/1000));
             }
             public  void onFinish(){
                 if (!isT) {
@@ -155,23 +156,23 @@ public class AccidentAlertActivity extends AppCompatActivity {
                 }
             }
         });
-
-        binding.swipeSnooze.setOnStateChangeListener(active -> {
-            if (active){
-                if (!isT){
-                   // removeAlerts();
-                    isT = true;
-                    ApplicationController.releaseMediaPlayer();
-                    Intent i = new Intent();
-                    i.setClass(AccidentAlertActivity.this, ParentSnoozeActivity.class);
-                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    i.putExtra("fromIntent","AccidentAlertActivity.class");
-                    ApplicationController.releaseMediaPlayer();
-                    startActivity(i);
-                    finishAffinity();
-                }
-            }
-        });
+//
+//        binding.swipeSnooze.setOnStateChangeListener(active -> {
+//            if (active){
+//                if (!isT){
+//                   // removeAlerts();
+//                    isT = true;
+//                    ApplicationController.releaseMediaPlayer();
+//                    Intent i = new Intent();
+//                    i.setClass(AccidentAlertActivity.this, ParentSnoozeActivity.class);
+//                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    i.putExtra("fromIntent","AccidentAlertActivity.class");
+//                    ApplicationController.releaseMediaPlayer();
+//                    startActivity(i);
+//                    finishAffinity();
+//                }
+//            }
+//        });
 
         binding.call.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -308,29 +309,33 @@ public class AccidentAlertActivity extends AppCompatActivity {
     String hospitalId = null;
 
     void InsertAlertInNodesModified(){
-        mPref.putBoolean("isAlertDismissed",true);
-        policeId = mPref.getString("nearPolice");
-        ambulanceId = mPref.getString("nearAmbulance");
-        hospitalId = mPref.getString("nearHospital");
-        String parentId = new UserPreferenceHelper(this).getPairedDeviceDetails().get(0).getUid();
+        boolean isDismissed = mPref.getBoolean("isAlertDismissed",false);
+        if (!isDismissed) {
+            mPref.putBoolean("isAlertDismissed", true);
+            Log.e("AccidentSendAlert", "send alert from alert activity");
+            policeId = mPref.getString("nearPolice");
+            ambulanceId = mPref.getString("nearAmbulance");
+            hospitalId = mPref.getString("nearHospital");
+            String parentId = new UserPreferenceHelper(this).getPairedDeviceDetails().get(0).getUid();
 
-        String ts = mPref.getLong("startedAlertOn", (Extras.getTimestamp())) + "";
-        LocationModel locationModel = new LocationModel(loc().get(0)+"",loc().get(1)+"",
-                FirebaseAuth.getInstance().getUid(),ts);
-        if (policeId!=null){
-            FirebaseHelper.InsertAlertOnPoliceId(policeId,locationModel);
-        }
+            String ts = mPref.getLong("startedAlertOn", (Extras.getTimestamp())) + "";
+            LocationModel locationModel = new LocationModel(loc().get(0) + "", loc().get(1) + "",
+                    FirebaseAuth.getInstance().getUid(), ts);
+            if (policeId != null) {
+                FirebaseHelper.InsertAlertOnPoliceId(policeId, locationModel);
+            }
 
-        if (ambulanceId!=null){
-            FirebaseHelper.InsertAlertOnAmbulanceId(ambulanceId,locationModel);
-        }
+            if (ambulanceId != null) {
+                FirebaseHelper.InsertAlertOnAmbulanceId(ambulanceId, locationModel);
+            }
 
-        if (hospitalId!=null){
-            FirebaseHelper.InsertAlertOnHospitalId(hospitalId,locationModel);
-        }
+            if (hospitalId != null) {
+                FirebaseHelper.InsertAlertOnHospitalId(hospitalId, locationModel);
+            }
 
-        if (parentId!=null){
-            FirebaseHelper.InsertAlertOnParentId(parentId,locationModel);
+            if (parentId != null) {
+                FirebaseHelper.InsertAlertOnParentId(parentId, locationModel);
+            }
         }
     }
 
