@@ -315,24 +315,25 @@ public class AccidentDetectionService extends Service implements SensorEventList
             if(model!=null && model.getUid() != null && !model.getUid().isEmpty()) {
                 hospitalId = model.getUid();
                 new SharedPreference(this).putString("nearHospital",hospitalId);
+                Log.e("AccidentDetectionService","hospital -- "+model.getUid());
             }
-            Log.e("AccidentDetectionService","hospital -- "+model.getUid());
         });
 
         NearestSafe.getNearestAmbulance(db.get(0) + "", db.get(1) + "", model -> {
             if(model!=null && model.getUid() != null && !model.getUid().isEmpty()) {
                 ambulanceId = model.getUid();
                 new SharedPreference(this).putString("nearAmbulance",ambulanceId);
+                Log.e("AccidentDetectionService","ambulance -- "+model.getUid());
             }
-            Log.e("AccidentDetectionService","ambulance -- "+model.getUid());
+
         });
 
         NearestSafe.getNearestPolice(db.get(0) + "", db.get(1) + "", model -> {
             if(model!=null && model.getUid() != null && !model.getUid().isEmpty()) {
                 policeId = model.getUid();
                 new SharedPreference(this).putString("nearPolice",policeId);
+                Log.e("AccidentDetectionService","police -- "+model.getUid());
             }
-            Log.e("AccidentDetectionService","police -- "+model.getUid());
         });
 
         CountDownTimer timer = new CountDownTimer(60* 1000L, 1000){

@@ -54,8 +54,12 @@ public class ClosestPoint {
         ArrayList<Double> longitudes = new ArrayList<>();
 
         for (int i = 0 ; i < models.size() ; i++){
-            latitudes.add(Double.parseDouble(models.get(i).getLat()));
-            longitudes.add(Double.parseDouble(models.get(i).getLng()));
+            try {
+                latitudes.add(Double.parseDouble(models.get(i).getLat()));
+                longitudes.add(Double.parseDouble(models.get(i).getLng()));
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
 
         // Find the index of the closest point

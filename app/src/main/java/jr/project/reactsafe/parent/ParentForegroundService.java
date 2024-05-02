@@ -249,10 +249,10 @@ public class ParentForegroundService extends Service {
         sendBroadcast(broadcastIntent);
 
         Intent contentIntent = new Intent(this, AccidentAlertActivity.class);
-        PendingIntent contentPendingIntent = PendingIntent.getActivity(this, 0, contentIntent, 0);
+        PendingIntent contentPendingIntent = PendingIntent.getActivity(this, 0, contentIntent, PendingIntent.FLAG_IMMUTABLE);
 
         Intent fullScreenIntent = new Intent(this, AccidentAlertActivity.class);
-        PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(this, 0, fullScreenIntent, 0);
+        PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(this, 0, fullScreenIntent, PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "lockChannel")
                 .setSmallIcon(R.drawable.avatar)

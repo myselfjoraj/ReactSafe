@@ -81,7 +81,7 @@ public class HospitalForegroundService extends Service {
     private void notifyHighAlert() {
 
         Intent contentIntent = new Intent(this, HospitalMainActivity.class);
-        PendingIntent contentPendingIntent = PendingIntent.getActivity(this, 0, contentIntent, 0);
+        PendingIntent contentPendingIntent = PendingIntent.getActivity(this, 0, contentIntent, PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "lockChannel")
                 .setSmallIcon(R.drawable.react_safe_logo)

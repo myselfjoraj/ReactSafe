@@ -222,7 +222,8 @@ public class HospitalAcceptActivity extends AppCompatActivity implements OnMapRe
                     e.printStackTrace();
                 }
             binding.patientCall.setOnClickListener(v -> callPhone(model.getPhone()));
-            getParent(model.getPairedBy());
+            if (model.getPairedBy()!=null)
+                getParent(model.getPairedBy());
         });
     }
 

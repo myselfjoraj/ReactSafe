@@ -107,7 +107,12 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
             }
             public  void onFinish(){
                 if (!didAccept){
-                    changeAmbulance(true,alertModel.getLat(),alertModel.getLng(),alertModel.getTimestamp(),uid,alertModel);
+                    try {
+                        if (alertModel != null && alertModel.getLat() != null && alertModel.getLat() != null)
+                            changeAmbulance(true, alertModel.getLat(), alertModel.getLng(), alertModel.getTimestamp(), uid, alertModel);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
                 }
             }
         };
@@ -215,11 +220,15 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
                             .into(binding.patientIv);
                 }catch (Exception e){e.printStackTrace();}
             binding.patientCall.setOnClickListener(v -> callPhone(model.getPhone()));
-            getParent(model.getPairedBy());
+            if (model.getPairedBy()!=null)
+                getParent(model.getPairedBy());
         });
     }
 
     void getParent(String uid){
+        if (uid == null){
+            return;
+        }
         FirebaseHelper.getUser(uid, model -> {
             parentModel = model;
             binding.parentName.setText(model.getName());

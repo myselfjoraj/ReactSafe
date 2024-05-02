@@ -221,7 +221,8 @@ public class PoliceAcceptActivity extends AppCompatActivity implements OnMapRead
                     e.printStackTrace();
                 }
             binding.patientCall.setOnClickListener(v -> callPhone(model.getPhone()));
-            getParent(model.getPairedBy());
+            if (model.getPairedBy()!=null)
+                getParent(model.getPairedBy());
         });
     }
 

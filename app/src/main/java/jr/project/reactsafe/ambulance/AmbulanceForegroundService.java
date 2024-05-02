@@ -89,7 +89,7 @@ public class AmbulanceForegroundService extends Service {
     private void notifyHighAlert() {
 
         Intent contentIntent = new Intent(this, AmbulanceMainActivity.class);
-        PendingIntent contentPendingIntent = PendingIntent.getActivity(this, 0, contentIntent, 0);
+        PendingIntent contentPendingIntent = PendingIntent.getActivity(this, 0, contentIntent, PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "lockChannel")
                 .setSmallIcon(R.drawable.avatar)
