@@ -440,9 +440,23 @@ public class AccidentDetectionService extends Service implements SensorEventList
                 FirebaseHelper.InsertAlertOnHospitalId(hospitalId, locationModel);
             }
 
-            if (parentId != null) {
-                FirebaseHelper.InsertAlertOnParentId(parentId, locationModel);
-            }
+            FirebaseDatabase.getInstance().getReference("users")
+                    .child(FirebaseAuth.getInstance().getUid()).child("pairedBy").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if (snapshot.exists()){
+                                String parentI = snapshot.getValue(String.class);
+                                if (parentI != null) {
+                                    FirebaseHelper.InsertAlertOnParentId(parentI, locationModel);
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
         }
     }
 
