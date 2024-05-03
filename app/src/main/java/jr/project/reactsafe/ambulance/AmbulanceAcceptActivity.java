@@ -209,6 +209,9 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
     }
 
     void getPatient(String uid){
+        if (uid == null){
+            return;
+        }
         FirebaseHelper.getUser(uid, model -> {
             patientModel = model;
             binding.patientName.setText(model.getName());
@@ -244,6 +247,9 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
     }
 
     void getPolice(String uid){
+        if (uid == null){
+            return;
+        }
         FirebaseHelper.getEntity("police", uid, model -> {
             policeModel = model;
             binding.policeName.setText(model.getName());
@@ -260,6 +266,9 @@ public class AmbulanceAcceptActivity extends AppCompatActivity implements OnMapR
     }
 
     void getHospital(String uid,String lat,String lng){
+        if (uid == null){
+            return;
+        }
         FirebaseHelper.getEntity("hospital", uid, model -> {
             hospitalModel = model;
             binding.hospitalName.setText(model.getName());

@@ -209,6 +209,9 @@ public class HospitalAcceptActivity extends AppCompatActivity implements OnMapRe
     }
 
     void getPatient(String uid){
+        if (uid == null){
+            return;
+        }
         FirebaseHelper.getUser(uid, model -> {
             patientModel = model;
             binding.patientName.setText(model.getName());
@@ -228,6 +231,9 @@ public class HospitalAcceptActivity extends AppCompatActivity implements OnMapRe
     }
 
     void getParent(String uid){
+        if (uid == null){
+            return;
+        }
         FirebaseHelper.getUser(uid, model -> {
             parentModel = model;
             binding.parentName.setText(model.getName());
@@ -245,6 +251,9 @@ public class HospitalAcceptActivity extends AppCompatActivity implements OnMapRe
     }
 
     void getPolice(String uid){
+        if (uid == null){
+            return;
+        }
         FirebaseHelper.getEntity("police", uid, model -> {
             policeModel = model;
             binding.policeName.setText(model.getName());
@@ -263,6 +272,9 @@ public class HospitalAcceptActivity extends AppCompatActivity implements OnMapRe
     }
 
     void getAmbulance(String uid,String lat,String lng){
+        if (uid == null){
+            return;
+        }
         FirebaseHelper.getEntity("ambulance", uid, model -> {
             ambulanceModel = model;
             binding.ambulanceName.setText(model.getName());

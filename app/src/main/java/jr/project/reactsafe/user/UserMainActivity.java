@@ -635,10 +635,11 @@ public class UserMainActivity extends AppCompatActivity implements OnMapReadyCal
             holder.title.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //Toast.makeText(UserMainActivity.this, ""+model.getTimestamp(), Toast.LENGTH_SHORT).show();
+                   // Log.e("UserMain", String.valueOf(model.getLocation().length()));
                 }
             });
-            holder.title.setText(model.getLocation());
+
+            holder.title.setText(model.getLat()+" Lat, "+model.getLng()+" Lng");
 
 
             String text = null;

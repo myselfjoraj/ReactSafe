@@ -208,6 +208,9 @@ public class PoliceAcceptActivity extends AppCompatActivity implements OnMapRead
     }
 
     void getPatient(String uid){
+        if (uid == null){
+            return;
+        }
         FirebaseHelper.getUser(uid, model -> {
             patientModel = model;
             binding.patientName.setText(model.getName());
@@ -227,6 +230,9 @@ public class PoliceAcceptActivity extends AppCompatActivity implements OnMapRead
     }
 
     void getParent(String uid){
+        if (uid == null){
+            return;
+        }
         FirebaseHelper.getUser(uid, model -> {
             parentModel = model;
             binding.parentName.setText(model.getName());
@@ -244,6 +250,9 @@ public class PoliceAcceptActivity extends AppCompatActivity implements OnMapRead
     }
 
     void getHospital(String uid,String lat,String lng){
+        if (uid == null){
+            return;
+        }
         FirebaseHelper.getEntity("hospital", uid, model -> {
             hospitalModel = model;
             binding.hospitalName.setText(model.getName());
@@ -265,6 +274,9 @@ public class PoliceAcceptActivity extends AppCompatActivity implements OnMapRead
     }
 
     void getAmbulance(String uid){
+        if (uid == null){
+            return;
+        }
         FirebaseHelper.getEntity("ambulance", uid, model -> {
             ambulanceModel = model;
             binding.ambulanceName.setText(model.getName());

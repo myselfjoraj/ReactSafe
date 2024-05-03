@@ -348,7 +348,7 @@ public class ParentMainActivity extends AppCompatActivity implements OnMapReadyC
             RecentModel model = models.get(position);
 
 
-            holder.title.setText(model.getLocation());
+            holder.title.setText(model.getLat()+" Lat, "+model.getLng()+" Lng");
 
             String text = null;
             if (Objects.equals(model.getStatus(),"1")){
